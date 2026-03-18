@@ -1,4 +1,4 @@
-# KERNO-BMAD-INICIO.md
+# KERNO-SEIZE-INICIO.md
 # Tutorial de Onboarding BMAD — Do zero ao primeiro prompt no Lovable
 
 > **Para quem é este guia:** Vibe coder que nunca usou o BMAD Method e quer entender como usar os agentes de planejamento antes de abrir o Lovable.
@@ -693,11 +693,11 @@ Antes de abrir o Lovable, confirme:
 - [KERNO-GUIA-PASSO-A-PASSO.html](KERNO-GUIA-PASSO-A-PASSO.html) — guia completo do fluxo Lovable
 - [KERNO-INICIO.html](KERNO-INICIO.html) — fluxograma interativo "por onde começar"
 - [KERNO-ROADMAP.html](KERNO-ROADMAP.html) — visão geral das 6 etapas do framework
-- [KERNO-BMAD-MAPEAMENTO.html](KERNO-BMAD-MAPEAMENTO.html) — mapeamento completo BMAD × Kerno
+- [KERNO-SEIZE-MAPEAMENTO.html](KERNO-SEIZE-MAPEAMENTO.html) — mapeamento completo BMAD × Kerno
 - [LOVABLE-SYSTEM-PROMPT-V3.md](LOVABLE-SYSTEM-PROMPT-V3.md) — system prompt completo (Seções A-G)
 - [KERNO-DOCS.md](KERNO-DOCS.md) — os 23 documentos em 4 grupos
 - [SECURITY.md](SECURITY.md) — regras OWASP do framework
 
 ---
 
-*Kerno BMAD v5.5.3 · Março 2026*
+*Kerno Seize v6.0.0 · Março 2026*

@@ -1,6 +1,6 @@
 # Etapa 5 — Revisão e Qualidade no Cursor
 
-> **Versão:** 1.2 (Kerno BMAD v5.5.3)
+> **Versão:** 1.2 (Kerno Seize v6.0.0)
 > **Quando usar:** Após cada milestone finalizada no Lovable (Etapa 4)
 > **Ferramentas:** Cursor + Claude Code + BMAD TEA (Murat)
 

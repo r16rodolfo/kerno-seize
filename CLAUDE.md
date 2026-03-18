@@ -1,14 +1,14 @@
-# CLAUDE.md — Kerno BMAD Context
+# CLAUDE.md — Kerno Seize Context
 
-> Este arquivo fornece contexto automático para Claude Code em projetos Kerno BMAD.
+> Este arquivo fornece contexto automático para Claude Code em projetos Kerno Seize.
 > Coloque na raiz do repositório. O Claude Code lê automaticamente ao abrir o projeto.
 
 ## Projeto
 
-Este projeto segue o **Kerno BMAD v5.5.3** — um framework de desenvolvimento completo que integra PM Skills (decisão de produto), BMAD Method (planejamento técnico), WDS (design), e Kerno (governança, segurança e documentação). Implementação via Claude Code direto ou Lovable.
+Este projeto segue o **Kerno Seize v6.0.0** — um framework de desenvolvimento completo que integra PM Skills (decisão de produto), BMAD Method (planejamento técnico), WDS (design), e Kerno (governança, segurança e documentação). Implementação via Claude Code direto ou Lovable.
 
 ```yaml
-kerno-version: 5.5.3
+kerno-version: 6.0.0
 bmad-version: 6.x
 
 # PM Skills + AI PM Copilot
@@ -160,8 +160,19 @@ Fase 5 — Deploy (Vercel + Cloudflare)
 Fase 6 — Monitoramento contínuo
   PM Skills: /sprint retro · /triage-requests · /analyze-test · /analyze-cohorts
   AI PM Copilot: context-scanner → alimenta auditoria
-  Auditoria BMAD mensal (KERNO-BMAD-AUDITORIA.html)
+  Auditoria BMAD mensal (KERNO-SEIZE-AUDITORIA.html)
 ```
+
+## Regras de versionamento
+
+Ao modificar qualquer arquivo do framework:
+1. Incremente o patch version (ex: 6.0.0 → 6.0.1) no arquivo modificado
+2. Atualize `kerno-version` no bloco YAML deste CLAUDE.md
+3. Adicione entrada no KERNO-CHANGELOG.md com data, o que mudou e por quê
+4. Atualize a versão em todos os arquivos que referenciam a versão global
+
+Mudança de minor (6.0 → 6.1): nova funcionalidade ou integração
+Mudança de major (6 → 7): mudança de identidade ou reestruturação fundamental
 
 ## Ao revisar código neste projeto
 

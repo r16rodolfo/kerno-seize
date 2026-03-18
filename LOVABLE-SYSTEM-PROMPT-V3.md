@@ -1,6 +1,6 @@
-# Prompts de Chat para Lovable.dev — Kerno BMAD v5.5.3
+# Prompts de Chat para Lovable.dev — Kerno Seize v6.0.0
 
-> **Versão:** 3.3 (Kerno BMAD v5.5.3)
+> **Versão:** 3.3 (Kerno Seize v6.0.0)
 > **Atualizado com:** Documentação oficial do Lovable (docs.lovable.dev),
 > best practices de prompting, lógica de dependências GoEpic,
 > e integração com BMAD Method (BMM + CIS + WDS + TEA) + PM Skills + AI PM Copilot.
@@ -30,7 +30,7 @@
 
 Você é um Engenheiro de Software Sênior responsável pelo código E pela documentação deste projeto.
 
-Este projeto usa o framework Kerno BMAD v5.5.3 com planejamento feito pelo BMAD Method.
+Este projeto usa o framework Kerno Seize v6.0.0 com planejamento feito pelo BMAD Method.
 Isso significa que documentos de planejamento (PRD, arquitetura, milestones, features, QA)
 já existem quando você começa a trabalhar. Seu papel é IMPLEMENTAR o que foi planejado
 e MANTER a documentação atualizada durante o desenvolvimento.
@@ -370,7 +370,7 @@ Para cada problema encontrado, corrija imediatamente.
 | Nomenclatura | SCREAMING_SNAKE_CASE | kebab-case (padrão BMAD) |
 | Lovable | Planejava E implementava | Apenas IMPLEMENTA e MANTÉM docs |
 
-### Fluxo completo no Lovable (Kerno BMAD v5.5.3)
+### Fluxo completo no Lovable (Kerno Seize v6.0.0)
 
 1. **Custom Knowledge** (Settings → Knowledge) → Cole a Seção A
 2. **Upload** → Todos os documentos BMAD (prd.md, architecture.md, etc.) + KERNO-DOCS.md

@@ -4,7 +4,7 @@
 
 ---
 
-## [5.5.3] — 2026-03-18
+## [6.0.0] — 2026-03-18
 
 ### Corrigido
 - KERNO-RETROFIT.html — Fase 1 (Auditoria de Segurança) reescrita completamente:
@@ -56,13 +56,13 @@
 - Flags no CLAUDE.md: `pm-skills-enabled`, `pm-discovery-done`, `pm-strategy-done`, `pm-north-star-defined`, `aipm-copilot-enabled`, `aipm-prd-stress-test`
 - Fase 0 (validação) e Fase 1 (PM Skills) no workflow do CLAUDE.md
 - Gate 1 (PRD stress test) entre John e Winston no fluxo
-- Parte 0 no KERNO-BMAD-INICIO.md — instalação e sequência PM Skills antes do BMAD
+- Parte 0 no KERNO-SEIZE-INICIO.md — instalação e sequência PM Skills antes do BMAD
 - Lista de docs PM Skills na Seção A do LOVABLE-SYSTEM-PROMPT-V3.md
 
 ### Modificado
 - CLAUDE.md — versão `5.3.2` → `5.5.0`. YAML expandido com flags PM. Workflow expandido com Fases 0-1. Estrutura `/docs` expandida com Grupos F e G.
 - KERNO-DOCS.md — versão `2.2` → `2.3`. Grupos F e G adicionados. Total de documentos: 23 → 30.
-- KERNO-BMAD-INICIO.md — Parte 0 adicionada antes da Parte 1 (Instalação BMAD). Gates 0 e 1 documentados com prompts exatos.
+- KERNO-SEIZE-INICIO.md — Parte 0 adicionada antes da Parte 1 (Instalação BMAD). Gates 0 e 1 documentados com prompts exatos.
 - LOVABLE-SYSTEM-PROMPT-V3.md — versão `3.1` → `3.2`. Seção A: docs PM Skills na lista de "documentos que podem existir".
 - KERNO-ROADMAP.html — Passo 0.0 (PM Skills) adicionado antes do CIS. CIS marcado como legacy.
 - KERNO-FLUXO.html — Trilha A inclui PM Skills como primeira fase. Nota sobre trilha sem Lovable.
@@ -85,7 +85,7 @@ O framework havia crescido para 28 arquivos de forma iterativa, sem sessões de 
 
 ### Arquivado (movido para /archive — não deletado)
 - `KERNO-ANALISE-WORKFLOW-v5.html` — documento de processo interno de design do framework, não serve ao usuário final
-- `KERNO-BMAD-MAPEAMENTO.html` — diagnóstico de fusão Kerno × BMAD, idem
+- `KERNO-SEIZE-MAPEAMENTO.html` — diagnóstico de fusão Kerno × BMAD, idem
 - `LOVABLE-SYSTEM-PROMPT-V2.md` — versão anterior do V3, gerava confusão sobre qual usar
 - `KERNO-GUIA-PASSO-A-PASSO.html` — cobria o mesmo terreno que KERNO-ROADMAP.html com estrutura diferente
 - `KERNO-INICIO.html` — fluxograma de decisão substituído funcionalmente pelo KERNO-FLUXO.html
@@ -125,7 +125,7 @@ O framework tinha conteúdo de qualidade mas nenhum fio condutor. O usuário sab
 
 ### Modificado
 
-- `KERNO-RETROFIT.html`, `KERNO-ROADMAP.html`, `KERNO-LOVABLE-FIRST.html`, `KERNO-BMAD-AUDITORIA.html` — barra de navegação contextual sticky adicionada no topo: link permanente ao Mapa do Fluxo + breadcrumb da trilha atual + "Próximo: [documento] →" no canto direito.
+- `KERNO-RETROFIT.html`, `KERNO-ROADMAP.html`, `KERNO-LOVABLE-FIRST.html`, `KERNO-SEIZE-AUDITORIA.html` — barra de navegação contextual sticky adicionada no topo: link permanente ao Mapa do Fluxo + breadcrumb da trilha atual + "Próximo: [documento] →" no canto direito.
 - `index.html` — botão principal redirecionado para `KERNO-FLUXO.html`; arquivo adicionado ao índice; contagem 26 → 27.
 
 ---
@@ -175,7 +175,7 @@ Adotado formalmente o princípio **"usuário não precisa de competência técni
 
 ### Adicionado
 
-- `KERNO-BMAD-AUDITORIA.html` (novo, ~950 linhas) — módulo completo com:
+- `KERNO-SEIZE-AUDITORIA.html` (novo, ~950 linhas) — módulo completo com:
   - **Fase A0:** inicialização — cria pasta datada `/docs/audit/YYYY-MM-DD/`, verifica histórico anterior, cria `AUDIT-HISTORY.md`
   - **Fase A1 — Winston:** auditoria de arquitetura. Cria `audit-estrutura.md` automaticamente
   - **Fase A2 — Bob:** auditoria de qualidade de código. Cria `audit-codigo.md` automaticamente
@@ -189,8 +189,8 @@ Adotado formalmente o princípio **"usuário não precisa de competência técni
 
 ### Modificado
 
-- `KERNO-RETROFIT.html` — Fase 4.5 adicionada ao fluxo: bloco visual com os 4 agentes, link para `KERNO-BMAD-AUDITORIA.html`; checklist atualizado (item 4.2, tempo total ~3h–4h30); Fase 5.2 inclui auditoria mensal; seção "Agentes BMAD" reescrita
-- `index.html` — `KERNO-BMAD-AUDITORIA.html` adicionado com badge NOVO; contagem 25 → 26 arquivos; versão e zip atualizados
+- `KERNO-RETROFIT.html` — Fase 4.5 adicionada ao fluxo: bloco visual com os 4 agentes, link para `KERNO-SEIZE-AUDITORIA.html`; checklist atualizado (item 4.2, tempo total ~3h–4h30); Fase 5.2 inclui auditoria mensal; seção "Agentes BMAD" reescrita
+- `index.html` — `KERNO-SEIZE-AUDITORIA.html` adicionado com badge NOVO; contagem 25 → 26 arquivos; versão e zip atualizados
 - `CLAUDE.md` — Grupo E adicionado à estrutura `/docs` (pasta `audit/`); Etapa 5 do workflow expandida; `kerno-version: 5.3.2`
 - Todos os arquivos — versão global `5.2.4` → `5.3.2`
 
@@ -219,7 +219,7 @@ Adotado formalmente o princípio **"usuário não precisa de competência técni
 - Varredura completa identificou 14 ocorrências de `v5.1` em 7 arquivos — todas corrigidas para `v5.2`
 - `CLAUDE.md` — `kerno-version: 5.1 → 5.2` + texto do header
 - `KERNO-DOCS.md` — versão interna `2.1 → 2.2`
-- `KERNO-BMAD-INICIO.md` — rodapé `v5.1 → v5.2`
+- `KERNO-SEIZE-INICIO.md` — rodapé `v5.1 → v5.2`
 - `KERNO-INICIO.html` — badge `v5.1 → v5.2`
 - `KERNO-LOVABLE-FIRST.html` — 2 ocorrências (ver + footer)
 - `KERNO-RETROFIT.html` — badge e footer
@@ -234,12 +234,12 @@ Adotado formalmente o princípio **"usuário não precisa de competência técni
 ## [5.2.2] — 2026-03-06
 
 ### Modificado
-- `index.html` — removido grupo "Análise e Mapeamento BMAD" do índice: `KERNO-BMAD-MAPEAMENTO.html` e `KERNO-ANALISE-WORKFLOW-v5.html` deixam de aparecer na vitrine (arquivos mantidos no pacote para não quebrar links existentes)
-- `KERNO-CURSOR-REVIEW.md` — versão interna `1.0 (Kerno BMAD v5.1)` → `1.1 (Kerno BMAD v5.2)`
+- `index.html` — removido grupo "Análise e Mapeamento BMAD" do índice: `KERNO-SEIZE-MAPEAMENTO.html` e `KERNO-ANALISE-WORKFLOW-v5.html` deixam de aparecer na vitrine (arquivos mantidos no pacote para não quebrar links existentes)
+- `KERNO-CURSOR-REVIEW.md` — versão interna `1.0 (Kerno Seize v5.1)` → `1.1 (Kerno Seize v5.2)`
 - `KERNO-RETROFIT.html` — prompt de diagnóstico substituído por scorecard com autopontuação (7 critérios de saúde + 6 critérios de risco + 3 faixas de veredicto automático)
 
 ### Análise / Motivação
-- `KERNO-BMAD-MAPEAMENTO.html` e `KERNO-ANALISE-WORKFLOW-v5.html` são documentos de processo interno, não de uso. Expô-los no índice confunde o usuário com informação que não é acionável para ele.
+- `KERNO-SEIZE-MAPEAMENTO.html` e `KERNO-ANALISE-WORKFLOW-v5.html` são documentos de processo interno, não de uso. Expô-los no índice confunde o usuário com informação que não é acionável para ele.
 - O prompt de diagnóstico original exigia que o usuário interpretasse as respostas e tomasse a decisão — trabalho que o Lovable pode fazer automaticamente.
 
 ---
@@ -247,7 +247,7 @@ Adotado formalmente o princípio **"usuário não precisa de competência técni
 ## [5.2.1] — 2026-03-06
 
 ### Adicionado
-- `index.html` — recriado completamente para v5.2: nova seção "Por onde começar" com as duas trilhas (BMAD vs. Lovable-First); roadmap com WDS em 2 ondas e 5 gates; índice inclui `KERNO-LOVABLE-FIRST.html` e `KERNO-BMAD-INICIO.md`; stats corrigidos (11 agentes, 5 gates); download aponta para `kerno-framework-v5.2.zip`
+- `index.html` — recriado completamente para v5.2: nova seção "Por onde começar" com as duas trilhas (BMAD vs. Lovable-First); roadmap com WDS em 2 ondas e 5 gates; índice inclui `KERNO-LOVABLE-FIRST.html` e `KERNO-SEIZE-INICIO.md`; stats corrigidos (11 agentes, 5 gates); download aponta para `kerno-framework-v5.2.zip`
 
 ### Corrigido
 - `KERNO-INICIO.html` — botão "Ver sequência dos sprints" inacessível: conteúdo do canvas terminava atrás da barra de navegação inferior fixa; corrigido com `padding-bottom: 140px` no `.canvas-wrap` e `padding-bottom: 120px` no `body`
@@ -266,7 +266,7 @@ Ciclo de 4 sprints executados em sessão contínua. Três eixos principais: **go
 ### Adicionado
 
 **Sprint 2 — Tutorial de onboarding BMAD**
-- `KERNO-BMAD-INICIO.md` (612 linhas) — tutorial completo do zero ao primeiro prompt no Lovable: instalação (`npx bmad-method install`), tabela dos 11 agentes, prompts exatos copy-paste para cada agente, integração com Lovable, FAQ de 7 perguntas, checklist de entrega com 16 itens. Inclui diagramas ASCII dos dois fluxos de invocação (B2C vs. SaaS técnico).
+- `KERNO-SEIZE-INICIO.md` (612 linhas) — tutorial completo do zero ao primeiro prompt no Lovable: instalação (`npx bmad-method install`), tabela dos 11 agentes, prompts exatos copy-paste para cada agente, integração com Lovable, FAQ de 7 perguntas, checklist de entrega com 16 itens. Inclui diagramas ASCII dos dois fluxos de invocação (B2C vs. SaaS técnico).
 
 **Sprint 4 — Modo Lovable-First**
 - `KERNO-LOVABLE-FIRST.html` (790 linhas) — guia completo da trilha sem BMAD para vibe coders que querem ir direto ao Lovable. 5 etapas (PRD Mínimo → Ambiente Seguro → Desenvolvimento → Revisão de Segurança → Deploy), 7 prompts prontos para copiar, comparativo "Lovable-First vs. BMAD" com 6 critérios cada, tabela de limites do modo (quando migrar), nota sobre BMAD retroativo.
@@ -321,14 +321,14 @@ Ciclo de 4 sprints executados em sessão contínua. Três eixos principais: **go
 - **Gates de qualidade:** pontos de checagem objetivos reduzem retrabalho — o custo de detectar um problema no Gate 1 é ordens de grandeza menor do que detectar na Fase 3.
 - **Critério Retrofit vs. Reconstrução:** projetos irrecuperáveis estavam sendo submetidos ao processo de Retrofit, gerando esforço desperdiçado. O diagnóstico de 8 perguntas torna a decisão objetiva em vez de intuitiva.
 - **Modo Lovable-First:** o framework completo tem barreira de entrada alta (instalação do BMAD, 11 agentes, 1-3h de planejamento). Para MVPs rápidos e spikes de validação, essa barreira é injustificada. O modo Lovable-First mantém as proteções não-negociáveis (SAST, RLS, Seção A) e elimina o planejamento antecipado.
-- **KERNO-BMAD-INICIO.md:** o mapeamento de agentes existia (KERNO-BMAD-MAPEAMENTO.html), mas sem prompts exatos para invocação. Quem nunca usou o BMAD não sabia o que digitar para cada agente.
+- **KERNO-SEIZE-INICIO.md:** o mapeamento de agentes existia (KERNO-SEIZE-MAPEAMENTO.html), mas sem prompts exatos para invocação. Quem nunca usou o BMAD não sabia o que digitar para cada agente.
 
 ---
 
 ## [5.1] — 2026-03-02
 
 ### Mudança de Versão
-- **Primeira release estável do Kerno BMAD**: v5.0 foi o plano de fusão, v5.1 é a implementação completa e verificada de todas as correções.
+- **Primeira release estável do Kerno Seize**: v5.0 foi o plano de fusão, v5.1 é a implementação completa e verificada de todas as correções.
 
 ### Adicionado
 - `CLAUDE.md` — template de contexto automático para Claude Code (colocar na raiz do repo)
@@ -356,7 +356,7 @@ Ciclo de 4 sprints executados em sessão contínua. Três eixos principais: **go
 - **6 etapas de desenvolvimento**: BMAD → WDS → GitHub → Lovable → Cursor → Deploy
 
 ### Adicionado
-- `KERNO-BMAD-MAPEAMENTO.html` v4.0 — plano de fusão completo com 9 seções, WDS integrado, fluxo corrigido
+- `KERNO-SEIZE-MAPEAMENTO.html` v4.0 — plano de fusão completo com 9 seções, WDS integrado, fluxo corrigido
 - `KERNO-ANALISE-WORKFLOW-v5.html` — análise técnica: verificação de workflow, origem dos documentos, padronização
 - `LOVABLE-SYSTEM-PROMPT-V3.md` — System Prompt v3.0 adaptado para fusão BMAD (Seção A reescrita, Seção B reescrita)
 - `KERNO-DOCS.md` v2.0 — framework expandido de 15 para 23 documentos, com 4 grupos (BMAD, WDS, CIS, Lovable)
