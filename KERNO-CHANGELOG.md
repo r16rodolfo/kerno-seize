@@ -4,12 +4,29 @@
 
 ---
 
+## [6.2.0] — 2026-03-18
+
+### Modificado
+- `security-audit-v2.yml` — Scanner customizado atualizado de v2.0 para **v2.1** com 4 melhorias que reduzem falsos positivos de forma genérica (sem depender de contexto de projeto específico):
+  1. **`dangerouslySetInnerHTML` — verificação por linha**: antes fazia match no arquivo inteiro; agora verifica linha a linha e considera ✅ OK se `DOMPurify.sanitize(` estiver na mesma linha. Elimina falso positivo de wrappers que já sanitizam corretamente.
+  2. **Formulários — aceita mais bibliotecas de validação**: adicionados `valibot`, `react-hook-form` e `safeParse` à lista de padrões aceitos (antes só: `zod`, `yup`, `joi`, `validate`, `schema.`).
+  3. **`.security-ignore` — lista de exclusão por projeto**: novo arquivo opcional na raiz do projeto. Lista padrões de arquivos/rotas para excluir de duas verificações: `dangerouslySetInnerHTML` (wrappers de libs de terceiros) e páginas sem auth (rotas intencionalmente públicas). Formato: `.gitignore`-style.
+  4. **`process.exit(1)` documentado**: comentário explicando que exit(1) = crítico encontrado → falha o job `lovable-scanner` no GitHub Actions; exit(0) = warnings existem mas nenhum crítico.
+- `security-audit-v2.yml` — Header do YAML atualizado com documentação do `.security-ignore` (formato, exemplos de uso, exit codes).
+
+### Análise / Motivação
+- O scanner genérico não deve ser modificado para um projeto específico — a abordagem correta é deixar o scanner parametrizável pelo projeto via `.security-ignore`.
+- Verificação de `dangerouslySetInnerHTML` no nível de arquivo gerava falso positivo em componentes que já usam DOMPurify corretamente na mesma linha — o scanner "via" o padrão sem ver a sanitização.
+- `react-hook-form` e `valibot` são bibliotecas de validação legítimas não reconhecidas pelo scanner anterior.
+
+---
+
 ## [6.1.3] — 2026-03-18
 
 ### Corrigido
-- `KERNO-RETROFIT.html` — Fase 1, passos 1.3 e 1.5: removido conteúdo específico do projeto hexapago-2.0 que havia sido incluído por engano, tornando o guia genérico para qualquer projeto:
-  - **1.3**: removidos nomes de pacotes npm específicos (`flatted, glob, minimatch, ajv...`) da linha de npm audit; adicionada linha "Outros" para cobrir casos não listados; linguagem reescrita para não assumir contexto de projeto específico
-  - **1.5**: tabela de "resultado esperado" hardcoded (com "Semgrep ✅ Zero findings" e ".env no histórico Git" específicos do hexapago) substituída por tabela genérica com 4 tipos de alerta e o que esperar de cada um; critério de sucesso redefinido: "não é o pipeline virar 100% verde, é que 🅰️ estejam resolvidos e 🅱️ mitigados"
+- `KERNO-RETROFIT.html` — Fase 1, passos 1.3 e 1.5: removido conteúdo específico de um projeto real que havia sido incluído por engano durante testes, tornando o guia genérico para qualquer projeto:
+  - **1.3**: removidos nomes de pacotes npm específicos da linha de npm audit; adicionada linha "Outros" para cobrir casos não listados; linguagem reescrita para não assumir contexto de projeto específico
+  - **1.5**: tabela de "resultado esperado" hardcoded com cenários de um projeto específico substituída por tabela genérica com 4 tipos de alerta e o que esperar de cada um; critério de sucesso redefinido: "não é o pipeline virar 100% verde, é que 🅰️ estejam resolvidos e 🅱️ mitigados"
 
 ---
 
@@ -50,11 +67,11 @@
   - Checklist atualizado de 4 linhas (1.1–1.4) para 5 linhas (1.1–1.5)
 
 ### Adicionado (análise)
-- Identificação de **falsos positivos recorrentes** nos relatórios do projeto hexapago-2.0:
-  - `chart.tsx` `dangerouslySetInnerHTML` — interno da biblioteca Recharts, não controlado pelo usuário
-  - Páginas sem autenticação intencionalmente públicas (links de pagamento, docs)
-  - 9 vulnerabilidades npm todas em dependências de desenvolvimento (não afetam produção)
-  - `.env no histórico Git` e `service_role no histórico Git` — não resolvíveis pelo Lovable; solução: rotação de chaves + categoria 🅱️
+- Documentação de **falsos positivos comuns** que o scanner pode reportar em qualquer projeto:
+  - `dangerouslySetInnerHTML` em componentes wrapper de bibliotecas de gráficos (ex: Recharts) — não é código do projeto
+  - Páginas sem autenticação que são intencionalmente públicas (landing pages, links de pagamento, docs)
+  - Vulnerabilidades npm em dependências exclusivas de desenvolvimento (build tools, test runners) — não afetam produção
+  - Secrets no histórico Git — não resolvíveis pelo Lovable; a chave deve ser rotacionada (o registro no histórico persiste, mas fica inválido)
 - Documentado: pipeline mostrará ❌ persistente para histórico Git mesmo após todas as ações corretas — isso é comportamento esperado e documentado, não um problema pendente
 
 ---
