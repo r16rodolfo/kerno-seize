@@ -163,6 +163,17 @@ Fase 6 — Monitoramento contínuo
   Auditoria BMAD mensal (KERNO-SEIZE-AUDITORIA.html)
 ```
 
+## Regras de versionamento
+
+Ao modificar qualquer arquivo do framework:
+1. Incremente o patch version (ex: 6.0.0 → 6.0.1) no arquivo modificado
+2. Atualize `kerno-version` no bloco YAML deste CLAUDE.md
+3. Adicione entrada no KERNO-CHANGELOG.md com data, o que mudou e por quê
+4. Atualize a versão em todos os arquivos que referenciam a versão global
+
+Mudança de minor (6.0 → 6.1): nova funcionalidade ou integração
+Mudança de major (6 → 7): mudança de identidade ou reestruturação fundamental
+
 ## Ao revisar código neste projeto
 
 - Verifique se `/docs` está atualizado com as mudanças
