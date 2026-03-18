@@ -123,7 +123,7 @@
 <div class="container">
 
   <div class="hero">
-    <div class="badge">Projetos Existentes · Kerno Seize v6.0.4</div>
+    <div class="badge">Projetos Existentes · Kerno Seize v6.0.5</div>
     <h1>Kerno <span>Retrofit</span></h1>
     <p>Processo passo a passo para adotar o framework Kerno Seize em projetos Lovable que já existem — sem quebrar o que funciona.</p>
   </div>
@@ -403,21 +403,21 @@ Confirme com: "✅ raio-x.md criado em /docs/retrofit/"</pre>
       </div>
 
       <div class="step">
-        <div class="step-title">🗄️ 1.2 Diagnóstico com Claude → prompts de correção</div>
-        <p>Abra o <strong>Claude</strong> (claude.ai ou Claude Code). <strong>Anexe os 3 arquivos</strong> baixados no passo anterior usando o botão de anexo (📎) e envie junto com o prompt abaixo. O Claude vai ler os arquivos, interpretar os resultados e gerar uma sequência de prompts de correção prontos para usar no Lovable.</p>
+        <div class="step-title">🗄️ 1.2 Diagnóstico com Claude/GPT → gerar diagnostico-seguranca.md</div>
+        <p>Abra o <strong>Claude</strong> (claude.ai) ou <strong>ChatGPT</strong>. <strong>Anexe os 3 arquivos</strong> baixados no passo anterior e envie o prompt abaixo. O modelo vai analisar os relatórios e gerar o arquivo <code>diagnostico-seguranca.md</code> pronto para baixar.</p>
 
-        <p style="font-size: 13px; color: var(--text2); margin: 8px 0 4px;"><strong>Como anexar:</strong> No campo de mensagem do Claude → clique no ícone 📎 → selecione os 3 arquivos de uma vez (<code>semgrep-results.txt</code>, <code>npm-audit-results.txt</code>, <code>relatorio-seguranca.html</code>) → depois cole o prompt abaixo e envie.</p>
+        <p style="font-size: 13px; color: var(--text2); margin: 8px 0 4px;"><strong>Como anexar:</strong> No campo de mensagem → clique no ícone 📎 → selecione os 3 arquivos de uma vez: <code>semgrep-results.txt</code>, <code>npm-audit-results.txt</code>, <code>relatorio-seguranca.html</code> → depois cole o prompt abaixo e envie.</p>
 
         <p style="font-size: 13px; color: var(--text2); margin: 12px 0 4px;"><strong>Prompt:</strong></p>
         <div class="prompt-box">
-          <pre>Analise os 3 arquivos de auditoria de segurança anexados e gere uma sequência de prompts de correção para eu usar no Lovable.
+          <pre>Analise os 3 arquivos de auditoria de segurança anexados.
 
 Para cada problema encontrado, classifique como:
 🔴 URGENTE — risco direto de segurança (secrets, RLS ausente, injeção)
 🟠 IMPORTANTE — vulnerabilidade em dependência com CVE alta
 🟡 RECOMENDADO — configuração subótima ou risco baixo
 
-Depois gere um prompt para cada problema, nesta ordem (urgentes primeiro), usando exatamente este modelo:
+Gere um prompt de correção para cada problema, nesta ordem (urgentes primeiro):
 
 ---
 CORREÇÃO [N] de [TOTAL] — [🔴/🟠/🟡] [Nome do problema]
@@ -432,24 +432,22 @@ Regras:
 - Confirme com: "✅ Corrigido: [nome]. Teste: [o que o usuário deve verificar]"
 ---
 
-Liste os prompts na ordem:
-1. Primeiro todos os 🔴 URGENTES
-2. Depois os 🟠 IMPORTANTES
-3. Por último os 🟡 RECOMENDADOS</pre>
+Formate toda a saída como um arquivo Markdown com:
+- Cabeçalho: "# Diagnóstico de Segurança — [DATA]"
+- Resumo: quantos problemas por gravidade
+- Todos os prompts de correção na ordem acima
+
+Salve o resultado como diagnostico-seguranca.md.</pre>
         </div>
 
-        <p style="margin-top: 12px; font-size: 13px; color: var(--text2);"><strong>Após receber a resposta:</strong> Copie todo o conteúdo gerado e crie o arquivo no Lovable com o prompt abaixo:</p>
+        <p style="margin-top: 12px; font-size: 13px; color: var(--text2);"><strong>Após receber a resposta:</strong> Baixe ou salve o arquivo <code>diagnostico-seguranca.md</code> gerado. Depois, no <strong>Lovable</strong>, anexe esse arquivo e envie o prompt abaixo para adicioná-lo ao projeto:</p>
         <div class="prompt-box">
-          <pre>Crie o arquivo /docs/retrofit/diagnostico-seguranca.md com o seguinte conteúdo:
-
-[cole aqui a resposta completa do Claude/GPT]
-
-NÃO altere nenhum outro arquivo. Apenas crie este documento.
-Confirme com: "✅ diagnostico-seguranca.md criado."</pre>
+          <pre>Salve o arquivo anexado em /docs/retrofit/diagnostico-seguranca.md sem alterar nenhum outro arquivo.
+Confirme com: "✅ diagnostico-seguranca.md salvo em /docs/retrofit/"</pre>
         </div>
 
         <div class="info">
-          💡 <strong>O que você vai ter ao final:</strong> Um arquivo <code>diagnostico-seguranca.md</code> no projeto com todos os prompts de correção prontos, ordenados por gravidade, para usar no próximo passo.
+          💡 <strong>O que você vai ter ao final:</strong> O arquivo <code>diagnostico-seguranca.md</code> salvo no projeto com todos os prompts de correção prontos, ordenados por gravidade, para usar no próximo passo.
         </div>
       </div>
 
@@ -910,7 +908,7 @@ Use EXATAMENTE os formatos definidos no KERNO-DOCS.md.</pre>
   </div>
 
   <div class="footer">
-    Kerno Seize v6.0.4 — Retrofit &amp; Migration Guide<br>
+    Kerno Seize v6.0.5 — Retrofit &amp; Migration Guide<br>
     Referências: docs.lovable.dev · OWASP Top 10 · Supabase Security Docs · BMAD Method v6
   </div>
 

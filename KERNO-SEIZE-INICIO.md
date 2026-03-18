@@ -700,4 +700,4 @@ Antes de abrir o Lovable, confirme:
 
 ---
 
-*Kerno Seize v6.0.4 · Março 2026*
+*Kerno Seize v6.0.5 · Março 2026*
