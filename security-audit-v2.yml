@@ -7,6 +7,23 @@ name: 🔒 Lovable Security Audit
 # - npm audit (vulnerabilidades em dependências)
 # - Scanner customizado (Supabase, secrets, auth, XSS)
 #
+# Configuração opcional — .security-ignore na raiz do projeto:
+#   Lista padrões de arquivos/rotas para excluir de verificações
+#   específicas (dangerouslySetInnerHTML e páginas sem auth).
+#   Útil para: páginas intencionalmente públicas, wrappers de
+#   bibliotecas de terceiros que usam padrões flagrados.
+#   Formato: uma linha por padrão, # para comentários.
+#   Exemplo:
+#     # Páginas públicas intencionais
+#     src/pages/Pricing.tsx
+#     src/pages/Docs.tsx
+#     # Wrapper de biblioteca de terceiros
+#     src/components/ChartWrapper.tsx
+#
+# Exit codes do Scanner customizado:
+#   0 = sem críticos (job passa — warnings ainda aparecem)
+#   1 = crítico encontrado → falha o job lovable-scanner
+#
 # Referências:
 # - OWASP Top 10
 # - OWASP LLM Top 10
@@ -229,6 +246,9 @@ jobs:
           }
           function read(f) { try{return fs.readFileSync(f,"utf-8")}catch{return""} }
           function rel(f) { return path.relative(P,f).replace(/\\/g,"/") }
+          function loadIgnoreList() { try{return read(path.join(P,".security-ignore")).split("\n").map(l=>l.trim()).filter(l=>l&&!l.startsWith("#"));}catch{return[];} }
+          const ignore=loadIgnoreList();
+          if(ignore.length)console.log(`📋 .security-ignore: ${ignore.length} padrão(ões) de exclusão carregado(s)`);
 
           // SCAN SECRETS
           function scanSecrets() {
@@ -292,7 +312,7 @@ jobs:
             const cat = addCat("🛡️ Vulnerabilidades no Código","Padrões perigosos");
             const files = getFiles(P,[".ts",".tsx",".js",".jsx"]);
             const pats = [
-              {n:"dangerouslySetInnerHTML",p:/dangerouslySetInnerHTML/g,s:"high",d:"XSS: permite injeção de HTML malicioso",f:"Use DOMPurify.sanitize()"},
+              // dangerouslySetInnerHTML tratado separadamente com verificação por linha (ver abaixo)
               {n:"eval()",p:/\beval\s*\(/g,s:"critical",d:"Execução de código arbitrário",f:"Remova. Use JSON.parse() para JSON"},
               {n:"innerHTML",p:/\.innerHTML\s*=/g,s:"high",d:"XSS",f:"Use .textContent ou DOMPurify"},
               {n:"document.write",p:/document\.write\s*\(/g,s:"high",d:"Injeção de conteúdo",f:"Use createElement/appendChild"},
@@ -301,10 +321,13 @@ jobs:
               {n:"console.log sensível",p:/console\.(log|info|debug)\s*\(.*?(password|token|secret|key|credit|cpf)/gi,s:"medium",d:"Pode vazar dados",f:"Remova antes de produção"},
             ];
             let total=0;
-            for(const f of files){const c=read(f);if(!c)continue;for(const dp of pats){const m=c.match(dp.p);if(m){total+=m.length;addF(cat,dp.s,`${dp.n} (${m.length}x)`,`<code>${rel(f)}</code><br>${dp.d}`,dp.f);}}}
+            for(const f of files){const c=read(f);if(!c)continue;
+            // dangerouslySetInnerHTML: verifica linha a linha — OK se DOMPurify.sanitize() estiver na mesma linha
+            if(!ignore.some(p=>rel(f).includes(p))){const dlines=c.split("\n").filter(l=>/dangerouslySetInnerHTML/.test(l)&&!/DOMPurify\.sanitize\(/.test(l));if(dlines.length){total+=dlines.length;addF(cat,"high",`dangerouslySetInnerHTML sem sanitização (${dlines.length}x)`,`<code>${rel(f)}</code><br>XSS: permite injeção de HTML malicioso. Use DOMPurify.sanitize() na mesma linha, ou adicione o arquivo ao .security-ignore se for wrapper de lib de terceiros.`,"Use DOMPurify.sanitize()");}}
+            for(const dp of pats){const m=c.match(dp.p);if(m){total+=m.length;addF(cat,dp.s,`${dp.n} (${m.length}x)`,`<code>${rel(f)}</code><br>${dp.d}`,dp.f);}}}
             if(total===0)addF(cat,"passed","Código limpo","Nenhum padrão perigoso","");
-            // Forms
-            let fv=0;for(const f of files){const c=read(f);if(/onSubmit|handleSubmit/i.test(c)&&!/zod|yup|joi|validate|schema\./i.test(c)){fv++;if(fv<=5)addF(cat,"medium","Formulário sem validação",`<code>${rel(f)}</code>`,"Use Zod");}}
+            // Forms — aceita: zod, yup, joi, valibot, react-hook-form, schema.*, safeParse
+            let fv=0;for(const f of files){const c=read(f);if(/onSubmit|handleSubmit/i.test(c)&&!/zod|yup|joi|valibot|react-hook-form|validate|schema\.|safeParse/i.test(c)){fv++;if(fv<=5)addF(cat,"medium","Formulário sem validação",`<code>${rel(f)}</code>`,"Use Zod, Yup, Valibot ou outra biblioteca de validação");}}
             if(fv>5)addF(cat,"medium",`+${fv-5} formulários sem validação`,"","");
             if(fv===0)addF(cat,"passed","Validação OK","","");
           }
@@ -318,7 +341,7 @@ jobs:
             for(const f of files){const c=read(f);const rp=rel(f);
             if(/AuthProvider|SessionProvider|AuthContext|useAuth|useSession/i.test(c))ap=true;
             if(/ProtectedRoute|PrivateRoute|RequireAuth|AuthGuard|isAuthenticated/i.test(c))pr=true;
-            if(/\.(select|insert|update|delete)\s*\(/.test(c)&&(rp.includes("/pages/")||rp.includes("/app/"))&&!/useAuth|useSession|getSession|ProtectedRoute/i.test(c))up.push(rp);}
+            if(/\.(select|insert|update|delete)\s*\(/.test(c)&&(rp.includes("/pages/")||rp.includes("/app/"))&&!ignore.some(p=>rp.includes(p))&&!/useAuth|useSession|getSession|ProtectedRoute/i.test(c))up.push(rp);}
             if(ap)addF(cat,"passed","Auth Provider OK","",""); else addF(cat,"high","Sem Auth Provider","","Implemente com Supabase Auth");
             if(pr)addF(cat,"passed","Rotas protegidas OK","",""); else addF(cat,"high","Sem proteção de rotas","","Crie ProtectedRoute");
             if(up.length)addF(cat,"medium",`${up.length} páginas sem auth check`,`<code>${[...new Set(up)].slice(0,5).join("<br>")}</code>`,"Adicione verificação de auth");
@@ -345,7 +368,7 @@ jobs:
             const cp=cat.findings.filter(f=>f.severity==="critical").length;const pp=cat.findings.filter(f=>f.severity==="passed").length;
             cats+=`<div class="c"><h2>${cat.name}<span class="cs">${pp}/${cat.findings.length} OK${cp?` · <span style="color:#dc2626">${cp} críticos</span>`:""}</span></h2><p class="cd">${cat.description}</p>${fh}</div>`;}
 
-            const html=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Relatório Segurança</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;line-height:1.6}.ct{max-width:900px;margin:0 auto;padding:20px}.hd{text-align:center;padding:40px 20px;border-bottom:1px solid #1e293b;margin-bottom:30px}.hd h1{font-size:28px}.hd .st{color:#94a3b8;font-size:14px}.rb{background:#1e293b;border-radius:12px;padding:24px;margin-bottom:30px;text-align:center;border-left:6px solid ${rc}}.rl{font-size:36px;font-weight:bold;color:${rc}}.rla{color:#94a3b8;font-size:14px;margin-top:4px}.sg{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:30px}.sc{background:#1e293b;border-radius:8px;padding:16px;text-align:center}.sn{font-size:28px;font-weight:bold}.sla{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:4px}.c{background:#1e293b;border-radius:12px;padding:24px;margin-bottom:20px}.c h2{font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.cs{font-size:12px;color:#94a3b8;font-weight:normal}.cd{color:#94a3b8;font-size:13px;margin-bottom:16px}.f{background:#0f172a;border-radius:8px;padding:16px;margin-bottom:10px;border-left:4px solid #334155}.f.critical{border-left-color:#dc2626}.f.high{border-left-color:#ea580c}.f.medium{border-left-color:#ca8a04}.f.low{border-left-color:#2563eb}.f.passed{border-left-color:#16a34a;background:#0f2a1e}.fh{display:flex;align-items:center;gap:10px;margin-bottom:8px}.b{color:white;font-size:11px;font-weight:bold;padding:2px 8px;border-radius:4px;white-space:nowrap}.ft{font-weight:600;font-size:14px}.fb{font-size:13px;color:#cbd5e1}.fb code{background:#334155;padding:1px 6px;border-radius:3px;font-size:12px}.fb p{margin-bottom:8px}.fx{background:#1a2332;border:1px solid #2d4a5e;border-radius:6px;padding:12px;margin-top:8px;font-size:13px;color:#93c5fd}.ns{background:#1e293b;border-radius:12px;padding:24px;margin-top:30px}.ns h2{margin-bottom:16px}.sp{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #334155}.sp:last-child{border-bottom:none}.spn{background:#3b82f6;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:13px;flex-shrink:0}.spc{font-size:14px}.spc strong{color:#f8fafc}.ref{background:#1e293b;border-radius:12px;padding:24px;margin-top:20px;font-size:13px;color:#94a3b8}.ref h3{color:#f8fafc;margin-bottom:10px;font-size:16px}.ref a{color:#60a5fa}.ft2{text-align:center;padding:30px;color:#475569;font-size:12px}@media(max-width:600px){.sg{grid-template-columns:repeat(3,1fr)}}</style></head><body><div class="ct"><div class="hd"><h1>🔒 Relatório de Segurança</h1><div class="st">Projeto: ${results.projectPath}<br>Data: ${results.scanDate}<br>Pipeline: Semgrep + npm audit + Scanner Lovable</div></div><div class="rb"><div class="rl">${re} RISCO ${rl}</div><div class="rla">${tot} problema(s) · ${results.summary.passed} verificações OK</div></div><div class="sg"><div class="sc"><div class="sn" style="color:#dc2626">${results.summary.critical}</div><div class="sla">Críticos</div></div><div class="sc"><div class="sn" style="color:#ea580c">${results.summary.high}</div><div class="sla">Altos</div></div><div class="sc"><div class="sn" style="color:#ca8a04">${results.summary.medium}</div><div class="sla">Médios</div></div><div class="sc"><div class="sn" style="color:#2563eb">${results.summary.low}</div><div class="sla">Baixos</div></div><div class="sc"><div class="sn" style="color:#16a34a">${results.summary.passed}</div><div class="sla">OK</div></div></div>${cats}<div class="ns"><h2>📋 Próximos Passos</h2><div class="sp"><div class="spn">1</div><div class="spc"><strong>Corrija os CRÍTICOS 🔴 agora.</strong></div></div><div class="sp"><div class="spn">2</div><div class="spc"><strong>Verifique RLS no Supabase</strong> — o scanner não acessa o banco.</div></div><div class="sp"><div class="spn">3</div><div class="spc"><strong>Veja também o relatório do Semgrep</strong> (Artifacts → semgrep-report) para análise mais profunda.</div></div><div class="sp"><div class="spn">4</div><div class="spc"><strong>Corrija os ALTOS 🟠 esta semana.</strong></div></div></div><div class="ref"><h3>📚 Referências de Auditoria</h3><p>Este relatório é baseado em:</p><p>• <a href="https://owasp.org/www-project-top-ten/">OWASP Top 10</a> — Vulnerabilidades web mais exploradas</p><p>• <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/">OWASP LLM Top 10</a> — Riscos de código gerado por IA</p><p>• <a href="https://supabase.com/docs/guides/auth/row-level-security">Supabase RLS Docs</a> — Segurança do banco</p><p>• <a href="https://github.com/semgrep/semgrep">Semgrep</a> — Análise estática</p><p>• <a href="https://github.com/ottosulin/awesome-ai-security">Awesome AI Security</a></p></div><div class="ft2">Lovable Security Audit v2.0 · Semgrep + npm audit + Scanner customizado</div></div></body></html>`;
+            const html=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Relatório Segurança</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;line-height:1.6}.ct{max-width:900px;margin:0 auto;padding:20px}.hd{text-align:center;padding:40px 20px;border-bottom:1px solid #1e293b;margin-bottom:30px}.hd h1{font-size:28px}.hd .st{color:#94a3b8;font-size:14px}.rb{background:#1e293b;border-radius:12px;padding:24px;margin-bottom:30px;text-align:center;border-left:6px solid ${rc}}.rl{font-size:36px;font-weight:bold;color:${rc}}.rla{color:#94a3b8;font-size:14px;margin-top:4px}.sg{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:30px}.sc{background:#1e293b;border-radius:8px;padding:16px;text-align:center}.sn{font-size:28px;font-weight:bold}.sla{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:4px}.c{background:#1e293b;border-radius:12px;padding:24px;margin-bottom:20px}.c h2{font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.cs{font-size:12px;color:#94a3b8;font-weight:normal}.cd{color:#94a3b8;font-size:13px;margin-bottom:16px}.f{background:#0f172a;border-radius:8px;padding:16px;margin-bottom:10px;border-left:4px solid #334155}.f.critical{border-left-color:#dc2626}.f.high{border-left-color:#ea580c}.f.medium{border-left-color:#ca8a04}.f.low{border-left-color:#2563eb}.f.passed{border-left-color:#16a34a;background:#0f2a1e}.fh{display:flex;align-items:center;gap:10px;margin-bottom:8px}.b{color:white;font-size:11px;font-weight:bold;padding:2px 8px;border-radius:4px;white-space:nowrap}.ft{font-weight:600;font-size:14px}.fb{font-size:13px;color:#cbd5e1}.fb code{background:#334155;padding:1px 6px;border-radius:3px;font-size:12px}.fb p{margin-bottom:8px}.fx{background:#1a2332;border:1px solid #2d4a5e;border-radius:6px;padding:12px;margin-top:8px;font-size:13px;color:#93c5fd}.ns{background:#1e293b;border-radius:12px;padding:24px;margin-top:30px}.ns h2{margin-bottom:16px}.sp{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #334155}.sp:last-child{border-bottom:none}.spn{background:#3b82f6;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:13px;flex-shrink:0}.spc{font-size:14px}.spc strong{color:#f8fafc}.ref{background:#1e293b;border-radius:12px;padding:24px;margin-top:20px;font-size:13px;color:#94a3b8}.ref h3{color:#f8fafc;margin-bottom:10px;font-size:16px}.ref a{color:#60a5fa}.ft2{text-align:center;padding:30px;color:#475569;font-size:12px}@media(max-width:600px){.sg{grid-template-columns:repeat(3,1fr)}}</style></head><body><div class="ct"><div class="hd"><h1>🔒 Relatório de Segurança</h1><div class="st">Projeto: ${results.projectPath}<br>Data: ${results.scanDate}<br>Pipeline: Semgrep + npm audit + Scanner Lovable</div></div><div class="rb"><div class="rl">${re} RISCO ${rl}</div><div class="rla">${tot} problema(s) · ${results.summary.passed} verificações OK</div></div><div class="sg"><div class="sc"><div class="sn" style="color:#dc2626">${results.summary.critical}</div><div class="sla">Críticos</div></div><div class="sc"><div class="sn" style="color:#ea580c">${results.summary.high}</div><div class="sla">Altos</div></div><div class="sc"><div class="sn" style="color:#ca8a04">${results.summary.medium}</div><div class="sla">Médios</div></div><div class="sc"><div class="sn" style="color:#2563eb">${results.summary.low}</div><div class="sla">Baixos</div></div><div class="sc"><div class="sn" style="color:#16a34a">${results.summary.passed}</div><div class="sla">OK</div></div></div>${cats}<div class="ns"><h2>📋 Próximos Passos</h2><div class="sp"><div class="spn">1</div><div class="spc"><strong>Corrija os CRÍTICOS 🔴 agora.</strong></div></div><div class="sp"><div class="spn">2</div><div class="spc"><strong>Verifique RLS no Supabase</strong> — o scanner não acessa o banco.</div></div><div class="sp"><div class="spn">3</div><div class="spc"><strong>Veja também o relatório do Semgrep</strong> (Artifacts → semgrep-report) para análise mais profunda.</div></div><div class="sp"><div class="spn">4</div><div class="spc"><strong>Corrija os ALTOS 🟠 esta semana.</strong></div></div></div><div class="ref"><h3>📚 Referências de Auditoria</h3><p>Este relatório é baseado em:</p><p>• <a href="https://owasp.org/www-project-top-ten/">OWASP Top 10</a> — Vulnerabilidades web mais exploradas</p><p>• <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/">OWASP LLM Top 10</a> — Riscos de código gerado por IA</p><p>• <a href="https://supabase.com/docs/guides/auth/row-level-security">Supabase RLS Docs</a> — Segurança do banco</p><p>• <a href="https://github.com/semgrep/semgrep">Semgrep</a> — Análise estática</p><p>• <a href="https://github.com/ottosulin/awesome-ai-security">Awesome AI Security</a></p></div><div class="ft2">Lovable Security Audit v2.1 · Semgrep + npm audit + Scanner customizado</div></div></body></html>`;
 
             fs.writeFileSync(path.join(P,"relatorio-seguranca.html"),html);
             console.log("✅ Relatório gerado");
@@ -353,12 +376,12 @@ jobs:
 
           // MAIN
           console.log("╔══════════════════════════════════════╗");
-          console.log("║  🔒 LOVABLE SECURITY AUDIT v2.0     ║");
+          console.log("║  🔒 LOVABLE SECURITY AUDIT v2.1     ║");
           console.log("╚══════════════════════════════════════╝\n");
           scanSecrets(); scanSupabase(); scanCode(); scanAuth(); scanConfig(); report();
           const s=results.summary,t=s.critical+s.high+s.medium+s.low;
           console.log(`\n🔴 ${s.critical} | 🟠 ${s.high} | 🟡 ${s.medium} | 🔵 ${s.low} | ✅ ${s.passed}`);
-          if(s.critical>0)process.exit(1);
+          if(s.critical>0)process.exit(1); // exit(1) = crítico encontrado → falha o job lovable-scanner no GitHub Actions (exit(0) = warnings existem mas nenhum crítico)
           AUDIT_SCRIPT
 
           node /tmp/audit.js "$GITHUB_WORKSPACE"

@@ -4,6 +4,23 @@
 
 ---
 
+## [6.2.0] — 2026-03-18
+
+### Modificado
+- `security-audit-v2.yml` — Scanner customizado atualizado de v2.0 para **v2.1** com 4 melhorias que reduzem falsos positivos de forma genérica (sem depender de contexto de projeto específico):
+  1. **`dangerouslySetInnerHTML` — verificação por linha**: antes fazia match no arquivo inteiro; agora verifica linha a linha e considera ✅ OK se `DOMPurify.sanitize(` estiver na mesma linha. Elimina falso positivo de wrappers que já sanitizam corretamente.
+  2. **Formulários — aceita mais bibliotecas de validação**: adicionados `valibot`, `react-hook-form` e `safeParse` à lista de padrões aceitos (antes só: `zod`, `yup`, `joi`, `validate`, `schema.`).
+  3. **`.security-ignore` — lista de exclusão por projeto**: novo arquivo opcional na raiz do projeto. Lista padrões de arquivos/rotas para excluir de duas verificações: `dangerouslySetInnerHTML` (wrappers de libs de terceiros) e páginas sem auth (rotas intencionalmente públicas). Formato: `.gitignore`-style.
+  4. **`process.exit(1)` documentado**: comentário explicando que exit(1) = crítico encontrado → falha o job `lovable-scanner` no GitHub Actions; exit(0) = warnings existem mas nenhum crítico.
+- `security-audit-v2.yml` — Header do YAML atualizado com documentação do `.security-ignore` (formato, exemplos de uso, exit codes).
+
+### Análise / Motivação
+- O scanner genérico não deve ser modificado para um projeto específico — a abordagem correta é deixar o scanner parametrizável pelo projeto via `.security-ignore`.
+- Verificação de `dangerouslySetInnerHTML` no nível de arquivo gerava falso positivo em componentes que já usam DOMPurify corretamente na mesma linha — o scanner "via" o padrão sem ver a sanitização.
+- `react-hook-form` e `valibot` são bibliotecas de validação legítimas não reconhecidas pelo scanner anterior.
+
+---
+
 ## [6.1.3] — 2026-03-18
 
 ### Corrigido
