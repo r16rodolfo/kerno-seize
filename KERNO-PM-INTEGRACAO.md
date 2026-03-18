@@ -1,7 +1,7 @@
 # KERNO-PM-INTEGRACAO.md
 # Integração PM Skills Marketplace + AI PM Copilot ao Kerno Seize
 
-> **Versão:** 1.0 (Kerno Seize v6.0.1)
+> **Versão:** 1.0 (Kerno Seize v6.0.2)
 > **O que muda:** O framework ganha duas novas camadas de product management que atuam ANTES e EM PARALELO ao BMAD. O CIS (Carson/Maya/Victor) deixa de ser o ponto de entrada de ideação.
 >
 > **Ferramentas integradas:**

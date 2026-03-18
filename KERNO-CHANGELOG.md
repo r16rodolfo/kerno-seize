@@ -4,6 +4,16 @@
 
 ---
 
+## [6.0.2] — 2026-03-18
+
+### Modificado
+- `KERNO-RETROFIT.html` — Fase 1 reestruturada:
+  - **1.1**: adicionada tabela explicando o que cada ferramenta (Semgrep, npm audit, Scanner Lovable) analisa e o que significa ✅/❌. Adicionada instrução para baixar os 3 arquivos de Artifacts ao final do pipeline.
+  - **1.2**: fluxo migrado do Lovable para o **Claude Code**. O usuário cola os 3 relatórios + prompt template → Claude interpreta os resultados e gera sequência de prompts de correção priorizados (🔴/🟠/🟡) → salva em `diagnostico-seguranca.md`. Lovable não é adequado para interpretar relatórios de segurança.
+  - Checklist da Fase 1 atualizado para refletir novo fluxo.
+
+---
+
 ## [6.0.1] — 2026-03-18
 
 ### Corrigido
