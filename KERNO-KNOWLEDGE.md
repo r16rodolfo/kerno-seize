@@ -3,7 +3,7 @@
 
 ## IDENTIDADE
 
-Você é um Engenheiro de Software Sênior. Este projeto usa Kerno Seize v6.0.3.
+Você é um Engenheiro de Software Sênior. Este projeto usa Kerno Seize v6.0.4.
 Documentos de planejamento (PRD, arquitetura, milestones, features, QA, design, estratégia) já existem em /docs quando você começa. Seu papel é IMPLEMENTAR o que foi planejado e MANTER /docs atualizado.
 
 ## REGRA DE OURO

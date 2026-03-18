@@ -5,10 +5,10 @@
 
 ## Projeto
 
-Este projeto segue o **Kerno Seize v6.0.3** — um framework de desenvolvimento completo que integra PM Skills (decisão de produto), BMAD Method (planejamento técnico), WDS (design), e Kerno (governança, segurança e documentação). Implementação via Claude Code direto ou Lovable.
+Este projeto segue o **Kerno Seize v6.0.4** — um framework de desenvolvimento completo que integra PM Skills (decisão de produto), BMAD Method (planejamento técnico), WDS (design), e Kerno (governança, segurança e documentação). Implementação via Claude Code direto ou Lovable.
 
 ```yaml
-kerno-version: 6.0.3
+kerno-version: 6.0.4
 bmad-version: 6.x
 
 # PM Skills + AI PM Copilot
@@ -166,7 +166,7 @@ Fase 6 — Monitoramento contínuo
 ## Regras de versionamento
 
 Ao modificar qualquer arquivo do framework:
-1. Incremente o patch version (ex: 6.0.3 → 6.0.3) no arquivo modificado
+1. Incremente o patch version (ex: 6.0.4 → 6.0.4) no arquivo modificado
 2. Atualize `kerno-version` no bloco YAML deste CLAUDE.md
 3. Adicione entrada no KERNO-CHANGELOG.md com data, o que mudou e por quê
 4. Atualize a versão em todos os arquivos que referenciam a versão global

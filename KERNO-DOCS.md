@@ -1,6 +1,6 @@
 # KERNO-DOCS.md — Framework de Documentação Obrigatória
 
-> **Versão:** 2.3 (Kerno Seize v6.0.3)
+> **Versão:** 2.3 (Kerno Seize v6.0.4)
 > **Uso:** Faça upload deste arquivo na Knowledge Base de todo projeto Lovable.dev.
 > Este documento define TODOS os arquivos de documentação que devem existir no projeto,
 > quando criar, quando atualizar, e o formato exato de cada um.
