@@ -115,7 +115,7 @@
     <span style="color:#2a3a50;margin:0 10px;flex-shrink:0;">›</span>
     <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#e4eaf4;font-weight:700;white-space:nowrap;flex-shrink:0;">KERNO-RETROFIT</span>
     <div style="margin-left:auto;flex-shrink:0;padding-left:14px;border-left:1px solid #1e2a3a;">
-      <a href="KERNO-BMAD-AUDITORIA.html" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9884f2;text-decoration:none;white-space:nowrap;font-weight:700;">Próximo: Fase 4.5 Auditoria BMAD →</a>
+      <a href="KERNO-SEIZE-AUDITORIA.html" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9884f2;text-decoration:none;white-space:nowrap;font-weight:700;">Próximo: Fase 4.5 Auditoria BMAD →</a>
     </div>
   </div>
 </div>
@@ -123,9 +123,9 @@
 <div class="container">
 
   <div class="hero">
-    <div class="badge">Projetos Existentes · Kerno BMAD v5.5.3</div>
+    <div class="badge">Projetos Existentes · Kerno Seize v6.0.0</div>
     <h1>Kerno <span>Retrofit</span></h1>
-    <p>Processo passo a passo para adotar o framework Kerno BMAD em projetos Lovable que já existem — sem quebrar o que funciona.</p>
+    <p>Processo passo a passo para adotar o framework Kerno Seize em projetos Lovable que já existem — sem quebrar o que funciona.</p>
   </div>
 
   <!-- CONTEXT -->
@@ -807,7 +807,7 @@ Use EXATAMENTE os formatos definidos no KERNO-DOCS.md.</pre>
         <table>
           <tr><th>Quando</th><th>O que fazer</th></tr>
           <tr><td><strong>Toda semana</strong></td><td>Olhar aba Actions no GitHub (✅ ou ❌)</td></tr>
-          <tr><td><strong>Todo mês</strong></td><td>Verificar RLS no Supabase. Rodar scanner manualmente. <strong style="color: #bc8cff;">Rodar Auditoria BMAD (KERNO-BMAD-AUDITORIA.html).</strong></td></tr>
+          <tr><td><strong>Todo mês</strong></td><td>Verificar RLS no Supabase. Rodar scanner manualmente. <strong style="color: #bc8cff;">Rodar Auditoria BMAD (KERNO-SEIZE-AUDITORIA.html).</strong></td></tr>
           <tr><td><strong>A cada 3 meses</strong></td><td>Rotacionar chaves. Revisar policies. Atualizar security-report.md.</td></tr>
         </table>
       </div>
@@ -840,7 +840,7 @@ Use EXATAMENTE os formatos definidos no KERNO-DOCS.md.</pre>
   </div>
 
   <div class="info" style="margin-top: 20px;">
-    <strong>Para projetos novos:</strong> Use o fluxo padrão do Kerno BMAD (KERNO-ROADMAP.html) que já começa com planejamento BMAD, design WDS, e tudo configurado desde o primeiro prompt. O retrofit só é necessário para projetos que já existem.
+    <strong>Para projetos novos:</strong> Use o fluxo padrão do Kerno Seize (KERNO-ROADMAP.html) que já começa com planejamento BMAD, design WDS, e tudo configurado desde o primeiro prompt. O retrofit só é necessário para projetos que já existem.
   </div>
 
   <!-- AUDITORIA BMAD -->
@@ -889,8 +889,8 @@ Use EXATAMENTE os formatos definidos no KERNO-DOCS.md.</pre>
       </div>
 
       <div style="margin-top: 16px; text-align: center;">
-        <a href="KERNO-BMAD-AUDITORIA.html" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(188,140,255,0.15); border: 1px solid rgba(188,140,255,0.35); border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 600; color: #bc8cff; text-decoration: none;">
-          Ver módulo completo → KERNO-BMAD-AUDITORIA.html
+        <a href="KERNO-SEIZE-AUDITORIA.html" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(188,140,255,0.15); border: 1px solid rgba(188,140,255,0.35); border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 600; color: #bc8cff; text-decoration: none;">
+          Ver módulo completo → KERNO-SEIZE-AUDITORIA.html
         </a>
       </div>
     </div>
@@ -901,14 +901,14 @@ Use EXATAMENTE os formatos definidos no KERNO-DOCS.md.</pre>
     <p>No retrofit, as ferramentas atuam em <strong>três momentos distintos</strong>:</p>
     <ol style="margin: 8px 0 0 20px; font-size: 13px; color: var(--text2);">
       <li><strong>Retroativo (uma vez):</strong> PM Skills define métricas (<code>/north-star</code>), mapeia concorrência (<code>/competitive-analysis</code>), e articula trade-offs (<code>/strategy</code>). AI PM Copilot context-scanner gera mapa do codebase. Esses inputs alimentam a auditoria BMAD.</li>
-      <li><strong>Fase 4.5 — Auditoria:</strong> Winston, Bob, Mary e John revisam o que o Lovable gerou e produzem relatórios de melhoria (ver módulo KERNO-BMAD-AUDITORIA.html)</li>
+      <li><strong>Fase 4.5 — Auditoria:</strong> Winston, Bob, Mary e John revisam o que o Lovable gerou e produzem relatórios de melhoria (ver módulo KERNO-SEIZE-AUDITORIA.html)</li>
       <li><strong>Expansão futura:</strong> ao adicionar funcionalidades novas, use PM Skills (<code>/discover</code>, <code>/value-proposition</code>) para validar antes, depois John para PRD, Winston para arquitetura, e envie os documentos ao Lovable como input</li>
     </ol>
     <p style="margin-top: 8px;">O fluxo completo para projetos novos está no KERNO-ROADMAP.html. Ver também <a href="KERNO-PM-INTEGRACAO.md" style="color: #bc8cff;">KERNO-PM-INTEGRACAO.md</a> para o pipeline PM Skills + BMAD.</p>
   </div>
 
   <div class="footer">
-    Kerno BMAD v5.5.3 — Retrofit &amp; Migration Guide<br>
+    Kerno Seize v6.0.0 — Retrofit &amp; Migration Guide<br>
     Referências: docs.lovable.dev · OWASP Top 10 · Supabase Security Docs · BMAD Method v6
   </div>
 

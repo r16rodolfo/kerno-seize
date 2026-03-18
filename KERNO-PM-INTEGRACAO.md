@@ -1,7 +1,7 @@
 # KERNO-PM-INTEGRACAO.md
-# Integração PM Skills Marketplace + AI PM Copilot ao Kerno BMAD
+# Integração PM Skills Marketplace + AI PM Copilot ao Kerno Seize
 
-> **Versão:** 1.0 (Kerno BMAD v5.5.3)
+> **Versão:** 1.0 (Kerno Seize v6.0.0)
 > **O que muda:** O framework ganha duas novas camadas de product management que atuam ANTES e EM PARALELO ao BMAD. O CIS (Carson/Maya/Victor) deixa de ser o ponto de entrada de ideação.
 >
 > **Ferramentas integradas:**
@@ -16,7 +16,7 @@
 
 ### PM Skills Marketplace (phuryn/pm-skills)
 
-Cobre o ciclo completo de product management com frameworks consagrados (Teresa Torres, Marty Cagan, Alberto Savoia, Dan Olsen, April Dunford). O que NÃO existia no Kerno BMAD:
+Cobre o ciclo completo de product management com frameworks consagrados (Teresa Torres, Marty Cagan, Alberto Savoia, Dan Olsen, April Dunford). O que NÃO existia no Kerno Seize:
 
 | Capacidade | Command/Skill | Substitui no BMAD |
 |-----------|--------------|-------------------|
@@ -272,7 +272,7 @@ Alimentam Mary, John e Saga com contexto validado.
 
 ---
 
-## 7. Atualização do KERNO-BMAD-INICIO.md
+## 7. Atualização do KERNO-SEIZE-INICIO.md
 
 ### Adicionar como "Parte 0" (antes da Parte 1 — Instalação):
 
@@ -402,7 +402,7 @@ PM Skills: /analyze-cohorts → entender retenção
 BMAD: John para PRD de features novas
 BMAD: Winston para mudanças de arquitetura
 AI PM Copilot: context-scanner → antes de cada auditoria mensal
-BMAD Auditoria: mensal (KERNO-BMAD-AUDITORIA.html)
+BMAD Auditoria: mensal (KERNO-SEIZE-AUDITORIA.html)
 ```
 
 ---
@@ -421,7 +421,7 @@ BMAD Auditoria: mensal (KERNO-BMAD-AUDITORIA.html)
 |---------|---------|
 | `CLAUDE.md` | YAML: flags pm-skills + aipm-copilot. Workflow: Fase 0-1 adicionadas. Estrutura /docs: Grupos F e G. |
 | `KERNO-DOCS.md` | Grupos F (PM Skills, 5 docs) e G (AI PM Copilot, 2 docs). Total: 23 → 30 documentos. |
-| `KERNO-BMAD-INICIO.md` | Parte 0 adicionada (PM Skills + AI PM Copilot antes do BMAD). Gates 0 e 1 documentados. |
+| `KERNO-SEIZE-INICIO.md` | Parte 0 adicionada (PM Skills + AI PM Copilot antes do BMAD). Gates 0 e 1 documentados. |
 | `LOVABLE-SYSTEM-PROMPT-V3.md` | Seção A: lista de docs PM Skills adicionada. |
 | `KERNO-ROADMAP.html` | Fase 1 (PM Skills) adicionada antes da Etapa 0 (BMAD). CIS marcado como opcional/legacy. |
 | `KERNO-FLUXO.html` | Trilha A atualizada com PM Skills como primeira fase. |
@@ -454,7 +454,7 @@ BMAD Auditoria: mensal (KERNO-BMAD-AUDITORIA.html)
 
 | Ferramenta | Licença | Uso comercial |
 |-----------|---------|--------------|
-| Kerno BMAD | — | Framework próprio |
+| Kerno Seize | — | Framework próprio |
 | BMAD Method | MIT | Livre |
 | PM Skills Marketplace | MIT | Livre |
 | AI PM Copilot | PolyForm Noncommercial 1.0.0 | **Requer acordo separado** |
