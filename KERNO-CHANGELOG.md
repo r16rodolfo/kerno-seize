@@ -4,6 +4,40 @@
 
 ---
 
+## [6.1.3] — 2026-03-18
+
+### Corrigido
+- `KERNO-RETROFIT.html` — Fase 1, passos 1.3 e 1.5: removido conteúdo específico do projeto hexapago-2.0 que havia sido incluído por engano, tornando o guia genérico para qualquer projeto:
+  - **1.3**: removidos nomes de pacotes npm específicos (`flatted, glob, minimatch, ajv...`) da linha de npm audit; adicionada linha "Outros" para cobrir casos não listados; linguagem reescrita para não assumir contexto de projeto específico
+  - **1.5**: tabela de "resultado esperado" hardcoded (com "Semgrep ✅ Zero findings" e ".env no histórico Git" específicos do hexapago) substituída por tabela genérica com 4 tipos de alerta e o que esperar de cada um; critério de sucesso redefinido: "não é o pipeline virar 100% verde, é que 🅰️ estejam resolvidos e 🅱️ mitigados"
+
+---
+
+## [6.1.2] — 2026-03-18
+
+### Modificado
+- `KERNO-RETROFIT.html` — Fase 1, passo 1.2: adicionado sistema de **baseline de falsos positivos** (`falsos-positivos.md`) para resolver o problema de usuários leigos não saberem distinguir alertas reais de falsos positivos:
+  - **Tabela de anexos**: instrução clara de quais 3 arquivos anexar sempre + `falsos-positivos.md` da 2ª rodada em diante
+  - **Prompt atualizado**: se `falsos-positivos.md` estiver anexado, itens já conhecidos são auto-classificados como 🅾️ com "✓ Confirmado no baseline" sem re-analisar
+  - **Nova seção no output**: `## 📋 Atualizar falsos-positivos.md` — tabela com apenas os itens 🆕 desta rodada, com explicação em linguagem simples para leigo
+  - **Segundo prompt Lovable**: cria ou atualiza `/docs/retrofit/falsos-positivos.md` com os novos itens (preserva histórico — não sobrescreve)
+  - **1ª rodada**: `falsos-positivos.md` não existe ainda, Claude/GPT analisa tudo do zero e cria o baseline inicial
+  - **2ª rodada em diante**: itens já conhecidos são ignorados automaticamente — usuário só vê o que é novo
+
+### Análise / Motivação
+- O problema: Claude/GPT não conhece o negócio do projeto — ele sabe o que é código inseguro, mas não sabe que aquela página sem auth é intencionalmente pública ou que aquela lib de terceiros não é controlada pelo usuário.
+- O usuário leigo não consegue julgar o que é falso positivo por conta própria — precisa que o sistema construa esse conhecimento de forma acumulativa e automática.
+- O `falsos-positivos.md` resolve isso: é preenchido pelo Claude/GPT na 1ª rodada com linguagem simples, cresce com cada nova rodada, e nas próximas execuções elimina ruído automaticamente.
+
+---
+
+## [6.1.1] — 2026-03-18
+
+### Corrigido
+- `KERNO-RETROFIT.html` — Fase 1, passo 1.2: nome do arquivo de diagnóstico alterado de `diagnostico-seguranca.md` para `diagnostico-seguranca-DDMMAA-vX.md` (ex: `diagnostico-seguranca-180326-v1.md`). Evita sobrescrever relatórios anteriores quando o usuário roda a auditoria múltiplas vezes. Alterações feitas em: título do passo, prompt de instrução ao Claude/GPT, instruções pós-resposta, prompt do Lovable para salvar o arquivo, referência no passo 1.4 e checklist.
+
+---
+
 ## [6.1.0] — 2026-03-18
 
 ### Modificado
