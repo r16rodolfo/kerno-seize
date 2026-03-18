@@ -4,7 +4,12 @@
 
 ---
 
-## [6.0.2] — 2026-03-18
+## [6.0.4] — 2026-03-18
+
+### Modificado
+- `KERNO-RETROFIT.html` — Fase 1, passo 1.2: separação entre análise (Claude/GPT externo, sem acesso ao projeto) e criação do arquivo (Lovable). O prompt de análise não pede mais para "salvar em /docs/..." — apenas gera os prompts de correção. Um segundo prompt separado instrui o Lovable a criar o `diagnostico-seguranca.md` com o conteúdo copiado da resposta do Claude/GPT.
+
+---
 
 ### Modificado
 - `KERNO-RETROFIT.html` — Fase 1 reestruturada:
