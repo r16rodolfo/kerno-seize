@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kerno BMAD — Mapa do Fluxo</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;500;600;700&family=Onest:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #06080c;
+  --s1:     #0c1018;
+  --s2:     #131924;
+  --s3:     #1a2232;
+  --bd:     #1e2a3a;
+  --bd2:    #2a3a50;
+  --t1:     #e4eaf4;
+  --t2:     #8494ae;
+  --t3:     #556680;
+  --teal:   #4ecdc4;
+  --blue:   #5b9cf6;
+  --violet: #9884f2;
+  --amber:  #e8a838;
+  --rose:   #e85577;
+  --green:  #4ac685;
+  --lime:   #8ed94c;
+  --pink:   #f472b6;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Onest', sans-serif;
+  background: var(--bg);
+  color: var(--t1);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+a { color: var(--teal); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.mono { font-family: 'Geist Mono', monospace; }
+
+/* ── NOISE ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  text-align: center;
+  padding: 72px 24px 48px;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 500px;
+  background: radial-gradient(ellipse at 50% 30%, rgba(78,205,196,.10) 0%, rgba(91,156,246,.05) 50%, transparent 70%);
+  pointer-events: none;
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--s2); border: 1px solid var(--bd2);
+  border-radius: 100px; padding: 5px 18px 5px 8px;
+  font-size: 11px; font-weight: 700; color: var(--teal);
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 22px;
+}
+.badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.hero h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 400; letter-spacing: -2px; line-height: 1.05;
+  margin-bottom: 16px;
+}
+.hero h1 em { font-style: italic; color: var(--teal); }
+.hero .sub {
+  font-size: 15px; color: var(--t2); max-width: 520px;
+  margin: 0 auto 12px; line-height: 1.8; font-weight: 300;
+}
+
+/* ── PROGRESS BAR (BOOKMARKABLE) ── */
+.progress-wrap {
+  position: relative; z-index: 1;
+  max-width: 760px; margin: 0 auto 48px;
+  padding: 0 24px;
+}
+.progress-label {
+  font-size: 11px; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 14px; text-align: center;
+}
+.progress-steps {
+  display: flex; gap: 6px; align-items: center; justify-content: center;
+  flex-wrap: wrap;
+}
+.ps {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--s2); border: 1px solid var(--bd);
+  border-radius: 8px; padding: 8px 14px;
+  font-size: 12px; font-weight: 600; color: var(--t3);
+  cursor: pointer; transition: all .2s; user-select: none;
+}
+.ps:hover { border-color: var(--bd2); color: var(--t2); }
+.ps.done { background: rgba(74,198,133,.08); border-color: rgba(74,198,133,.3); color: var(--green); }
+.ps.active { background: rgba(78,205,196,.10); border-color: rgba(78,205,196,.4); color: var(--teal); box-shadow: 0 0 0 2px rgba(78,205,196,.12); }
+.ps .check { font-size: 13px; }
+.ps-arrow { color: var(--bd2); font-size: 12px; }
+
+/* ── MAIN ── */
+.ct { max-width: 900px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* ── TRILHA SELECTOR ── */
+.trilha-selector {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px; margin-bottom: 48px;
+}
+@media (max-width: 700px) { .trilha-selector { grid-template-columns: 1fr; } }
+.trilha-card {
+  background: var(--s2); border: 1px solid var(--bd);
+  border-radius: 14px; padding: 22px 20px;
+  cursor: pointer; transition: all .2s; position: relative;
+}
+.trilha-card:hover { border-color: var(--bd2); transform: translateY(-1px); }
+.trilha-card.selected { box-shadow: 0 0 0 2px var(--teal); border-color: var(--teal); }
+.trilha-card .tc-icon { font-size: 28px; margin-bottom: 12px; }
+.trilha-card .tc-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--t3); margin-bottom: 6px; font-family: 'Geist Mono', monospace; }
+.trilha-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.trilha-card p { font-size: 12px; color: var(--t2); line-height: 1.6; }
+.trilha-card .tc-accent { width: 30px; height: 2px; border-radius: 2px; margin-top: 14px; }
+
+/* ── SEÇÃO MAPA ── */
+.section-head {
+  display: flex; align-items: center; gap: 14px;
+  margin: 40px 0 20px;
+}
+.section-head .sh-line { flex: 1; height: 1px; background: var(--bd); }
+.section-head .sh-label {
+  font-size: 11px; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: 2px;
+  font-family: 'Geist Mono', monospace; white-space: nowrap;
+}
+
+/* ── FLOW TRACK ── */
+.flow-track { position: relative; }
+.flow-track::before {
+  content: '';
+  position: absolute; left: 28px; top: 20px; bottom: 20px; width: 2px;
+  background: linear-gradient(to bottom, var(--bd) 0%, var(--bd2) 50%, var(--bd) 100%);
+}
+
+/* ── FLOW NODE ── */
+.fn {
+  display: flex; gap: 18px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.fn-dot {
+  width: 58px; min-width: 58px; height: 58px;
+  border-radius: 50%; border: 2px solid var(--bd2);
+  background: var(--s1); display: flex; align-items: center; justify-content: center;
+  font-size: 18px; position: relative; z-index: 1;
+  flex-shrink: 0;
+  transition: all .2s;
+}
+.fn-dot.done { background: rgba(74,198,133,.12); border-color: var(--green); }
+.fn-dot.done::after {
+  content: '✓';
+  position: absolute; bottom: -2px; right: -2px;
+  background: var(--green); color: var(--bg);
+  width: 16px; height: 16px; border-radius: 50%;
+  font-size: 9px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+}
+.fn-body {
+  flex: 1; background: var(--s2); border: 1px solid var(--bd);
+  border-radius: 12px; padding: 16px 18px; margin-top: 8px;
+  transition: all .2s;
+}
+.fn-body:hover { border-color: var(--bd2); }
+.fn-body.done { background: rgba(74,198,133,.04); border-color: rgba(74,198,133,.2); }
+.fn-body.active { background: rgba(78,205,196,.05); border-color: rgba(78,205,196,.3); box-shadow: 0 0 0 2px rgba(78,205,196,.08); }
+.fn-tag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  font-family: 'Geist Mono', monospace; margin-bottom: 5px;
+}
+.fn-title { font-size: 15px; font-weight: 700; margin-bottom: 5px; }
+.fn-desc { font-size: 12px; color: var(--t2); line-height: 1.65; margin-bottom: 10px; }
+.fn-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.fn-chip {
+  font-family: 'Geist Mono', monospace; font-size: 10px;
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: 5px; padding: 3px 9px; color: var(--t3);
+}
+.fn-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.fn-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--bd2); background: var(--s1); color: var(--t2);
+  cursor: pointer; transition: all .2s; text-decoration: none;
+}
+.fn-btn:hover { border-color: var(--teal); color: var(--teal); text-decoration: none; }
+.fn-btn.primary { background: rgba(78,205,196,.12); border-color: rgba(78,205,196,.4); color: var(--teal); }
+.fn-btn.done-btn { background: rgba(74,198,133,.08); border-color: rgba(74,198,133,.3); color: var(--green); }
+
+/* ── GATE ── */
+.gate-row {
+  display: flex; gap: 18px; margin-bottom: 10px;
+}
+.gate-dot {
+  width: 58px; min-width: 58px; display: flex;
+  justify-content: center; padding-top: 14px;
+}
+.gate-line { width: 2px; height: 100%; background: var(--bd2); margin: 0 auto; }
+.gate-card {
+  flex: 1; border: 1px dashed rgba(74,198,133,.3);
+  border-radius: 10px; padding: 12px 16px;
+  background: rgba(74,198,133,.03); margin-top: 8px;
+}
+.gate-title { font-size: 10px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Geist Mono', monospace; margin-bottom: 6px; }
+.gate-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.gate-item {
+  font-size: 11px; color: var(--t2);
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: 5px; padding: 3px 10px;
+  display: flex; align-items: center; gap: 5px;
+}
+.gate-item.ok { color: var(--green); border-color: rgba(74,198,133,.25); background: rgba(74,198,133,.06); }
+
+/* ── BRIDGE — transição entre trilhas ── */
+.bridge {
+  background: rgba(152,132,242,.06); border: 1px solid rgba(152,132,242,.2);
+  border-radius: 12px; padding: 18px 22px; margin: 16px 0 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.bridge-icon { font-size: 24px; flex-shrink: 0; }
+.bridge-text h4 { font-size: 13px; font-weight: 700; color: var(--violet); margin-bottom: 4px; }
+.bridge-text p { font-size: 12px; color: var(--t2); line-height: 1.65; }
+
+/* ── SIDEBAR LEGEND ── */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  margin-bottom: 32px; padding: 16px 20px;
+  background: var(--s2); border: 1px solid var(--bd); border-radius: 10px;
+}
+.legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--t2); }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── CONNECTOR ── */
+.fn-connector {
+  display: flex; padding-left: 28px; margin: -4px 0;
+}
+.fn-connector-line { width: 2px; height: 28px; background: var(--bd2); margin-left: 14px; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge"><span class="dot"></span> Kerno BMAD v5.5.3</div>
+  <h1>Mapa do <em>Fluxo</em></h1>
+  <p class="sub">Um GPS para o framework inteiro. Marque onde você está, veja o que vem depois, e acesse o documento certo com um clique.</p>
+</div>
+
+<div class="ct">
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Etapa concluída</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div> Você está aqui</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--bd2)"></div> Próximas etapas</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(74,198,133,.4); border: 1px dashed var(--green)"></div> Gate de qualidade</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--violet)"></div> Ponto de transição</div>
+  </div>
+
+  <!-- TRILHA SELECTOR -->
+  <div class="section-head">
+    <div class="sh-line"></div>
+    <div class="sh-label">Qual é o seu cenário?</div>
+    <div class="sh-line"></div>
+  </div>
+
+  <div class="trilha-selector">
+    <div class="trilha-card" onclick="selectTrilha('bmad')" id="card-bmad">
+      <div class="tc-icon">🏗️</div>
+      <div class="tc-label">Trilha A</div>
+      <h3>Projeto Novo com PM Skills + BMAD</h3>
+      <p>Produto com escopo definido, usuários reais, ou baixa tolerância a retrabalho. PM Skills valida a ideia, BMAD planeja o código.</p>
+      <div class="tc-accent" style="background: var(--teal)"></div>
+    </div>
+    <div class="trilha-card" onclick="selectTrilha('lovable')" id="card-lovable">
+      <div class="tc-icon">⚡</div>
+      <div class="tc-label">Trilha B</div>
+      <h3>Lovable-First (sem BMAD)</h3>
+      <p>MVP rápido, validação de ideia, projeto pessoal. Direto ao Lovable em 45 minutos.</p>
+      <div class="tc-accent" style="background: var(--amber)"></div>
+    </div>
+    <div class="trilha-card" onclick="selectTrilha('retrofit')" id="card-retrofit">
+      <div class="tc-icon">🔧</div>
+      <div class="tc-label">Trilha C</div>
+      <h3>Retrofit (projeto existente)</h3>
+      <p>Projeto Lovable já no ar. Aplicar segurança, deploy e documentação sem quebrar o que funciona.</p>
+      <div class="tc-accent" style="background: var(--rose)"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ TRILHA BMAD ═══════════════════════ -->
+  <div id="trilha-bmad" class="trilha-content" style="display:none">
+
+    <div class="section-head">
+      <div class="sh-line"></div>
+      <div class="sh-label" style="color:var(--teal)">Trilha A — Projeto Novo com PM Skills + BMAD</div>
+      <div class="sh-line"></div>
+    </div>
+
+    <div class="flow-track">
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-bmad-pm">📊</div>
+        <div class="fn-body" id="node-bmad-pm">
+          <div class="fn-tag" style="color:var(--violet)">Fase 1 — PM Skills (decisão de produto)</div>
+          <div class="fn-title">Validar ideia, definir estratégia e métricas</div>
+          <div class="fn-desc">PM Skills Marketplace: /discover (validação) → /strategy (Canvas 9 seções) → /value-proposition (JTBD) → /competitive-analysis → /research-users (personas) → /north-star (métricas). Salvar outputs em /docs/pm-*.md. Opcional: Gate 0 com AI PM Copilot validation-sprint para ideias vagas.</div>
+          <div class="fn-chips">
+            <span class="fn-chip">pm-discovery-plan.md</span>
+            <span class="fn-chip">pm-strategy-canvas.md</span>
+            <span class="fn-chip">pm-north-star.md</span>
+          </div>
+          <div class="fn-actions">
+            <a href="KERNO-BMAD-INICIO.md" class="fn-btn primary">📖 Ver Parte 0 no Tutorial →</a>
+            <button class="fn-btn done-btn" onclick="markDone('bmad-pm')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-bmad-0">🤖</div>
+        <div class="fn-body" id="node-bmad-0">
+          <div class="fn-tag" style="color:var(--teal)">Fase 2 — Planejamento BMAD + WDS</div>
+          <div class="fn-title">Agentes BMAD criam a documentação técnica</div>
+          <div class="fn-desc">Saga WDS Onda 1 (B2C) → Mary (product-brief, alimentada por PM Skills) → John (PRD + milestones) → Gate 1: PRD Stress Test → Winston (arquitetura + banco) → Freya/Idunn WDS Onda 2 (design) → Bob (stories) → Murat (QA).</div>
+          <div class="fn-chips">
+            <span class="fn-chip">product-brief.md</span>
+            <span class="fn-chip">prd.md</span>
+            <span class="fn-chip">prd-milestones.md</span>
+            <span class="fn-chip">architecture.md</span>
+            <span class="fn-chip">database.md</span>
+            <span class="fn-chip">qa-plan.md</span>
+          </div>
+          <div class="fn-actions">
+            <a href="KERNO-ROADMAP.html#etapa-0" class="fn-btn primary">📖 Ver Etapa 0 no Roadmap →</a>
+            <a href="KERNO-BMAD-INICIO.md" class="fn-btn">Tutorial BMAD</a>
+            <button class="fn-btn done-btn" onclick="markDone('bmad-0')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="gate-row">
+        <div class="gate-dot"><div class="gate-line"></div></div>
+        <div class="gate-card">
+          <div class="gate-title">✅ Gate 0 — antes de avançar</div>
+          <div class="gate-items">
+            <div class="gate-item" id="g0-1">prd.md existe</div>
+            <div class="gate-item" id="g0-2">architecture.md existe</div>
+            <div class="gate-item" id="g0-3">database.md com RLS</div>
+            <div class="gate-item" id="g0-4">qa-plan.md existe</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-bmad-1">🔒</div>
+        <div class="fn-body" id="node-bmad-1">
+          <div class="fn-tag" style="color:var(--rose)">Etapa 1 — Ambiente Seguro</div>
+          <div class="fn-title">GitHub + pipeline SAST + Lovable configurado</div>
+          <div class="fn-desc">Criar repositório privado no GitHub → adicionar security-audit-v2.yml e dependabot.yml → colar KERNO-KNOWLEDGE.md no Custom Knowledge do Lovable → fazer upload dos docs BMAD → conectar ao GitHub.</div>
+          <div class="fn-chips">
+            <span class="fn-chip">security-audit-v2.yml</span>
+            <span class="fn-chip">dependabot.yml</span>
+            <span class="fn-chip">LOVABLE-SYSTEM-PROMPT-V3.md</span>
+          </div>
+          <div class="fn-actions">
+            <a href="KERNO-ROADMAP.html#etapa-1" class="fn-btn primary">📖 Ver Etapa 1 no Roadmap →</a>
+            <button class="fn-btn done-btn" onclick="markDone('bmad-1')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-bmad-2">💻</div>
+        <div class="fn-body" id="node-bmad-2">
+          <div class="fn-tag" style="color:var(--blue)">Etapa 2 — Desenvolvimento</div>
+          <div class="fn-title">Lovable implementa milestone por milestone</div>
+          <div class="fn-desc">Seção B (importar e validar docs BMAD) → Seção C → D → E → F por milestone. Fixar versão após cada milestone que funcionar. Scanner roda automaticamente a cada push.</div>
+          <div class="fn-chips">
+            <span class="fn-chip">flows.md</span>
+            <span class="fn-chip">ui-components.md</span>
+            <span class="fn-chip">changelog.md</span>
+            <span class="fn-chip">delivery-report.md</span>
+          </div>
+          <div class="fn-actions">
+            <a href="KERNO-GUIA-PASSO-A-PASSO.html" class="fn-btn primary">📖 Ver Guia Passo a Passo →</a>
+            <button class="fn-btn done-btn" onclick="markDone('bmad-2')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-bmad-3">🔍</div>
+        <div class="fn-body" id="node-bmad-3">
+          <div class="fn-tag" style="color:var(--violet)">Etapa 3 — Revisão</div>
+          <div class="fn-title">Cursor + Claude Code revisam o código</div>
+          <div class="fn-desc">Clonar repositório localmente → Claude Code revisa segurança e padrões → Murat (TEA, 2ª intervenção) valida cobertura contra qa-plan.md → corrigir vulnerabilidades → push de volta.</div>
+          <div class="fn-chips">
+            <span class="fn-chip">security-report.md</span>
+            <span class="fn-chip">qa-plan.md (validado)</span>
+          </div>
+          <div class="fn-actions">
+            <a href="KERNO-CURSOR-REVIEW.md" class="fn-btn primary">📖 Ver Guia de Revisão →</a>
+            <button class="fn-btn done-btn" onclick="markDone('bmad-3')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-bmad-4">🚀</div>
+        <div class="fn-body" id="node-bmad-4">
+          <div class="fn-tag" style="color:var(--lime)">Etapa 4 — Deploy</div>
+          <div class="fn-title">Vercel + Sentry + UptimeRobot</div>
+          <div class="fn-desc">vercel.json com headers de segurança → variáveis de ambiente na Vercel → Supabase em produção (Site URL, email confirmation) → Sentry ativo → UptimeRobot configurado → securityheaders.com verde.</div>
+          <div class="fn-actions">
+            <a href="KERNO-ROADMAP.html#etapa-4" class="fn-btn primary">📖 Ver Etapa 4 no Roadmap →</a>
+            <button class="fn-btn done-btn" onclick="markDone('bmad-4')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-bmad-5">📊</div>
+        <div class="fn-body" id="node-bmad-5">
+          <div class="fn-tag" style="color:var(--amber)">Etapa 5 — Monitoramento contínuo</div>
+          <div class="fn-title">Auditoria BMAD mensal + scanner semanal</div>
+          <div class="fn-desc">Scanner SAST roda automaticamente a cada push. Toda semana: verificar aba Actions no GitHub. Todo mês: rodar Auditoria BMAD completa (Winston, Bob, Mary, John) e atualizar AUDIT-HISTORY.md.</div>
+          <div class="fn-actions">
+            <a href="KERNO-BMAD-AUDITORIA.html" class="fn-btn primary">📖 Ver Módulo de Auditoria →</a>
+            <a href="KERNO-MONITOR-TUTORIAL.html" class="fn-btn">Tutorial de Monitoramento</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ TRILHA LOVABLE-FIRST ═══════════════════════ -->
+  <div id="trilha-lovable" class="trilha-content" style="display:none">
+
+    <div class="section-head">
+      <div class="sh-line"></div>
+      <div class="sh-label" style="color:var(--amber)">Trilha B — Lovable-First (sem BMAD)</div>
+      <div class="sh-line"></div>
+    </div>
+
+    <div class="flow-track">
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-lf-0">📝</div>
+        <div class="fn-body" id="node-lf-0">
+          <div class="fn-tag" style="color:var(--amber)">Etapa 1 — PRD Manual</div>
+          <div class="fn-title">Escrever o PRD mínimo você mesmo</div>
+          <div class="fn-desc">Sem agentes BMAD. Você descreve o produto em linguagem simples: o que faz, quem usa, as 3 features core, o que não vai fazer. O guia tem um template pronto para copiar.</div>
+          <div class="fn-actions">
+            <a href="KERNO-LOVABLE-FIRST.html#etapa-1" class="fn-btn primary">📖 Ver Etapa 1 no Guia →</a>
+            <button class="fn-btn done-btn" onclick="markDone('lf-0')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-lf-1">🔒</div>
+        <div class="fn-body" id="node-lf-1">
+          <div class="fn-tag" style="color:var(--rose)">Etapa 2 — Ambiente Seguro</div>
+          <div class="fn-title">GitHub + SAST + Lovable configurado</div>
+          <div class="fn-desc">Igual ao fluxo BMAD: repositório GitHub com pipeline de segurança → KERNO-KNOWLEDGE.md no Custom Knowledge do Lovable. Não pode ser pulado.</div>
+          <div class="fn-chips">
+            <span class="fn-chip">security-audit-v2.yml</span>
+            <span class="fn-chip">dependabot.yml</span>
+          </div>
+          <div class="fn-actions">
+            <a href="KERNO-LOVABLE-FIRST.html#etapa-2" class="fn-btn primary">📖 Ver Etapa 2 no Guia →</a>
+            <button class="fn-btn done-btn" onclick="markDone('lf-1')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-lf-2">💻</div>
+        <div class="fn-body" id="node-lf-2">
+          <div class="fn-tag" style="color:var(--blue)">Etapa 3 — Desenvolvimento</div>
+          <div class="fn-title">Lovable constrói a partir do PRD manual</div>
+          <div class="fn-desc">Feature por feature. Fixar versão a cada feature que funcionar. Scanner roda automaticamente. O guia tem prompts prontos para cada situação.</div>
+          <div class="fn-actions">
+            <a href="KERNO-LOVABLE-FIRST.html#etapa-3" class="fn-btn primary">📖 Ver Etapa 3 no Guia →</a>
+            <button class="fn-btn done-btn" onclick="markDone('lf-2')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-lf-3">🔍</div>
+        <div class="fn-body" id="node-lf-3">
+          <div class="fn-tag" style="color:var(--violet)">Etapa 4 — Revisão de Segurança</div>
+          <div class="fn-title">Auditoria de segurança antes de ir a público</div>
+          <div class="fn-desc">Verificação de RLS, secrets, headers. Mesmos checklists do fluxo completo. Não pode ser pulado mesmo no modo simplificado.</div>
+          <div class="fn-actions">
+            <a href="KERNO-LOVABLE-FIRST.html#etapa-4" class="fn-btn primary">📖 Ver Etapa 4 no Guia →</a>
+            <button class="fn-btn done-btn" onclick="markDone('lf-3')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-lf-4">🚀</div>
+        <div class="fn-body" id="node-lf-4">
+          <div class="fn-tag" style="color:var(--lime)">Etapa 5 — Deploy</div>
+          <div class="fn-title">Vercel + monitoramento básico</div>
+          <div class="fn-desc">GitHub → Vercel → domínio → Sentry básico. Mesmos passos do fluxo completo.</div>
+          <div class="fn-actions">
+            <a href="KERNO-LOVABLE-FIRST.html#etapa-5" class="fn-btn primary">📖 Ver Etapa 5 no Guia →</a>
+            <button class="fn-btn done-btn" onclick="markDone('lf-4')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bridge">
+        <div class="bridge-icon">🔀</div>
+        <div class="bridge-text">
+          <h4>Quando migrar para o fluxo BMAD completo?</h4>
+          <p>Se o projeto cresceu além de 3 features core, atraiu usuários pagantes, ou você está começando a perder o controle do que foi construído → é hora de rodar a <strong>Auditoria BMAD</strong> e considerar adicionar planejamento retroativo com os agentes. Não é retrabalho — é evolução.</p>
+          <div style="margin-top: 10px;"><a href="KERNO-BMAD-AUDITORIA.html" style="font-size: 12px; color: var(--violet);">→ Rodar Auditoria BMAD agora</a></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ TRILHA RETROFIT ═══════════════════════ -->
+  <div id="trilha-retrofit" class="trilha-content" style="display:none">
+
+    <div class="section-head">
+      <div class="sh-line"></div>
+      <div class="sh-label" style="color:var(--rose)">Trilha C — Retrofit (projeto existente)</div>
+      <div class="sh-line"></div>
+    </div>
+
+    <div class="flow-track">
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-rt-pre">🔀</div>
+        <div class="fn-body" id="node-rt-pre">
+          <div class="fn-tag" style="color:var(--rose)">Pré-Fase — Decisão</div>
+          <div class="fn-title">Retrofit ou Reconstrução?</div>
+          <div class="fn-desc">Antes de começar: rode o scorecard de diagnóstico no Lovable (Plan Mode). Em 5 minutos você tem um veredicto automático: vale o retrofit ou é melhor reconstruir do zero? Não pule este passo.</div>
+          <div class="fn-actions">
+            <a href="KERNO-RETROFIT.html#decisao" class="fn-btn primary">📖 Ver diagnóstico no Retrofit →</a>
+            <button class="fn-btn done-btn" onclick="markDone('rt-pre')">✓ Veredicto: Retrofit viável</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-rt-0">📸</div>
+        <div class="fn-body" id="node-rt-0">
+          <div class="fn-tag" style="color:var(--rose)">Fase 0 — Antes de tocar em qualquer coisa</div>
+          <div class="fn-title">Fixar versão estável + raio-X do projeto</div>
+          <div class="fn-desc">Fixar versão no Lovable antes de qualquer mudança (ponto de retorno). Rodar diagnóstico completo no Plan Mode → Lovable cria /docs/retrofit/raio-x.md automaticamente. Configurar Custom Knowledge.</div>
+          <div class="fn-chips">
+            <span class="fn-chip">/docs/retrofit/raio-x.md</span>
+          </div>
+          <div class="fn-actions">
+            <a href="KERNO-RETROFIT.html#fase-0" class="fn-btn primary">📖 Ver Fase 0 no Retrofit →</a>
+            <button class="fn-btn done-btn" onclick="markDone('rt-0')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-rt-1">🔒</div>
+        <div class="fn-body" id="node-rt-1">
+          <div class="fn-tag" style="color:var(--rose)">Fase 1 — Segurança</div>
+          <div class="fn-title">Pipeline SAST + diagnóstico de segurança</div>
+          <div class="fn-desc">GitHub com security-audit-v2.yml e dependabot.yml → Lovable faz diagnóstico completo de segurança e cria /docs/retrofit/diagnostico-seguranca.md com tudo classificado (🔴🟠🟡) → corrigir na ordem → validar.</div>
+          <div class="fn-chips">
+            <span class="fn-chip">/docs/retrofit/diagnostico-seguranca.md</span>
+          </div>
+          <div class="fn-actions">
+            <a href="KERNO-RETROFIT.html#fase-1" class="fn-btn primary">📖 Ver Fase 1 no Retrofit →</a>
+            <button class="fn-btn done-btn" onclick="markDone('rt-1')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-rt-2">🚀</div>
+        <div class="fn-body" id="node-rt-2">
+          <div class="fn-tag" style="color:var(--amber)">Fase 2 — Deploy</div>
+          <div class="fn-title">Sair do preview Lovable → Vercel</div>
+          <div class="fn-desc">Diagnóstico: você está no Lovable Cloud ou na Vercel? Caminho A: GitHub → vercel.json → Vercel (sem deletar nada). Caminho B: verificar variáveis de ambiente + adicionar headers. Supabase URLs + proteções GitHub.</div>
+          <div class="fn-actions">
+            <a href="KERNO-RETROFIT.html#fase-2" class="fn-btn primary">📖 Ver Fase 2 no Retrofit →</a>
+            <button class="fn-btn done-btn" onclick="markDone('rt-2')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-rt-3">⚙️</div>
+        <div class="fn-body" id="node-rt-3">
+          <div class="fn-tag" style="color:var(--blue)">Fase 3 — Estabilidade</div>
+          <div class="fn-title">Padrão de prompts + fluxo de trabalho</div>
+          <div class="fn-desc">Custom Knowledge já configurado com as regras de estabilidade. Adotar o padrão de prompts [FEATURE] para todas as próximas sessões. Fluxo: verificar → fixar → planejar → implementar → testar → fixar → fechar.</div>
+          <div class="fn-actions">
+            <a href="KERNO-RETROFIT.html#fase-3" class="fn-btn primary">📖 Ver Fase 3 no Retrofit →</a>
+            <button class="fn-btn done-btn" onclick="markDone('rt-3')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-rt-4">📄</div>
+        <div class="fn-body" id="node-rt-4">
+          <div class="fn-tag" style="color:var(--violet)">Fase 4 — Documentação</div>
+          <div class="fn-title">Documentação retroativa via Lovable</div>
+          <div class="fn-desc">Lovable lê o código existente e gera os 12 documentos /docs retroativamente: architecture.md, database.md, flows.md, features.md, etc. Validar que refletem a realidade. Fixar versão.</div>
+          <div class="fn-chips">
+            <span class="fn-chip">architecture.md</span>
+            <span class="fn-chip">database.md</span>
+            <span class="fn-chip">flows.md</span>
+            <span class="fn-chip">+9 docs</span>
+          </div>
+          <div class="fn-actions">
+            <a href="KERNO-RETROFIT.html#fase-4" class="fn-btn primary">📖 Ver Fase 4 no Retrofit →</a>
+            <button class="fn-btn done-btn" onclick="markDone('rt-4')">✓ Marcar como feito</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSIÇÃO CRÍTICA: RETROFIT → AUDITORIA → ESCALAR -->
+      <div class="bridge" style="border-color: rgba(152,132,242,.35); background: rgba(152,132,242,.06);">
+        <div class="bridge-icon">🎯</div>
+        <div class="bridge-text">
+          <h4 style="color:var(--violet)">Terminei o Retrofit — e agora?</h4>
+          <p>O Retrofit entrega um projeto seguro e documentado. Mas antes de escalar (mais usuários, mais features, mais desenvolvedores), passe pela <strong>Auditoria BMAD</strong>. Os agentes vão revisar tudo que o Lovable gerou e apontar o que precisa ser melhorado — com prioridade clara e plano de ação.</p>
+          <div style="margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="KERNO-BMAD-AUDITORIA.html" style="font-size: 12px; color: var(--violet); font-weight: 700;">→ Fase 4.5: Rodar Auditoria BMAD</a>
+            <span style="color: var(--t3); font-size: 12px;">ou</span>
+            <a href="KERNO-RETROFIT.html#fase-5" style="font-size: 12px; color: var(--t2);">→ Ir direto para o Monitoramento contínuo</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-rt-45">🔍</div>
+        <div class="fn-body" id="node-rt-45">
+          <div class="fn-tag" style="color:var(--violet)">Fase 4.5 — Auditoria BMAD (mensal)</div>
+          <div class="fn-title">Winston, Bob, Mary e John revisam o projeto</div>
+          <div class="fn-desc">Fase A0: criar pasta datada /docs/audit/YYYY-MM-DD/ → A1 Winston (arquitetura) → A2 Bob (código) → A3 Mary (produto/UX) → A4 John (drift) → A5 Relatório Mestre + AUDIT-HISTORY.md. Repetir todo mês.</div>
+          <div class="fn-chips">
+            <span class="fn-chip">AUDIT-HISTORY.md</span>
+            <span class="fn-chip">RELATORIO-MESTRE-AUDITORIA.md</span>
+          </div>
+          <div class="fn-actions">
+            <a href="KERNO-BMAD-AUDITORIA.html" class="fn-btn primary">📖 Ver Módulo de Auditoria →</a>
+            <button class="fn-btn done-btn" onclick="markDone('rt-45')">✓ 1ª auditoria concluída</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn">
+        <div class="fn-dot" id="dot-rt-5">📊</div>
+        <div class="fn-body" id="node-rt-5">
+          <div class="fn-tag" style="color:var(--green)">Fase 5 — Monitoramento contínuo</div>
+          <div class="fn-title">Scanner automático + auditoria mensal</div>
+          <div class="fn-desc">Toda semana: checar aba Actions no GitHub. Todo mês: verificar RLS no Supabase + rodar Auditoria BMAD. A cada 3 meses: rotacionar chaves + revisar policies + atualizar security-report.md.</div>
+          <div class="fn-actions">
+            <a href="KERNO-RETROFIT.html#fase-5" class="fn-btn primary">📖 Ver Fase 5 no Retrofit →</a>
+            <a href="KERNO-MONITOR-TUTORIAL.html" class="fn-btn">Tutorial de Monitoramento</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ESTADO SALVO NOTICE -->
+  <div id="save-notice" style="display:none; position:fixed; bottom:24px; right:24px; background:var(--s2); border:1px solid var(--green); border-radius:10px; padding:12px 18px; font-size:12px; color:var(--green); z-index:100; box-shadow:0 8px 24px rgba(0,0,0,.4);">
+    ✓ Progresso salvo neste navegador
+  </div>
+
+  <!-- FOOTER NOTE -->
+  <div style="text-align:center; margin-top:60px; padding-top:32px; border-top:1px solid var(--bd); font-size:12px; color:var(--t3);">
+    Kerno BMAD v5.5.3 · Mapa do Fluxo · <a href="index.html">Voltar ao índice</a>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+const STATE_KEY = 'kerno-fluxo-state';
+let state = JSON.parse(localStorage.getItem(STATE_KEY) || '{}');
+
+function saveState() {
+  localStorage.setItem(STATE_KEY, JSON.stringify(state));
+  const n = document.getElementById('save-notice');
+  n.style.display = 'block';
+  clearTimeout(n._t);
+  n._t = setTimeout(() => n.style.display = 'none', 2000);
+}
+
+// ── TRILHA SELECT ──
+function selectTrilha(id) {
+  ['bmad','lovable','retrofit'].forEach(t => {
+    document.getElementById('trilha-' + t).style.display = 'none';
+    document.getElementById('card-' + t).classList.remove('selected');
+  });
+  document.getElementById('trilha-' + id).style.display = 'block';
+  document.getElementById('card-' + id).classList.add('selected');
+  state.trilha = id;
+  saveState();
+  setTimeout(() => document.getElementById('trilha-' + id).scrollIntoView({behavior:'smooth', block:'start'}), 50);
+}
+
+// ── MARK DONE ──
+function markDone(id) {
+  state['done-' + id] = true;
+  saveState();
+  applyState();
+}
+
+function applyState() {
+  // Apply done states
+  Object.keys(state).forEach(k => {
+    if (!k.startsWith('done-')) return;
+    const id = k.replace('done-', '');
+    const dot = document.getElementById('dot-' + id);
+    const body = document.getElementById('node-' + id);
+    if (dot) dot.classList.add('done');
+    if (body) body.classList.add('done');
+  });
+}
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  applyState();
+  if (state.trilha) selectTrilha(state.trilha);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kerno Monitor — Roadmap Evolutivo</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#06080f;--s1:#0d1117;--s2:#161b22;--bd:#21262d;--t1:#e6edf3;--t2:#8b949e;--acc:#58a6ff;--grn:#3fb950;--org:#d29922;--red:#f85149;--pur:#bc8cff;--pnk:#f778ba}
+    *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t1);line-height:1.7}code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg);padding:1px 6px;border-radius:3px;color:var(--acc)}
+    .ct{max-width:940px;margin:0 auto;padding:24px}
+    .hero{text-align:center;padding:50px 20px 20px;position:relative}
+    .hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(188,140,255,0.06) 0%,transparent 70%);pointer-events:none}
+    .hero .ver{display:inline-block;background:rgba(188,140,255,0.15);border:1px solid rgba(188,140,255,0.3);border-radius:20px;padding:4px 16px;font-size:11px;color:var(--pur);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+    .hero h1{font-size:36px;font-weight:800;letter-spacing:-1px}
+    .hero h1 span{background:linear-gradient(135deg,var(--pur),var(--acc));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{color:var(--t2);font-size:15px;margin-top:8px;max-width:600px;margin-left:auto;margin-right:auto}
+
+    .ch{margin:36px 0}.ch-h{display:flex;align-items:center;gap:14px;padding:18px 22px;border-radius:12px 12px 0 0;border:1px solid var(--bd)}.ch-n{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;padding:5px 10px;border-radius:6px}.ch-t{font-size:18px;font-weight:700}.ch-b{background:var(--s1);border:1px solid var(--bd);border-top:none;border-radius:0 0 12px 12px;padding:24px}.ch-b>p{font-size:14px;color:var(--t2);margin-bottom:14px}
+
+    .phase{margin:24px 0;border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+    .phase-header{padding:16px 20px;display:flex;align-items:center;gap:12px}
+    .phase-header h3{font-size:16px;font-weight:700;flex:1}
+    .phase-when{font-size:11px;color:var(--t2);font-family:'JetBrains Mono',monospace;padding:3px 10px;background:var(--bg);border-radius:4px}
+    .phase-body{padding:20px;border-top:1px solid var(--bd);background:var(--s1)}
+
+    .phase-now .phase-header{background:linear-gradient(135deg,rgba(63,185,80,0.12),var(--s2))}
+    .phase-next .phase-header{background:linear-gradient(135deg,rgba(88,166,255,0.12),var(--s2))}
+    .phase-future .phase-header{background:linear-gradient(135deg,rgba(188,140,255,0.12),var(--s2))}
+
+    .item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(33,38,45,0.5);font-size:13px;color:var(--t2)}
+    .item:last-child{border:none}
+    .item strong{color:var(--t1)}
+    .item-icon{font-size:16px;min-width:24px}
+
+    .diff{background:var(--s2);border-radius:8px;padding:16px;margin:12px 0;border-left:3px solid var(--pur)}
+    .diff h4{font-size:13px;color:var(--pur);margin-bottom:6px}
+    .diff p{font-size:12px;color:var(--t2)}
+
+    .prompt-box{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:18px;margin:14px 0;position:relative}
+    .prompt-box::before{content:'💬 PRD';position:absolute;top:-10px;left:14px;background:var(--bg);padding:0 8px;font-size:10px;font-weight:700;color:var(--acc);letter-spacing:1px;border:1px solid var(--bd);border-radius:4px}
+    .prompt-box pre{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);white-space:pre-wrap;word-wrap:break-word;margin-top:4px}
+
+    .code-block{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:12px;margin:8px 0;overflow-x:auto}
+    .code-block pre{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);white-space:pre-wrap}
+    .code-block .label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);margin-bottom:6px}
+
+    .info{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--acc)}
+    .warn{background:rgba(210,153,34,0.1);border:1px solid rgba(210,153,34,0.3);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--org)}
+    .success{background:rgba(63,185,80,0.1);border:1px solid rgba(63,185,80,0.3);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--grn)}
+
+    table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12px}
+    th{background:var(--s2);padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--t2);border-bottom:1px solid var(--bd)}
+    td{padding:8px 12px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top}
+
+    .footer{text-align:center;padding:40px;color:var(--t2);font-size:11px;border-top:1px solid var(--bd);margin-top:40px}
+    @media(max-width:640px){.hero h1{font-size:26px}.phase-header{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+<div class="ct">
+
+  <div class="hero">
+    <div class="ver">Roadmap Evolutivo · v3.0</div>
+    <h1>Kerno <span>Monitor</span></h1>
+    <p>De ferramentas prontas a um painel com IA consultora. Evolua conforme sua agência cresce.</p>
+  </div>
+
+  <!-- WHY NOT BUILD NOW -->
+  <div class="ch">
+    <div class="ch-h" style="background:linear-gradient(135deg,rgba(210,153,34,0.1),var(--s1))">
+      <span class="ch-n" style="background:rgba(210,153,34,0.15);color:var(--org)">01</span>
+      <span class="ch-t">Por que NÃO construir o painel agora</span>
+    </div>
+    <div class="ch-b">
+      <p>Antes de investir dias construindo, entenda o que já existe de graça:</p>
+      <table>
+        <tr><th>Ferramenta</th><th>Plano Free</th><th>Para 4-6 apps</th></tr>
+        <tr><td><strong>Sentry</strong></td><td>5K erros/mês, projetos ilimitados, 1 usuário</td><td>✅ Uma conta resolve tudo</td></tr>
+        <tr><td><strong>UptimeRobot</strong></td><td>50 monitores, check 5min</td><td>✅ 3 monitores/app = 12-18 usados de 50</td></tr>
+        <tr><td><strong>GitHub</strong></td><td>Actions + Dependabot + Secrets ilimitados</td><td>✅ Sem limites</td></tr>
+        <tr><td><strong>Cloudflare</strong></td><td>1 domínio/conta, CDN+WAF+DDoS</td><td>✅ 1 conta free por domínio</td></tr>
+      </table>
+      <div class="success">💰 <strong>Custo total com 4-6 projetos: R$ 0.</strong> Não precisa criar conta por projeto. Uma conta de cada basta.</div>
+
+      <p style="margin-top:16px">Construir um painel customizado agora seria gastar dias replicando dashboards que o Sentry e UptimeRobot já oferecem. O que faz sentido é usar as ferramentas prontas AGORA e construir o painel QUANDO os diferenciais reais justificarem.</p>
+
+      <div class="diff">
+        <h4>Os 3 diferenciais reais (que nenhuma ferramenta pronta oferece)</h4>
+        <p><strong>1. Audit logs centralizados</strong> — Nenhuma ferramenta monitora as tabelas audit_log do Supabase de múltiplos projetos.</p>
+        <p><strong>2. Claude como consultor de segurança</strong> — Um painel que não só mostra dados mas INTERPRETA e sugere ações usando IA.</p>
+        <p><strong>3. Verificação automatizada de RLS</strong> — Nenhuma ferramenta verifica periodicamente se suas RLS policies estão corretas.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 PHASES -->
+  <div class="ch">
+    <div class="ch-h" style="background:linear-gradient(135deg,rgba(88,166,255,0.1),var(--s1))">
+      <span class="ch-n" style="background:rgba(88,166,255,0.15);color:var(--acc)">02</span>
+      <span class="ch-t">Roadmap em 3 Fases</span>
+    </div>
+    <div class="ch-b">
+
+      <!-- PHASE 1 -->
+      <div class="phase phase-now">
+        <div class="phase-header">
+          <h3>🟢 Fase 1 — Ferramentas Prontas</h3>
+          <span class="phase-when">AGORA · 0-3 projetos</span>
+        </div>
+        <div class="phase-body">
+          <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Use as ferramentas gratuitas com uma conta cada. "Painel" = 3 abas fixas no navegador.</p>
+          <div class="item"><span class="item-icon">📊</span><div><strong>Sentry:</strong> Uma conta, um projeto por app. Dashboard nativo mostra todos juntos. Alertas por email.</div></div>
+          <div class="item"><span class="item-icon">⏱️</span><div><strong>UptimeRobot:</strong> Uma conta, 3 monitores por app. Dashboard nativo + app mobile. Alertas por email e push.</div></div>
+          <div class="item"><span class="item-icon">🔍</span><div><strong>GitHub:</strong> Notifications centralizadas (Actions + Dependabot + Secrets) para todos os repos.</div></div>
+          <div class="item"><span class="item-icon">📝</span><div><strong>Audit Logs:</strong> Consulta manual semanal no Supabase SQL Editor de cada projeto.</div></div>
+          <div class="item"><span class="item-icon">📋</span><div><strong>Incidentes:</strong> Siga os playbooks do Guia de Resposta a Incidentes.</div></div>
+          <div class="success">✅ Custo: R$ 0 · Tempo de setup: ~1h total · Resultado: monitoramento completo para até 6 projetos.</div>
+        </div>
+      </div>
+
+      <!-- PHASE 2 -->
+      <div class="phase phase-next">
+        <div class="phase-header">
+          <h3>🔵 Fase 2 — Kerno Monitor (MVP com IA)</h3>
+          <span class="phase-when">QUANDO TIVER · 3+ projetos ativos</span>
+        </div>
+        <div class="phase-body">
+          <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Construir no Lovable um painel que foca nos <strong>diferenciais reais</strong>: audit logs centralizados + Claude como consultor.</p>
+
+          <div class="diff">
+            <h4>🤖 Feature central: Claude como consultor de segurança</h4>
+            <p>O painel coleta dados de todos os projetos e envia para a API do Claude, que analisa e responde perguntas como:</p>
+            <p style="margin-top:8px;font-style:italic;color:var(--acc)">"O App Financeiro teve 23 deleções na tabela transactions vindas do usuário X nas últimas 6 horas. O padrão normal é 2-3 deleções por dia. Recomendo: (1) verificar se o usuário X tem permissão para deletar transactions, (2) revisar a RLS policy da tabela, (3) verificar no audit_log os old_data para saber o que foi deletado."</p>
+          </div>
+
+          <div class="item"><span class="item-icon">📡</span><div><strong>Audit logs centralizados:</strong> Edge Functions em cada projeto enviam resumos para o Supabase do Monitor.</div></div>
+          <div class="item"><span class="item-icon">🤖</span><div><strong>Claude AI:</strong> Analisa dados, detecta anomalias, sugere ações. Usa API do Claude (Anthropic).</div></div>
+          <div class="item"><span class="item-icon">📊</span><div><strong>Dashboard unificado:</strong> Cards de status, feed de eventos, gráficos. Dark mode. Auto-refresh.</div></div>
+          <div class="item"><span class="item-icon">🔍</span><div><strong>RLS Checker:</strong> Verificação periódica automatizada de RLS em todas as tabelas de todos os projetos.</div></div>
+          <div class="info">💡 A Fase 2 usa dados do UptimeRobot e Sentry via APIs (que continuam no free tier). O Monitor COMPLEMENTA, não substitui.</div>
+        </div>
+      </div>
+
+      <!-- PHASE 3 -->
+      <div class="phase phase-future">
+        <div class="phase-header">
+          <h3>🟣 Fase 3 — Monitor Avançado</h3>
+          <span class="phase-when">FUTURO · 5+ projetos · equipe</span>
+        </div>
+        <div class="phase-body">
+          <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Automações avançadas e testes periódicos.</p>
+          <div class="item"><span class="item-icon">🧪</span><div><strong>DAST automatizado:</strong> Testes de acesso não autorizado e XSS rodando periodicamente.</div></div>
+          <div class="item"><span class="item-icon">📧</span><div><strong>Alertas inteligentes:</strong> Claude analisa em tempo real e envia alertas com contexto e sugestão de ação.</div></div>
+          <div class="item"><span class="item-icon">📄</span><div><strong>Relatórios automáticos:</strong> Relatório semanal gerado por IA com status de todos os projetos.</div></div>
+          <div class="item"><span class="item-icon">🏷️</span><div><strong>Status pages por cliente:</strong> Página pública mostrando uptime de cada projeto (para o cliente ver).</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 PRD -->
+  <div class="ch">
+    <div class="ch-h" style="background:linear-gradient(135deg,rgba(88,166,255,0.1),var(--s1))">
+      <span class="ch-n" style="background:rgba(88,166,255,0.15);color:var(--acc)">03</span>
+      <span class="ch-t">PRD da Fase 2 — Kerno Monitor com Claude AI</span>
+    </div>
+    <div class="ch-b">
+      <p>Quando tiver 3+ projetos ativos e a Fase 1 funcionando, crie um projeto Lovable SEPARADO com este PRD:</p>
+
+      <div class="prompt-box">
+        <pre>## PRD — Kerno Monitor v1: Painel com IA Consultora
+
+### Visão
+Painel centralizado de segurança para agência que gerencia
+múltiplas aplicações Lovable+Supabase. O diferencial é a
+integração com Claude AI que analisa dados e sugere ações.
+
+### Stack
+React + TypeScript + Tailwind + shadcn/ui + Recharts
+Backend: Supabase separado (novo projeto)
+IA: API do Claude (Anthropic) via Edge Function
+Deploy: Vercel
+
+### Autenticação
+Login email/senha. Sem registro público. Roles: admin, viewer.
+
+### Banco de Dados
+
+Tabela `projects`:
+- id, name, url, supabase_url, supabase_service_role_encrypted
+- github_repo, sentry_project_slug, uptimerobot_monitor_id
+- status (online/degraded/offline/unknown)
+- last_rls_check, last_rls_result (json)
+- created_at, updated_at
+
+Tabela `audit_summaries` (dados vindos de cada projeto):
+- id, project_id (FK), period_start, period_end
+- total_actions, inserts, updates, deletes
+- top_users (jsonb), top_tables (jsonb)
+- anomalies_detected (jsonb)
+- fetched_at
+
+Tabela `ai_analyses`:
+- id, project_id (FK), timestamp
+- context (jsonb — dados enviados ao Claude)
+- analysis (text — resposta do Claude)
+- severity (info/warning/critical)
+- recommended_actions (jsonb)
+- acknowledged (boolean)
+
+Tabela `rls_checks`:
+- id, project_id (FK), checked_at
+- tables_checked (integer)
+- tables_with_rls (integer)
+- tables_without_rls (jsonb — lista das tabelas expostas)
+- policies_summary (jsonb)
+- status (ok/warning/critical)
+
+Tabela `events`:
+- id, project_id (FK), timestamp
+- severity, source, title, description
+- resolved, resolved_at
+
+Tabela `api_keys`:
+- id, service, encrypted_key (Supabase Vault)
+
+### Páginas
+
+/dashboard — Cards de status de cada projeto com semáforo
+(verde/amarelo/vermelho), contadores globais, feed de eventos,
+e caixa de IA onde posso perguntar sobre qualquer projeto.
+Auto-refresh 60 segundos.
+
+/projects/:id — Detalhe: uptime 7d, erros Sentry 7d,
+último resultado do RLS checker, resumo do audit_log,
+últimas análises da IA, e botão "Pedir análise ao Claude".
+
+/ai — Chat com Claude sobre segurança. Ele tem acesso a
+todos os dados dos projetos. Exemplos de perguntas:
+"Algum projeto teve atividade anômala essa semana?"
+"Quais tabelas do App Financeiro não têm RLS?"
+"Resuma os incidentes da última semana e sugira melhorias"
+
+/settings — API keys, gerenciar projetos, gerenciar usuários.
+
+### Edge Functions
+
+1. `fetch-audit-summary` — Para cada projeto, conecta no
+   Supabase dele e traz resumo do audit_log.
+   Roda a cada 6 horas via pg_cron.
+
+2. `check-rls` — Para cada projeto, executa query que
+   lista tabelas e status do RLS. Roda diariamente.
+
+3. `analyze-with-claude` — Pega os dados mais recentes de
+   um projeto (audit summary + RLS check + últimos eventos)
+   e envia para a API do Claude pedindo análise de segurança.
+   Salva resposta em ai_analyses.
+
+4. `fetch-external-apis` — Busca dados do UptimeRobot e
+   Sentry via APIs públicas. Roda a cada 5 minutos.
+
+### Integração Claude AI
+
+System prompt para o Claude:
+"Você é um consultor de segurança analisando dados de
+aplicações web. Você recebe: audit logs, status de RLS,
+erros do Sentry, e uptime. Sua tarefa é: (1) identificar
+anomalias, (2) classificar severidade, (3) recomendar
+ações concretas. Seja direto e prático. Se algo parece
+normal, diga que está normal."
+
+Modelo: claude-sonnet-4-20250514
+Max tokens: 1000 por análise
+
+### Design
+Dark mode. Fundo quase preto. Cards com bordas coloridas
+por status. JetBrains Mono para métricas. Otimizado para
+monitor 1920x1080 (modo sala de monitoramento com F11).
+Responsivo para mobile (verificação rápida).
+
+### Segurança
+RLS em todas as tabelas. API keys no Vault.
+service_role dos projetos monitorados criptografadas.
+Auth obrigatório. Headers no vercel.json.</pre>
+      </div>
+
+      <div class="warn">⚠️ <strong>Sobre o custo da API do Claude:</strong> O modelo Sonnet é o mais custo-efetivo. Uma análise por projeto por dia = ~4 análises/dia = custo estimado de $1-3/mês. Bem menor que qualquer ferramenta paga de monitoramento.</div>
+    </div>
+  </div>
+
+  <!-- HOW TO TRANSITION -->
+  <div class="ch">
+    <div class="ch-h" style="background:linear-gradient(135deg,rgba(63,185,80,0.1),var(--s1))">
+      <span class="ch-n" style="background:rgba(63,185,80,0.15);color:var(--grn)">04</span>
+      <span class="ch-t">Quando transicionar de fase</span>
+    </div>
+    <div class="ch-b">
+      <table>
+        <tr><th>Indicador</th><th>Fase 1 → Fase 2</th></tr>
+        <tr><td>Quantidade de projetos</td><td>Quando tiver 3+ projetos ativos com audit_log configurado</td></tr>
+        <tr><td>Tempo gasto em monitoramento</td><td>Quando a rotina semanal em múltiplas abas começar a tomar mais de 30 min</td></tr>
+        <tr><td>Consultar audit_log manualmente</td><td>Quando se tornar chato fazer SQL em 3+ projetos Supabase separados</td></tr>
+        <tr><td>Necessidade de IA</td><td>Quando quiser análise inteligente, não só dados crus</td></tr>
+      </table>
+      <table style="margin-top:16px">
+        <tr><th>Indicador</th><th>Fase 2 → Fase 3</th></tr>
+        <tr><td>Equipe</td><td>Quando tiver mais de uma pessoa monitorando</td></tr>
+        <tr><td>Clientes pedindo status</td><td>Quando clientes quiserem ver uptime do próprio projeto</td></tr>
+        <tr><td>Volume de incidentes</td><td>Quando quiser automação completa de detecção e resposta</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    Kerno BMAD v5.5.3<br>
+    Kit D — Kerno Monitor · Roadmap Evolutivo<br>
+    Fase 1: Ferramentas prontas · Fase 2: Monitor + Claude AI · Fase 3: Automação avançada
+  </div>
+
+</div>
+</body>
+</html>

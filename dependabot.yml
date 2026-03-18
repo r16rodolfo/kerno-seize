@@ -1,0 +1,18 @@
+# Dependabot — Atualização automática de dependências
+# Crie este arquivo em: .github/dependabot.yml
+#
+# O que faz: O GitHub verifica semanalmente se suas dependências
+# têm vulnerabilidades conhecidas e abre Pull Requests automáticos
+# com as atualizações de segurança.
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "security"
+      - "dependencies"

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kerno — Guia de Resposta a Incidentes</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#06080f;--s1:#0d1117;--s2:#161b22;--bd:#21262d;--t1:#e6edf3;--t2:#8b949e;--acc:#58a6ff;--grn:#3fb950;--org:#d29922;--red:#f85149;--pur:#bc8cff;--pnk:#f778ba}
+    *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t1);line-height:1.7}code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg);padding:1px 6px;border-radius:3px;color:var(--acc)}
+    .ct{max-width:940px;margin:0 auto;padding:24px}
+    .hero{text-align:center;padding:50px 20px 20px;position:relative}
+    .hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(248,81,73,0.06) 0%,transparent 70%);pointer-events:none}
+    .hero .ver{display:inline-block;background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.3);border-radius:20px;padding:4px 16px;font-size:11px;color:var(--red);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+    .hero h1{font-size:36px;font-weight:800;letter-spacing:-1px}
+    .hero h1 span{background:linear-gradient(135deg,var(--red),var(--org));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{color:var(--t2);font-size:15px;margin-top:8px;max-width:600px;margin-left:auto;margin-right:auto}
+
+    .ch{margin:36px 0;scroll-margin-top:20px}
+    .ch-h{display:flex;align-items:center;gap:14px;padding:18px 22px;border-radius:12px 12px 0 0;border:1px solid var(--bd)}
+    .ch-n{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;padding:5px 10px;border-radius:6px}
+    .ch-t{font-size:18px;font-weight:700}
+    .ch-b{background:var(--s1);border:1px solid var(--bd);border-top:none;border-radius:0 0 12px 12px;padding:24px}
+    .ch-b>p{font-size:14px;color:var(--t2);margin-bottom:14px}
+
+    .playbook{background:var(--s2);border-radius:10px;margin:16px 0;overflow:hidden}
+    .pb-header{padding:16px 20px;display:flex;align-items:center;gap:12px;cursor:default}
+    .pb-severity{font-size:10px;padding:3px 10px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+    .sev-critical{background:rgba(248,81,73,0.2);color:var(--red);border:1px solid rgba(248,81,73,0.4)}
+    .sev-high{background:rgba(210,153,34,0.2);color:var(--org);border:1px solid rgba(210,153,34,0.4)}
+    .sev-medium{background:rgba(88,166,255,0.15);color:var(--acc);border:1px solid rgba(88,166,255,0.3)}
+    .sev-low{background:rgba(63,185,80,0.15);color:var(--grn);border:1px solid rgba(63,185,80,0.3)}
+    .pb-title{font-size:15px;font-weight:600;flex:1}
+    .pb-time{font-size:11px;color:var(--t2);font-family:'JetBrains Mono',monospace}
+    .pb-body{padding:0 20px 20px;border-top:1px solid var(--bd)}
+
+    .step-list{margin:12px 0}
+    .step-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(33,38,45,0.5)}
+    .step-item:last-child{border:none}
+    .step-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--acc);min-width:24px;padding-top:2px}
+    .step-content{flex:1;font-size:13px;color:var(--t2)}
+    .step-content strong{color:var(--t1)}
+
+    .code-block{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:12px;margin:8px 0;overflow-x:auto}
+    .code-block pre{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);white-space:pre-wrap}
+    .code-block .label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);margin-bottom:6px}
+
+    .warn{background:rgba(210,153,34,0.1);border:1px solid rgba(210,153,34,0.3);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--org)}
+    .info{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--acc)}
+    .danger{background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.3);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--red)}
+
+    table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12px}
+    th{background:var(--s2);padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--t2);border-bottom:1px solid var(--bd)}
+    td{padding:8px 12px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top}
+
+    .principle{background:var(--bg);border-left:3px solid var(--pur);border-radius:0 8px 8px 0;padding:14px 16px;margin:10px 0}
+    .principle h4{font-size:13px;color:var(--pur);margin-bottom:4px}
+    .principle p{font-size:12px;color:var(--t2)}
+
+    .footer{text-align:center;padding:40px;color:var(--t2);font-size:11px;border-top:1px solid var(--bd);margin-top:40px}
+    @media(max-width:640px){.hero h1{font-size:26px}.pb-header{flex-wrap:wrap}.pb-time{width:100%}}
+  </style>
+</head>
+<body>
+<div class="ct">
+
+  <div class="hero">
+    <div class="ver">Guia Operacional</div>
+    <h1>Resposta a <span>Incidentes</span></h1>
+    <p>O que fazer quando algo dá errado. Playbooks passo a passo para cada tipo de incidente — do "app caiu" ao "fomos invadidos".</p>
+  </div>
+
+  <!-- PRINCIPLES -->
+  <div class="ch">
+    <div class="ch-h" style="background:linear-gradient(135deg,rgba(188,140,255,0.1),var(--s1))">
+      <span class="ch-n" style="background:rgba(188,140,255,0.15);color:var(--pur)">00</span>
+      <span class="ch-t">Princípios de Resposta</span>
+    </div>
+    <div class="ch-b">
+      <p>Antes dos playbooks, internalize estes princípios. Eles se aplicam a QUALQUER incidente.</p>
+
+      <div class="principle">
+        <h4>1. Não entre em pânico</h4>
+        <p>Decisões apressadas causam mais dano que o incidente original. Respire, leia o playbook, siga os passos.</p>
+      </div>
+      <div class="principle">
+        <h4>2. Contenha ANTES de corrigir</h4>
+        <p>Primeiro pare o sangramento (bloquear acesso, reverter deploy). Depois investigue a causa. Corrigir sem conter pode piorar.</p>
+      </div>
+      <div class="principle">
+        <h4>3. Documente tudo</h4>
+        <p>Anote: hora que descobriu, o que viu, o que fez, o resultado. Isso é essencial para aprender e evitar que aconteça de novo.</p>
+      </div>
+      <div class="principle">
+        <h4>4. Preserve evidências</h4>
+        <p>Antes de deletar ou corrigir, tire screenshots, exporte logs, copie dados. Se for invasão, você pode precisar dessas evidências.</p>
+      </div>
+      <div class="principle">
+        <h4>5. Comunicação</h4>
+        <p>Se o incidente afeta clientes, comunique rapidamente: "Identificamos um problema, estamos trabalhando na solução". Silêncio é pior que más notícias.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEVERITY GUIDE -->
+  <div class="ch">
+    <div class="ch-h" style="background:linear-gradient(135deg,rgba(248,81,73,0.1),var(--s1))">
+      <span class="ch-n" style="background:rgba(248,81,73,0.15);color:var(--red)">01</span>
+      <span class="ch-t">Classificação de Severidade</span>
+    </div>
+    <div class="ch-b">
+      <table>
+        <tr><th>Nível</th><th>Significado</th><th>Tempo de Resposta</th><th>Exemplos</th></tr>
+        <tr>
+          <td><span class="pb-severity sev-critical">CRÍTICO</span></td>
+          <td>App fora do ar OU dados comprometidos</td>
+          <td><strong>Imediato</strong> (parar o que estiver fazendo)</td>
+          <td>App caiu, invasão detectada, dados de usuários expostos, secret vazou</td>
+        </tr>
+        <tr>
+          <td><span class="pb-severity sev-high">ALTO</span></td>
+          <td>Funcionalidade principal quebrada OU vulnerabilidade explorável</td>
+          <td><strong>Até 4 horas</strong></td>
+          <td>Login não funciona, RLS desabilitado, pipeline falhando, pico de erros</td>
+        </tr>
+        <tr>
+          <td><span class="pb-severity sev-medium">MÉDIO</span></td>
+          <td>Feature secundária com defeito OU alerta de dependência</td>
+          <td><strong>Até 24 horas</strong></td>
+          <td>CVE em dependência, busca global parou, erro intermitente</td>
+        </tr>
+        <tr>
+          <td><span class="pb-severity sev-low">BAIXO</span></td>
+          <td>Problema estético ou melhoria de segurança</td>
+          <td><strong>Próximo ciclo semanal</strong></td>
+          <td>Console.log desnecessário, header faltando, dependência desatualizada</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PLAYBOOK: APP DOWN -->
+  <div class="ch">
+    <div class="ch-h" style="background:linear-gradient(135deg,rgba(248,81,73,0.1),var(--s1))">
+      <span class="ch-n" style="background:rgba(248,81,73,0.15);color:var(--red)">02</span>
+      <span class="ch-t">Playbooks por Incidente</span>
+    </div>
+    <div class="ch-b">
+
+      <!-- PB1: APP DOWN -->
+      <div class="playbook">
+        <div class="pb-header">
+          <span class="pb-severity sev-critical">CRÍTICO</span>
+          <span class="pb-title">App fora do ar (UptimeRobot alertou)</span>
+          <span class="pb-time">Meta: resolver em 30 min</span>
+        </div>
+        <div class="pb-body">
+          <p style="font-size:13px;color:var(--t2);margin:12px 0"><strong>Você recebeu:</strong> Email do UptimeRobot dizendo "Monitor is DOWN"</p>
+          <div class="step-list">
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <div class="step-content"><strong>Confirme manualmente.</strong> Abra a URL no navegador e no celular. Pode ser falso positivo do UptimeRobot.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <div class="step-content"><strong>Se confirmou que está fora, verifique a Vercel:</strong> Abra vercel.com → seu projeto → Deployments. O último deploy está com ❌? Se sim, o problema é no deploy.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div class="step-content"><strong>Se deploy falhou:</strong> Clique no deploy anterior que estava ✅ → botão "Promote to Production". Isso restaura a versão que funcionava em segundos.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">4</span>
+              <div class="step-content"><strong>Se deploy está ✅ mas app não carrega:</strong> Verifique o Supabase. Abra supabase.com → seu projeto. Se o dashboard não abrir ou mostrar erro, o problema é no Supabase (raro, geralmente é manutenção deles).</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">5</span>
+              <div class="step-content"><strong>Se Supabase está ok:</strong> Verifique o Cloudflare (se usa). Security → Events. Pode estar bloqueando tráfego legítimo. Temporariamente mude Security Level para "Essentially Off".</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">6</span>
+              <div class="step-content"><strong>Se nada acima funcionou:</strong> Abra o Sentry para ver se há erros. Abra o console do navegador (F12) na URL de produção para ver erros JavaScript.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">7</span>
+              <div class="step-content"><strong>Após resolver:</strong> Documente o que aconteceu no CHANGELOG.md. Verifique que o UptimeRobot mudou para "UP".</div>
+            </div>
+          </div>
+          <div class="info">💡 <strong>90% das vezes</strong> um app Lovable+Vercel cai por: deploy com erro (resolve revertendo) ou Supabase fora (aguardar). Raramente é algo complexo.</div>
+        </div>
+      </div>
+
+      <!-- PB2: PICO DE ERROS -->
+      <div class="playbook">
+        <div class="pb-header">
+          <span class="pb-severity sev-high">ALTO</span>
+          <span class="pb-title">Pico de erros no Sentry</span>
+          <span class="pb-time">Meta: investigar em 4h</span>
+        </div>
+        <div class="pb-body">
+          <p style="font-size:13px;color:var(--t2);margin:12px 0"><strong>Você recebeu:</strong> Alerta do Sentry — "Event frequency exceeded threshold"</p>
+          <div class="step-list">
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <div class="step-content"><strong>Abra o Sentry → Issues.</strong> Veja qual erro está disparando. Clique nele para ver o stack trace (onde no código o erro acontece).</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <div class="step-content"><strong>Verifique o padrão:</strong> É um erro novo? Começou após algum deploy? Se sim → o deploy introduziu o bug. Reverta na Vercel (Promote deploy anterior).</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div class="step-content"><strong>Verifique os usuários:</strong> No Sentry, veja se o erro vem de muitos usuários ou de um só. Um único usuário com centenas de erros pode indicar bot ou tentativa de ataque.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">4</span>
+              <div class="step-content"><strong>Se parece ataque:</strong> Verifique o Cloudflare Security → Events. Se houver IPs suspeitos, bloqueie-os. Verifique audit_log no Supabase para esse período.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">5</span>
+              <div class="step-content"><strong>Se é bug legítimo:</strong> Corrija no Lovable com prompt específico: "Corrija o erro [descrição] no arquivo [arquivo]. NÃO altere mais nada." Pin → Fix → Test → Pin.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">6</span>
+              <div class="step-content"><strong>Após resolver:</strong> No Sentry, marque o issue como "Resolved". Se voltar a acontecer, o Sentry reabrirá automaticamente.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PB3: SECRET LEAKED -->
+      <div class="playbook">
+        <div class="pb-header">
+          <span class="pb-severity sev-critical">CRÍTICO</span>
+          <span class="pb-title">Secret vazou (chave de API no código)</span>
+          <span class="pb-time">Meta: resolver IMEDIATAMENTE</span>
+        </div>
+        <div class="pb-body">
+          <p style="font-size:13px;color:var(--t2);margin:12px 0"><strong>Você recebeu:</strong> Alerta do GitHub Secret Scanning, OU percebeu uma chave no código</p>
+          <div class="danger">🚨 Este é o incidente mais urgente. Uma chave exposta pode ser usada em minutos por bots que escaneiam o GitHub continuamente.</div>
+          <div class="step-list">
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <div class="step-content"><strong>ROTACIONE A CHAVE IMEDIATAMENTE.</strong> Vá ao serviço afetado (Supabase, Sentry, etc.) e gere uma nova chave. A chave antiga morre na hora.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <div class="step-content"><strong>Atualize a nova chave na Vercel:</strong> Settings → Environment Variables → substitua o valor → Redeploy.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div class="step-content"><strong>Verifique se foi usada:</strong> No Supabase, verifique audit_log das últimas horas. Houve ações que você não fez? No Auth, tem usuários estranhos?</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">4</span>
+              <div class="step-content"><strong>Remova do código:</strong> No Lovable, peça: "Remova qualquer chave hardcoded e use import.meta.env.VITE_* em vez disso."</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">5</span>
+              <div class="step-content"><strong>Limpe o histórico:</strong> Mesmo depois de remover do código, a chave AINDA ESTÁ no histórico do Git. Se o repo é público, considere torná-lo privado. Para repos privados, o risco é menor mas a chave já foi rotacionada no passo 1.</div>
+            </div>
+          </div>
+          <div class="warn">⚠️ Se a chave era a <code>service_role</code> do Supabase: isso é equivalente a root access ao banco. Verifique TODOS os dados. Se houver dados de clientes, pode ser necessário notificá-los (LGPD Art. 48).</div>
+        </div>
+      </div>
+
+      <!-- PB4: SUSPICIOUS ACTIVITY -->
+      <div class="playbook">
+        <div class="pb-header">
+          <span class="pb-severity sev-critical">CRÍTICO</span>
+          <span class="pb-title">Atividade suspeita / possível invasão</span>
+          <span class="pb-time">Meta: conter em 1h</span>
+        </div>
+        <div class="pb-body">
+          <p style="font-size:13px;color:var(--t2);margin:12px 0"><strong>Sinais:</strong> Deleções em massa no audit_log, usuários desconhecidos, dados alterados, acesso fora do horário</p>
+          <div class="step-list">
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <div class="step-content"><strong>Contenha:</strong> Se identificou o usuário suspeito → Supabase → Auth → selecione o usuário → "Ban User". Isso bloqueia o acesso imediatamente.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <div class="step-content"><strong>Preserve evidências:</strong> Execute AGORA no Supabase SQL Editor:
+                <div class="code-block"><pre>-- Exportar audit_log das últimas 48h
+SELECT * FROM audit_log
+WHERE timestamp > now() - interval '48 hours'
+ORDER BY timestamp DESC;</pre></div>
+                Copie o resultado e salve em arquivo separado.
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div class="step-content"><strong>Analise a extensão:</strong> Quais tabelas foram afetadas? Quais dados foram acessados/alterados? Use:
+                <div class="code-block"><pre>-- O que o invasor fez?
+SELECT action, table_name, count(*)
+FROM audit_log
+WHERE user_id = 'UUID_SUSPEITO'
+AND timestamp > now() - interval '48 hours'
+GROUP BY action, table_name;</pre></div>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">4</span>
+              <div class="step-content"><strong>Rotacione TODAS as chaves:</strong> anon key, service_role (se comprometida), qualquer API key que o invasor possa ter visto.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">5</span>
+              <div class="step-content"><strong>Verifique RLS:</strong> O invasor conseguiu acessar dados que não deveria? Se sim, suas RLS policies têm falhas. Corrija ANTES de reabrir o acesso.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">6</span>
+              <div class="step-content"><strong>Se dados pessoais foram comprometidos (LGPD):</strong> Você tem obrigação legal de notificar a ANPD (Autoridade Nacional de Proteção de Dados) e os titulares dos dados em prazo razoável. Consulte um advogado.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">7</span>
+              <div class="step-content"><strong>Pós-incidente:</strong> Documente tudo. Faça revisão completa de RLS. Considere: como o invasor entrou? Senha fraca? RLS faltando? Secret exposto? Corrija a causa raiz.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PB5: DEPENDABOT ALERT -->
+      <div class="playbook">
+        <div class="pb-header">
+          <span class="pb-severity sev-medium">MÉDIO</span>
+          <span class="pb-title">Alerta do Dependabot (CVE em dependência)</span>
+          <span class="pb-time">Meta: avaliar em 24h, resolver em 1 semana</span>
+        </div>
+        <div class="pb-body">
+          <p style="font-size:13px;color:var(--t2);margin:12px 0"><strong>Você recebeu:</strong> Email/PR do Dependabot com vulnerabilidade</p>
+          <div class="step-list">
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <div class="step-content"><strong>Leia a severidade:</strong> GitHub → Security → Dependabot alerts. Veja se é Critical, High, Medium ou Low.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <div class="step-content"><strong>Verifique se afeta você:</strong> Muitas CVEs são em funcionalidades que você não usa. Leia a descrição. Se é uma vulnerabilidade em "server-side XML parsing" e você não processa XML, o risco real é baixo.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div class="step-content"><strong>Se o Dependabot abriu PR automático:</strong> Verifique se a atualização é patch (1.2.3→1.2.4). Se sim, aprove e merge. O pipeline SAST vai rodar automaticamente.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">4</span>
+              <div class="step-content"><strong>Se é major update (1.x→2.x):</strong> Teste no preview da Vercel antes de fazer merge. Major updates podem ter breaking changes.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">5</span>
+              <div class="step-content"><strong>Se não há fix disponível:</strong> Avalie se a dependência pode ser substituída. Marque o alert como "Dismissed" com motivo se decidir não corrigir.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PB6: SAST FAILED -->
+      <div class="playbook">
+        <div class="pb-header">
+          <span class="pb-severity sev-high">ALTO</span>
+          <span class="pb-title">Pipeline SAST falhou (Semgrep encontrou algo)</span>
+          <span class="pb-time">Meta: avaliar em 4h</span>
+        </div>
+        <div class="pb-body">
+          <div class="step-list">
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <div class="step-content"><strong>Abra GitHub → Actions</strong> → clique na execução com ❌. Veja qual job falhou (Semgrep, npm audit, ou Scanner).</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <div class="step-content"><strong>Baixe o relatório</strong> em Artifacts. Abra o HTML para ver os detalhes com arquivo, linha e tipo do problema.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div class="step-content"><strong>Classifique:</strong> É um problema real ou falso positivo? Semgrep às vezes alerta sobre padrões que no seu contexto são seguros.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">4</span>
+              <div class="step-content"><strong>Se é real:</strong> Corrija no Lovable com prompt específico citando o arquivo e a linha. Teste. O pipeline vai rodar novamente automaticamente no push.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">5</span>
+              <div class="step-content"><strong>Se é falso positivo:</strong> Adicione um comentário <code>// nosemgrep: rule-id</code> na linha para silenciar.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PB7: UNUSUAL DELETES -->
+      <div class="playbook">
+        <div class="pb-header">
+          <span class="pb-severity sev-high">ALTO</span>
+          <span class="pb-title">Deleções incomuns no audit_log</span>
+          <span class="pb-time">Meta: investigar em 4h</span>
+        </div>
+        <div class="pb-body">
+          <p style="font-size:13px;color:var(--t2);margin:12px 0"><strong>Você encontrou:</strong> Na revisão semanal, várias deleções que você não fez</p>
+          <div class="step-list">
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <div class="step-content"><strong>Identifique o usuário:</strong>
+                <div class="code-block"><pre>SELECT user_id, table_name, count(*), min(timestamp), max(timestamp)
+FROM audit_log
+WHERE action = 'DELETE'
+AND timestamp > now() - interval '7 days'
+GROUP BY user_id, table_name
+ORDER BY count DESC;</pre></div>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <div class="step-content"><strong>Veja os detalhes:</strong> O que foi deletado?
+                <div class="code-block"><pre>SELECT * FROM audit_log
+WHERE action = 'DELETE'
+AND user_id = 'UUID_DO_USUARIO'
+ORDER BY timestamp DESC LIMIT 20;</pre></div>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div class="step-content"><strong>Avalie:</strong> O usuário tinha permissão para deletar? Era uso normal do app (cliente deletando seus próprios dados) ou anômalo (alguém deletando dados de outros)?</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">4</span>
+              <div class="step-content"><strong>Se anômalo:</strong> Siga o playbook de "Atividade suspeita / possível invasão" acima.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">5</span>
+              <div class="step-content"><strong>Recuperação:</strong> Os dados antigos estão no campo <code>old_data</code> do audit_log. Você pode reconstruir registros deletados a partir dessa informação.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PB8: RLS MISSING -->
+      <div class="playbook">
+        <div class="pb-header">
+          <span class="pb-severity sev-critical">CRÍTICO</span>
+          <span class="pb-title">Tabela sem RLS descoberta</span>
+          <span class="pb-time">Meta: corrigir IMEDIATAMENTE</span>
+        </div>
+        <div class="pb-body">
+          <div class="step-list">
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <div class="step-content"><strong>Verifique AGORA:</strong> No Supabase SQL Editor:
+                <div class="code-block"><pre>-- Listar tabelas sem RLS
+SELECT schemaname, tablename, rowsecurity
+FROM pg_tables
+WHERE schemaname = 'public'
+ORDER BY tablename;</pre></div>
+                Se <code>rowsecurity</code> está <code>false</code>, a tabela está exposta.
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <div class="step-content"><strong>Ative RLS imediatamente:</strong> <code>ALTER TABLE nome_tabela ENABLE ROW LEVEL SECURITY;</code></div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div class="step-content"><strong>CUIDADO:</strong> Ativar RLS sem policies bloqueia TODO acesso (inclusive legítimo). Crie policies básicas:
+                <div class="code-block"><pre>-- Policy básica: usuários veem apenas seus dados
+CREATE POLICY "Users see own data" ON nome_tabela
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- Admins veem tudo
+CREATE POLICY "Admins full access" ON nome_tabela
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM user_roles
+    WHERE user_roles.user_id = auth.uid()
+    AND role = 'admin')
+  );</pre></div>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">4</span>
+              <div class="step-content"><strong>Teste:</strong> Faça login como usuário normal e verifique que ainda consegue usar o app normalmente.</div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">5</span>
+              <div class="step-content"><strong>Verifique no audit_log:</strong> Alguém acessou dados dessa tabela indevidamente antes de você corrigir?</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MONITORING STRATEGY -->
+  <div class="ch">
+    <div class="ch-h" style="background:linear-gradient(135deg,rgba(88,166,255,0.1),var(--s1))">
+      <span class="ch-n" style="background:rgba(88,166,255,0.15);color:var(--acc)">03</span>
+      <span class="ch-t">Estratégia de Monitoramento com Ferramentas Prontas</span>
+    </div>
+    <div class="ch-b">
+      <p>Em vez de construir um painel do zero, use as ferramentas gratuitas de forma inteligente. Uma conta de cada resolve até 6 projetos.</p>
+
+      <table>
+        <tr><th>Ferramenta</th><th>Plano Free</th><th>Suficiente para</th><th>O que monitorar</th></tr>
+        <tr><td><strong>Sentry</strong></td><td>5K erros/mês, projetos ilimitados, 1 usuário</td><td>4-6 apps pequenas</td><td>Erros JS, crashes, performance</td></tr>
+        <tr><td><strong>UptimeRobot</strong></td><td>50 monitores, check a cada 5min</td><td>~16 projetos (3 monitores/projeto)</td><td>Uptime, response time, SSL</td></tr>
+        <tr><td><strong>GitHub</strong></td><td>Actions, Dependabot, Secret scan ilimitados</td><td>Qualquer quantidade</td><td>SAST, CVEs, secrets</td></tr>
+        <tr><td><strong>Cloudflare</strong></td><td>1 site/conta (criar conta por domínio)</td><td>Ilimitado (1 conta free por domínio)</td><td>WAF, DDoS, CDN, analytics</td></tr>
+        <tr><td><strong>Supabase</strong></td><td>2 projetos free / conta</td><td>Criar conta por par de projetos</td><td>Auth, banco, audit_log</td></tr>
+      </table>
+
+      <div class="info">💡 <strong>Custo total: R$ 0.</strong> Uma conta Sentry + uma conta UptimeRobot + GitHub + Cloudflare Free + Supabase Free cobrem uma agência com 4-6 projetos sem pagar nada em dólar.</div>
+
+      <h3 style="margin:20px 0 10px;font-size:15px">Como organizar na prática</h3>
+
+      <div class="step-list">
+        <div class="step-item">
+          <span class="step-num">1</span>
+          <div class="step-content"><strong>Sentry:</strong> Uma conta, um projeto por app. O dashboard do Sentry já mostra todos os projetos lado a lado. Favoritar os mais importantes.</div>
+        </div>
+        <div class="step-item">
+          <span class="step-num">2</span>
+          <div class="step-content"><strong>UptimeRobot:</strong> Uma conta, 3 monitores por app (frontend, API, login). O dashboard mostra todos juntos. Configurar alertas por email E pelo app mobile.</div>
+        </div>
+        <div class="step-item">
+          <span class="step-num">3</span>
+          <div class="step-content"><strong>GitHub:</strong> Uma aba do navegador fixa em github.com/notifications. Todas as alertas de segurança de todos os repos aparecem aqui.</div>
+        </div>
+        <div class="step-item">
+          <span class="step-num">4</span>
+          <div class="step-content"><strong>Abas fixas no navegador:</strong> Fixe 3 abas (Sentry, UptimeRobot, GitHub). Isso funciona como um "mini painel" sem construir nada.</div>
+        </div>
+        <div class="step-item">
+          <span class="step-num">5</span>
+          <div class="step-content"><strong>Audit logs:</strong> Este é o ÚNICO item que não tem ferramenta pronta. Consultar semanalmente via Supabase SQL Editor em cada projeto.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST-INCIDENT -->
+  <div class="ch">
+    <div class="ch-h" style="background:linear-gradient(135deg,rgba(63,185,80,0.1),var(--s1))">
+      <span class="ch-n" style="background:rgba(63,185,80,0.15);color:var(--grn)">04</span>
+      <span class="ch-t">Pós-Incidente — Aprendizado</span>
+    </div>
+    <div class="ch-b">
+      <p>Depois de resolver qualquer incidente MÉDIO ou acima, faça uma mini retrospectiva. Não precisa ser formal — 10 minutos anotando:</p>
+
+      <div class="code-block">
+        <div class="label">Template — Relatório pós-incidente</div>
+        <pre>## Incidente: [título curto]
+**Data:** YYYY-MM-DD HH:MM
+**Severidade:** Crítico / Alto / Médio
+**App afetado:** [nome]
+**Duração:** [quanto tempo durou]
+
+### O que aconteceu
+[Descreva em 2-3 frases]
+
+### Como descobrimos
+[UptimeRobot alertou? Sentry? Usuário reportou? Revisão semanal?]
+
+### O que fizemos
+[Passos que seguiu para resolver]
+
+### Causa raiz
+[Por que aconteceu? Deploy sem testar? RLS faltando? Dependência?]
+
+### O que vamos fazer para não repetir
+[Ação concreta: adicionar teste, corrigir RLS, mudar processo]</pre>
+      </div>
+
+      <div class="info">💡 Salve esses relatórios no <code>/docs/INCIDENT_LOG.md</code> do projeto. Com o tempo, você terá um histórico que mostra padrões e melhora seus processos.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Kerno BMAD v5.5.3<br>
+    Guia de Resposta a Incidentes · 8 playbooks · Estratégia de monitoramento com ferramentas gratuitas
+  </div>
+
+</div>
+</body>
+</html>

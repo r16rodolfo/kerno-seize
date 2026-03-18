@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kerno Framework — Roadmap Completo</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06080f;
+      --surface: #0d1117;
+      --surface2: #161b22;
+      --border: #21262d;
+      --text: #e6edf3;
+      --text2: #8b949e;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --orange: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --pink: #f778ba;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .container { max-width: 940px; margin: 0 auto; padding: 24px; }
+
+    /* HEADER */
+    .hero { text-align: center; padding: 60px 20px 40px; position: relative; }
+    .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse, rgba(88,166,255,0.08) 0%, transparent 70%); pointer-events: none; }
+    .hero .badge { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 16px; font-size: 12px; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+    .hero h1 { font-size: 42px; font-weight: 800; letter-spacing: -1px; background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p { color: var(--text2); font-size: 17px; margin-top: 10px; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+    /* TIMELINE */
+    .timeline { position: relative; padding-left: 40px; margin: 40px 0; }
+    .timeline::before { content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--accent), var(--purple), var(--green)); }
+
+    .phase { position: relative; margin-bottom: 40px; }
+    .phase-dot { position: absolute; left: -33px; top: 6px; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--bg); z-index: 1; }
+
+    .phase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .phase-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+    .phase-num { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+    .phase-title { font-size: 18px; font-weight: 700; }
+    .phase-when { margin-left: auto; font-size: 12px; color: var(--text2); background: var(--surface2); padding: 2px 10px; border-radius: 4px; }
+    .phase-body { padding: 20px 24px; }
+    .phase-body p { color: var(--text2); font-size: 14px; margin-bottom: 12px; }
+
+    .step { background: var(--surface2); border-radius: 8px; padding: 16px; margin: 10px 0; border-left: 3px solid var(--border); }
+    .step-title { font-weight: 600; font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .step-title .icon { font-size: 16px; }
+    .step p, .step li { font-size: 13px; color: var(--text2); }
+    .step ul { margin: 6px 0 0 20px; }
+    .step li { margin: 3px 0; }
+    .step code { background: var(--bg); padding: 1px 6px; border-radius: 3px; font-size: 12px; color: var(--accent); }
+
+    .file-ref { display: inline-flex; align-items: center; gap: 6px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; font-size: 12px; color: var(--accent); margin: 2px 0; }
+    .file-ref::before { content: '📄'; }
+
+    .cmd-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin: 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--green); overflow-x: auto; white-space: pre; }
+
+    .config-block { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 10px 0; }
+    .config-block .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); margin-bottom: 8px; }
+    .config-block pre { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text2); overflow-x: auto; white-space: pre; }
+
+    .warn { background: rgba(210,153,34,0.1); border: 1px solid rgba(210,153,34,0.3); border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; color: var(--orange); }
+    .info { background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.2); border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; color: var(--accent); }
+
+    /* CHECKLIST TABLE */
+    .checklist { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    .checklist th { background: var(--surface2); padding: 8px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); border-bottom: 1px solid var(--border); }
+    .checklist td { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+    .checklist .check { color: var(--green); font-weight: bold; }
+
+    /* COLORS PER PHASE */
+    .p-start .phase-dot { background: var(--accent); }
+    .p-start .phase-num { background: rgba(88,166,255,0.15); color: var(--accent); }
+    .p-start .step { border-left-color: var(--accent); }
+
+    .p-dev .phase-dot { background: var(--purple); }
+    .p-dev .phase-num { background: rgba(188,140,255,0.15); color: var(--purple); }
+    .p-dev .step { border-left-color: var(--purple); }
+
+    .p-sec .phase-dot { background: var(--orange); }
+    .p-sec .phase-num { background: rgba(210,153,34,0.15); color: var(--orange); }
+    .p-sec .step { border-left-color: var(--orange); }
+
+    .p-deploy .phase-dot { background: var(--green); }
+    .p-deploy .phase-num { background: rgba(63,185,80,0.15); color: var(--green); }
+    .p-deploy .step { border-left-color: var(--green); }
+
+    .p-monitor .phase-dot { background: var(--pink); }
+    .p-monitor .phase-num { background: rgba(247,120,186,0.15); color: var(--pink); }
+    .p-monitor .step { border-left-color: var(--pink); }
+
+    .footer { text-align: center; padding: 40px; color: var(--text2); font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 28px; }
+      .phase-header { flex-wrap: wrap; }
+      .phase-when { margin-left: 0; margin-top: 4px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ KERNO NAV CONTEXTUAL ═══ -->
+<div id="kerno-nav" style="position:sticky;top:0;z-index:200;background:rgba(6,8,15,.92);backdrop-filter:blur(16px);border-bottom:1px solid #21262d;padding:0 20px;">
+  <div style="max-width:940px;margin:0 auto;height:48px;display:flex;align-items:center;overflow-x:auto;gap:0;">
+    <a href="KERNO-FLUXO.html" style="display:flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#58a6ff;text-decoration:none;white-space:nowrap;padding:0 14px 0 0;border-right:1px solid #21262d;margin-right:14px;flex-shrink:0;">🗺️ Mapa do Fluxo</a>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#556680;white-space:nowrap;flex-shrink:0;">Trilha A · Projeto Novo com BMAD</span>
+    <span style="color:#21262d;margin:0 10px;flex-shrink:0;">›</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#e6edf3;font-weight:700;white-space:nowrap;flex-shrink:0;">KERNO-ROADMAP</span>
+    <div style="margin-left:auto;flex-shrink:0;padding-left:14px;border-left:1px solid #21262d;">
+      <a href="KERNO-GUIA-PASSO-A-PASSO.html" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#3fb950;text-decoration:none;white-space:nowrap;font-weight:700;">Próximo: Guia Passo a Passo →</a>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="badge">Kerno BMAD v5.5.3</div>
+    <h1>Kerno BMAD</h1>
+    <p>Roadmap completo para criação de aplicações: BMAD (planejamento) → WDS (design) → GitHub (segurança) → Lovable (desenvolvimento) → Cursor (revisão) → Deploy.</p>
+  </div>
+
+  <div class="info">
+    <strong>Este roadmap cobre 6 etapas:</strong> Planejamento BMAD → UX/Design WDS → Ambiente Seguro → Desenvolvimento Lovable → Revisão Cursor → Deploy e Monitoramento. Cada etapa tem passos concretos com os arquivos e comandos exatos.
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="timeline">
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- PHASE 1: SETUP -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="phase p-start">
+      <div class="phase-dot"></div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-num">ETAPA 0</span>
+          <span class="phase-title">Planejamento BMAD</span>
+          <span class="phase-when">Antes de tudo — no Claude Code</span>
+        </div>
+        <div class="phase-body">
+          <p>Use os agentes BMAD para criar documentos de planejamento profissional. Esta etapa substitui a criação manual do PRD.</p>
+
+          <div class="step" style="border-left-color: var(--violet);">
+            <div class="step-title"><span class="icon">📊</span> 0.0 PM Skills — Decisão de Produto (recomendado)</div>
+            <p><strong>Novidade v5.5:</strong> Antes de invocar qualquer agente BMAD, use o PM Skills Marketplace para validar a ideia, definir estratégia e métricas. Isso garante que Mary e John recebam contexto validado.</p>
+            <ul>
+              <li><code>/discover</code> — validar se a ideia merece existir (assumptions + experiments)</li>
+              <li><code>/strategy</code> — Product Strategy Canvas 9 seções (visão → defensibility)</li>
+              <li><code>/value-proposition</code> — proposta de valor JTBD 6 partes</li>
+              <li><code>/competitive-analysis</code> — cenário competitivo com 5+ concorrentes</li>
+              <li><code>/research-users</code> — personas + segmentação + journey map</li>
+              <li><code>/north-star</code> — North Star Metric + input metrics</li>
+            </ul>
+            <div class="file-ref">pm-discovery-plan.md — gerado por /discover</div>
+            <div class="file-ref">pm-strategy-canvas.md — gerado por /strategy</div>
+            <div class="file-ref">pm-value-proposition.md — gerado por /value-proposition</div>
+            <div class="file-ref">pm-competitive-analysis.md — gerado por /competitive-analysis</div>
+            <div class="file-ref">pm-north-star.md — gerado por /north-star</div>
+            <div class="info">💡 <strong>Instalação:</strong> <code>claude plugin marketplace add phuryn/pm-skills</code> + instalar os 8 plugins. Ver KERNO-BMAD-INICIO.md Parte 0 para detalhes.</div>
+            <div class="info">💡 <strong>Gate 0 (opcional):</strong> Se a ideia for vaga, rode <code>/agent-teams:validation-sprint</code> do AI PM Copilot ANTES do PM Skills para obter veredicto BUILD / DON'T BUILD.</div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">💡</span> 0.1 Ideação com CIS (legacy — PM Skills substitui)</div>
+            <p>O CIS ainda está disponível no BMAD, mas o PM Skills <code>/discover</code> cobre o mesmo terreno com mais profundidade (assumptions + priorização + experiments). Use o CIS apenas se preferir as técnicas criativas do Carson (SCAMPER) em vez do fluxo estruturado do PM Skills.</p>
+            <ul>
+              <li>Carson — brainstorming com técnicas como SCAMPER</li>
+              <li>Maya — design thinking, entender o usuário</li>
+              <li>Victor — análise de mercado e oportunidades</li>
+            </ul>
+            <div class="file-ref">brainstorming-report.md — gerado pelo CIS</div>
+          </div>
+
+          <div class="step" style="border-left-color: var(--purple);">
+            <div class="step-title"><span class="icon">🌙</span> 0.2 WDS Onda 1 — Estratégia com Saga (produto B2C)</div>
+            <p><strong>Quando usar:</strong> produto B2C onde a experiência do usuário é o diferencial. Saga deve entrar <strong>antes do PRD</strong> para que a pesquisa informe o produto — não decore o que já foi decidido.</p>
+            <ul>
+              <li>Invocar Mimir primeiro (<code>@wds-mimir</code>) — orquestrador que guia o processo WDS</li>
+              <li>Saga — Fase 1: Product Exploration → visão estratégica, posicionamento</li>
+              <li>Saga — Fase 2: User Research → Trigger Map (metas de negócio × psicologia do usuário)</li>
+            </ul>
+            <div class="file-ref">wds-product-brief.md — gerado por Saga</div>
+            <div class="file-ref">wds-trigger-map.md — gerado por Saga</div>
+            <div class="info">💡 <strong>Design visual (cores, tipografia, tokens) pode começar em paralelo a qualquer momento</strong> — não depende do PRD. Só os cenários UX e o UI Roadmap precisam do PRD fechado (Onda 2).</div>
+            <div class="warn">⚠️ Para SaaS técnico ou ferramentas internas onde funcionalidade é o core, pule esta etapa — vá direto para Mary (0.3).</div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">📋</span> 0.3 Product Brief com Mary (Analyst)</div>
+            <p>Mary documenta visão do produto, personas, mercado e critérios de sucesso. Para B2C, trabalha com o output de Saga. Para SaaS técnico, parte do CIS ou da ideia diretamente.</p>
+            <div class="file-ref">product-brief.md — gerado por Mary</div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">📐</span> 0.4 PRD com John (PM)</div>
+            <p>John cria o PRD completo: requisitos funcionais e não-funcionais, user stories, épicos, milestones e features priorizadas. Para B2C, o PRD já nasce informado pela pesquisa de Saga.</p>
+            <div class="file-ref">prd.md — gerado por John</div>
+            <div class="file-ref">prd-milestones.md — gerado por John</div>
+            <div class="file-ref">features.md — gerado por John</div>
+          </div>
+
+          <div class="step" style="border-left-color: var(--amber);">
+            <div class="step-title"><span class="icon">🛡️</span> Gate 1 — PRD Stress Test (recomendado)</div>
+            <p><strong>AI PM Copilot:</strong> 3 revisores atacam o PRD de ângulos diferentes (market-fit, feasibility, scope) e dão veredicto.</p>
+            <p><code>/agent-teams:prd-stress-test /docs/prd.md</code></p>
+            <p>→ <strong>READY TO BUILD</strong>: siga para Winston. <strong>NEEDS REVISION</strong>: volte para John com o feedback.</p>
+            <div class="file-ref">pm-prd-stress-test.md — veredicto e feedback</div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🏗️</span> 0.5 Arquitetura com Winston (Architect)</div>
+            <p>Winston define stack, padrões, schema do banco e registra decisões técnicas (ADRs). O schema é crítico — Supabase não reverte facilmente.</p>
+            <div class="file-ref">architecture.md — gerado por Winston</div>
+            <div class="file-ref">decisions.md — gerado por Winston</div>
+            <div class="file-ref">database.md — schema inicial por Winston</div>
+          </div>
+
+          <div class="step" style="border-left-color: var(--purple);">
+            <div class="step-title"><span class="icon">🌿</span> 0.6 WDS Onda 2 — Design com Freya + Idunn (produto B2C)</div>
+            <p>Entra <strong>após PRD e Arquitetura</strong> — Freya precisa do escopo fechado para saber o que está desenhando. Para SaaS técnico é opcional.</p>
+            <ul>
+              <li>Freya — Fase 4: Cenários UX → como o produto funciona (specs de página, interações, estados)</li>
+              <li>Freya — Fase 5: Visual Design → Design System (cores, tipografia, componentes, tokens CSS)</li>
+              <li>Idunn — Fase 6: Dev Integration → UI Roadmap com specs precisas por milestone para o Lovable</li>
+            </ul>
+            <div class="file-ref">wds-scenarios.md — gerado por Freya</div>
+            <div class="file-ref">wds-design-system.md — gerado por Freya</div>
+            <div class="file-ref">wds-ui-roadmap.md — gerado por Idunn</div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">📝</span> 0.7 Stories com Bob (Scrum Master)</div>
+            <p>Bob detalha as stories de cada milestone com critérios de aceite granulares. Para B2C, referencia os cenários da Freya ao escrever os critérios.</p>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🧪</span> 0.8 QA Plan com Murat (TEA) — 1ª intervenção</div>
+            <p>Murat cria estratégia de testes baseada em risco, com priorização P0–P3. Esta é a <strong>1ª intervenção</strong> — Murat intervém de novo na Etapa 4 para validar o código do Lovable contra este plano.</p>
+            <div class="file-ref">qa-plan.md — gerado por Murat</div>
+          </div>
+
+          <div style="background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.25); border-radius: 8px; padding: 14px 18px; margin: 16px 0;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--green); margin-bottom: 8px;">✅ GATE — Saída da Etapa 0</div>
+            <p style="font-size: 13px; color: var(--text2); margin: 0;">Antes de avançar para a Etapa 1, confirme:</p>
+            <ul style="margin: 8px 0 0 18px; font-size: 13px; color: var(--text2);">
+              <li><code>prd.md</code> com escopo definido e milestones na ordem auth → dados → features</li>
+              <li><code>architecture.md</code> com stack definida e <code>database.md</code> com RLS explícito em todas as tabelas de usuário</li>
+              <li><code>qa-plan.md</code> com P0 e P1 classificados</li>
+              <li>Docs WDS presentes se produto B2C (<code>wds-ui-roadmap.md</code> é o mais importante para o Lovable)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- PHASE 1: SETUP (GitHub + Security BEFORE Lovable) -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="phase p-start">
+      <div class="phase-dot"></div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-num">ETAPA 1</span>
+          <span class="phase-title">Ambiente Seguro</span>
+          <span class="phase-when">Antes de abrir o Lovable</span>
+        </div>
+        <div class="phase-body">
+          <p>Configure o repositório GitHub COM pipeline de segurança ANTES de conectar ao Lovable. Segurança desde o primeiro commit.</p>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🔗</span> 1.1 Criar repositório GitHub</div>
+            <p>Crie um repositório <strong>privado</strong> no GitHub. Branch principal: <code>main</code>.</p>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🔒</span> 1.2 Configurar pipeline SAST + Dependabot</div>
+            <p>Copie os arquivos de segurança para o repositório:</p>
+            <ul>
+              <li><code>security-audit-v2.yml</code> → <code>.github/workflows/</code></li>
+              <li><code>dependabot.yml</code> → <code>.github/</code></li>
+            </ul>
+            <div class="file-ref">security-audit-v2.yml</div>
+            <div class="file-ref">dependabot.yml</div>
+            <div class="warn">⚠️ CORREÇÃO v5.0: Pipeline ANTES do Lovable, não depois. Todo código é analisado desde o primeiro commit.</div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">⚙️</span> 1.3 Configurar o Lovable</div>
+            <p>Cole o conteúdo de KERNO-KNOWLEDGE.md no Lovable → Settings → Knowledge:</p>
+            <div class="file-ref">LOVABLE-SYSTEM-PROMPT-V3.md — Seção A</div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">📤</span> 1.4 Conectar Lovable ao GitHub</div>
+            <p>Agora sim, conecte o Lovable ao repositório. Todo push ativa o pipeline automaticamente.</p>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🚀</span> 1.5 Primeiro prompt no Lovable</div>
+            <p>Envie os documentos BMAD e use a Seção B do System Prompt:</p>
+            <ol style="margin: 8px 0 0 20px; font-size: 13px; color: var(--text2);">
+              <li>Upload: todos os docs BMAD + WDS (se existirem) + <code>KERNO-DOCS.md</code></li>
+              <li>Cole o prompt da Seção B</li>
+              <li>O Lovable VALIDA milestones, cria docs operacionais e apresenta plano</li>
+            </ol>
+            <div class="info">💡 Diferente do v3.0: o Lovable NÃO cria milestones do zero — importa e implementa os que vieram do BMAD.</div>
+          </div>
+
+          <div style="background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.25); border-radius: 8px; padding: 14px 18px; margin: 16px 0;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--green); margin-bottom: 8px;">✅ GATE — Saída da Etapa 1</div>
+            <p style="font-size: 13px; color: var(--text2); margin: 0;">Antes de começar o desenvolvimento, confirme:</p>
+            <ul style="margin: 8px 0 0 18px; font-size: 13px; color: var(--text2);">
+              <li>Repositório GitHub privado criado e <code>security-audit-v2.yml</code> rodando (aba Actions verde)</li>
+              <li>KERNO-KNOWLEDGE.md colado no Custom Knowledge do Lovable</li>
+              <li>Lovable conectado ao GitHub</li>
+              <li>Lovable validou os docs BMAD (Seção B) e apresentou plano de Milestone 1</li>
+              <li>Plano de Milestone 1 aprovado (Seção C enviada)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- PHASE 2: DEVELOPMENT -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="phase p-dev">
+      <div class="phase-dot"></div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-num">FASE 2</span>
+          <span class="phase-title">Desenvolvimento</span>
+          <span class="phase-when">Durante o ciclo de prompts</span>
+        </div>
+        <div class="phase-body">
+          <p>Desenvolva milestone por milestone. O Lovable mantém a documentação automaticamente graças ao System Prompt.</p>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🔄</span> 2.1 Ciclo de desenvolvimento</div>
+            <p>Para cada sessão de trabalho:</p>
+            <ol style="margin: 8px 0 0 20px; font-size: 13px; color: var(--text2);">
+              <li>Abra o Lovable</li>
+              <li>Use o prompt de retomada (com pendências da sessão anterior)</li>
+              <li>Desenvolva as features da milestone atual</li>
+              <li>O Lovable atualiza docs automaticamente a cada resposta</li>
+              <li>Ao terminar, use o prompt de fechamento de sessão</li>
+            </ol>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">📊</span> 2.2 Controle de milestones</div>
+            <p>Ao concluir cada milestone:</p>
+            <ul>
+              <li>Use o prompt de fechamento de milestone</li>
+              <li>Revise o delivery-report.md gerado</li>
+              <li>Confirme que tudo do escopo foi entregue</li>
+              <li>Inicie a próxima milestone</li>
+            </ul>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">✅</span> 2.3 QA durante desenvolvimento</div>
+            <p>O qa-plan.md é atualizado a cada feature. Use-o para testar manualmente:</p>
+            <ul>
+              <li>Abra a aplicação no preview do Lovable</li>
+              <li>Siga os cenários de teste listados no qa-plan.md</li>
+              <li>Teste em mobile (redimensione o navegador)</li>
+              <li>Reporte bugs ao Lovable com descrição clara</li>
+            </ul>
+          </div>
+
+          <div style="background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.25); border-radius: 8px; padding: 14px 18px; margin: 16px 0;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--green); margin-bottom: 8px;">✅ GATE — Saída da Fase 2 (por milestone)</div>
+            <p style="font-size: 13px; color: var(--text2); margin: 0;">Para avançar de uma milestone para a próxima:</p>
+            <ul style="margin: 8px 0 0 18px; font-size: 13px; color: var(--text2);">
+              <li>Todos os critérios de aceite da milestone estão satisfeitos (verifique em <code>prd-milestones.md</code>)</li>
+              <li><code>delivery-report.md</code> gerado e conferido: escopo planejado = entregue</li>
+              <li>Versão fixada (pin) no Lovable antes de iniciar a próxima milestone</li>
+              <li>Pipeline SAST sem findings críticos no último push</li>
+              <li>App testado em mobile e em pelo menos 2 fluxos P0 do <code>qa-plan.md</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- PHASE 3: SECURITY (SAST/DAST) -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="phase p-sec">
+      <div class="phase-dot"></div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-num">FASE 3</span>
+          <span class="phase-title">Segurança — SAST &amp; DAST</span>
+          <span class="phase-when">Após primeira milestone funcional</span>
+        </div>
+        <div class="phase-body">
+          <p><strong>SAST</strong> (Static Application Security Testing) analisa o código sem executar. <strong>DAST</strong> (Dynamic Application Security Testing) testa a aplicação rodando. Vamos configurar ambos.</p>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🔍</span> 3.1 SAST — Configurar no GitHub</div>
+            <p>Crie o arquivo <code>.github/workflows/security-audit.yml</code> no GitHub:</p>
+            <ul>
+              <li>GitHub → seu repo → Add file → Create new file</li>
+              <li>Nome: <code>.github/workflows/security-audit.yml</code></li>
+              <li>Cole o conteúdo do <code>security-audit-v2.yml</code> do Kerno</li>
+            </ul>
+            <p style="margin-top: 8px;"><strong>O que roda automaticamente (SAST):</strong></p>
+            <table class="checklist">
+              <tr><th>Ferramenta</th><th>O que verifica</th><th>Origem</th></tr>
+              <tr><td>Semgrep</td><td>OWASP Top 10, XSS, SQL Injection, React, TypeScript, Secrets</td><td>Awesome AI Security list</td></tr>
+              <tr><td>npm audit</td><td>Vulnerabilidades em dependências (CVEs)</td><td>npm nativo</td></tr>
+              <tr><td>Scanner Lovable</td><td>service_role, RLS, auth, localStorage, error handling</td><td>Scanner customizado Kerno</td></tr>
+            </table>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">📦</span> 3.2 Dependabot — Monitoramento de dependências</div>
+            <p>Crie <code>.github/dependabot.yml</code>:</p>
+            <div class="config-block">
+              <div class="label">.github/dependabot.yml</div>
+              <pre>version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "security"
+      - "dependencies"</pre>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🔐</span> 3.3 GitHub — Configurações de segurança</div>
+            <p>No repositório GitHub, vá em <strong>Settings → Security</strong>:</p>
+            <table class="checklist">
+              <tr><th>Configuração</th><th>Onde</th><th>Ação</th></tr>
+              <tr><td>Secret scanning</td><td>Settings → Code security</td><td>Ativar "Secret scanning"</td></tr>
+              <tr><td>Push protection</td><td>Settings → Code security</td><td>Ativar "Push protection" (bloqueia push com secrets)</td></tr>
+              <tr><td>Dependabot alerts</td><td>Settings → Code security</td><td>Ativar alertas automáticos</td></tr>
+              <tr><td>Dependabot security updates</td><td>Settings → Code security</td><td>Ativar PRs automáticos</td></tr>
+              <tr><td>Branch protection</td><td>Settings → Branches</td><td>Proteger main: exigir reviews e status checks</td></tr>
+            </table>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🗄️</span> 3.4 Supabase — Verificação manual (DAST parcial)</div>
+            <p>O scanner não acessa o banco. Faça manualmente no painel do Supabase:</p>
+            <table class="checklist">
+              <tr><th>Verificação</th><th>Onde no Supabase</th><th>⬜</th></tr>
+              <tr><td>RLS ativo em TODAS as tabelas</td><td>Table Editor → cada tabela → Policies</td><td class="check">⬜</td></tr>
+              <tr><td>Cada tabela tem policies para SELECT/INSERT/UPDATE/DELETE</td><td>Table Editor → Policies</td><td class="check">⬜</td></tr>
+              <tr><td>Storage buckets sensíveis são privados</td><td>Storage → cada bucket</td><td class="check">⬜</td></tr>
+              <tr><td>Email confirmation ativo</td><td>Auth → Settings</td><td class="check">⬜</td></tr>
+              <tr><td>Rate limiting configurado</td><td>Auth → Rate Limits</td><td class="check">⬜</td></tr>
+              <tr><td>MFA habilitado (se dados sensíveis)</td><td>Auth → Settings → MFA</td><td class="check">⬜</td></tr>
+            </table>
+            <div class="warn">⚠️ Esta é a verificação mais crítica do pipeline. RLS desativado = todos os dados expostos.</div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🌐</span> 3.5 DAST — Testes dinâmicos básicos</div>
+            <p>Com a aplicação no preview do Lovable ou Vercel, teste manualmente:</p>
+            <table class="checklist">
+              <tr><th>Teste</th><th>Como fazer</th><th>⬜</th></tr>
+              <tr><td>Acesso sem login</td><td>Abra URLs protegidas diretamente. Deve redirecionar para login.</td><td class="check">⬜</td></tr>
+              <tr><td>Acesso a dados de outro usuário</td><td>Mude IDs na URL. Não deve mostrar dados alheios.</td><td class="check">⬜</td></tr>
+              <tr><td>XSS em campos de texto</td><td>Digite <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> em campos. Não deve executar.</td><td class="check">⬜</td></tr>
+              <tr><td>Console limpo</td><td>Abra DevTools → Console. Não deve mostrar dados sensíveis.</td><td class="check">⬜</td></tr>
+              <tr><td>Network limpo</td><td>DevTools → Network. Verifique que não envia dados desnecessários.</td><td class="check">⬜</td></tr>
+            </table>
+          </div>
+
+          <div style="background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.25); border-radius: 8px; padding: 14px 18px; margin: 16px 0;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--green); margin-bottom: 8px;">✅ GATE — Saída da Fase 3 (Cursor Review)</div>
+            <p style="font-size: 13px; color: var(--text2); margin: 0;">Antes de avançar para Deploy, confirme:</p>
+            <ul style="margin: 8px 0 0 18px; font-size: 13px; color: var(--text2);">
+              <li>Pipeline SAST rodou sem findings críticos no último commit (aba Actions verde)</li>
+              <li>RLS ativo em 100% das tabelas com dados de usuário</li>
+              <li>Nenhum <code>service_role</code> no frontend (Scanner Kerno passou)</li>
+              <li>Todos os P0 do <code>qa-plan.md</code> testados e aprovados</li>
+              <li>Murat (TEA — 2ª intervenção) validou cobertura contra o <code>qa-plan.md</code> original</li>
+              <li>Testes DAST 3.5 todos passando (acesso não autorizado bloqueado, XSS não executa)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- PHASE 4: DEPLOY & HARDENING -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="phase p-deploy">
+      <div class="phase-dot"></div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-num">FASE 4</span>
+          <span class="phase-title">Deploy &amp; Hardening</span>
+          <span class="phase-when">Quando o produto estiver pronto para produção</span>
+        </div>
+        <div class="phase-body">
+
+          <div class="step">
+            <div class="step-title"><span class="icon">▲</span> 4.1 Vercel — Deploy seguro</div>
+            <p>Configurações obrigatórias na Vercel:</p>
+            <table class="checklist">
+              <tr><th>Configuração</th><th>Onde</th><th>Valor</th></tr>
+              <tr><td>Environment Variables</td><td>Settings → Environment Variables</td><td>Adicione VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY (apenas Production)</td></tr>
+              <tr><td>Preview deployments</td><td>Settings → General</td><td>Proteger com senha (evitar acesso a previews com dados reais)</td></tr>
+              <tr><td>Authentication</td><td>Settings → Deployment Protection</td><td>Ativar "Vercel Authentication" para previews</td></tr>
+              <tr><td>Build & Output</td><td>Settings → General</td><td>Framework: Vite. Build command: npm run build</td></tr>
+            </table>
+
+            <p style="margin-top: 12px;"><strong>Headers de segurança — crie <code>vercel.json</code> na raiz:</strong></p>
+            <div class="config-block">
+              <div class="label">vercel.json</div>
+              <pre>{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()" },
+        { "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none'" }
+      ]
+    }
+  ]
+}</pre>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">☁️</span> 4.2 Cloudflare — CDN + Proteção DDoS</div>
+            <p>Configuração recomendada (adicional, não obrigatória no início):</p>
+            <table class="checklist">
+              <tr><th>Passo</th><th>O que fazer</th></tr>
+              <tr><td>1. Criar conta</td><td>cloudflare.com → Free plan é suficiente</td></tr>
+              <tr><td>2. Adicionar domínio</td><td>Sites → Add a site → seu domínio</td></tr>
+              <tr><td>3. Mudar nameservers</td><td>No registrador do domínio, apontar para os NS do Cloudflare</td></tr>
+              <tr><td>4. SSL/TLS</td><td>SSL/TLS → Full (strict)</td></tr>
+              <tr><td>5. Always Use HTTPS</td><td>SSL/TLS → Edge Certificates → Always Use HTTPS: ON</td></tr>
+              <tr><td>6. HSTS</td><td>SSL/TLS → Edge Certificates → HSTS: Enable</td></tr>
+              <tr><td>7. Bot Fight Mode</td><td>Security → Bots → Bot Fight Mode: ON</td></tr>
+              <tr><td>8. Security Level</td><td>Security → Settings → Security Level: Medium</td></tr>
+              <tr><td>9. WAF Rules</td><td>Security → WAF → Managed Rules: ON (OWASP Core Ruleset)</td></tr>
+            </table>
+            <div class="info">💡 Cloudflare Free já inclui: CDN global, proteção DDoS, SSL automático e WAF básico. É uma camada significativa de segurança sem custo.</div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🔐</span> 4.3 Domínio customizado + SSL</div>
+            <p>Na Vercel:</p>
+            <ul>
+              <li>Settings → Domains → Add → seu domínio</li>
+              <li>Se usando Cloudflare: apontar CNAME para <code>cname.vercel-dns.com</code></li>
+              <li>SSL é automático (tanto Vercel quanto Cloudflare)</li>
+              <li>Aguardar propagação DNS (até 48h, geralmente minutos)</li>
+            </ul>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🗄️</span> 4.4 Supabase — Configuração de produção</div>
+            <table class="checklist">
+              <tr><th>Configuração</th><th>Onde</th></tr>
+              <tr><td>Desativar confirmação de email em dev → Ativar em prod</td><td>Auth → Settings</td></tr>
+              <tr><td>Configurar domínio customizado de email</td><td>Auth → Email Templates</td></tr>
+              <tr><td>Configurar Site URL para produção</td><td>Auth → URL Configuration</td></tr>
+              <tr><td>Adicionar Redirect URLs permitidas</td><td>Auth → URL Configuration</td></tr>
+              <tr><td>Ativar Point-in-Time Recovery (backups)</td><td>Database → Backups</td></tr>
+              <tr><td>Configurar Rate Limiting</td><td>Auth → Rate Limits</td></tr>
+            </table>
+          </div>
+
+          <div style="background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.25); border-radius: 8px; padding: 14px 18px; margin: 16px 0;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--green); margin-bottom: 8px;">✅ GATE — Saída da Fase 4 (Deploy)</div>
+            <p style="font-size: 13px; color: var(--text2); margin: 0;">Antes de considerar o deploy completo:</p>
+            <ul style="margin: 8px 0 0 18px; font-size: 13px; color: var(--text2);">
+              <li>App acessível na URL de produção (Vercel) sem erros</li>
+              <li>Headers de segurança ativos — checar em <a href="https://securityheaders.com" style="color: var(--accent);">securityheaders.com</a></li>
+              <li>Supabase configurado para produção: email confirmation ON, Site URL correto, backups ativos</li>
+              <li>Sentry recebendo eventos (fazer um erro de teste no app)</li>
+              <li>UptimeRobot monitorando (criar um monitor HTTP para a URL)</li>
+              <li><code>security-report.md</code> atualizado com resultado do último SAST</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- PHASE 5: MONITORING -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="phase p-monitor">
+      <div class="phase-dot"></div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-num">FASE 5</span>
+          <span class="phase-title">Monitoramento Contínuo</span>
+          <span class="phase-when">Pós-deploy, permanente</span>
+        </div>
+        <div class="phase-body">
+          <p>Após o deploy, mantenha o projeto seguro e saudável com monitoramento contínuo.</p>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🤖</span> 5.1 Automático — já configurado</div>
+            <table class="checklist">
+              <tr><th>O que</th><th>Frequência</th><th>Onde</th></tr>
+              <tr><td>Semgrep + npm audit + Scanner</td><td>A cada push</td><td>GitHub Actions</td></tr>
+              <tr><td>Dependabot</td><td>Semanal</td><td>GitHub</td></tr>
+              <tr><td>Secret scanning</td><td>Contínuo</td><td>GitHub</td></tr>
+              <tr><td>Push protection</td><td>A cada push</td><td>GitHub</td></tr>
+            </table>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">👀</span> 5.2 Manual — agenda de revisão</div>
+            <table class="checklist">
+              <tr><th>Frequência</th><th>O que revisar</th></tr>
+              <tr><td><strong>Semanal</strong></td><td>Verificar aba Actions no GitHub (❌ ou ✅). Baixar relatórios se houver falhas.</td></tr>
+              <tr><td><strong>Mensal</strong></td><td>Rodar <code>npm audit</code> manualmente. Verificar logs no Supabase. Revisar novas tabelas/policies.</td></tr>
+              <tr><td><strong>Trimestral</strong></td><td>Revisar todas as RLS policies. Rotacionar chaves de API. Atualizar security-report.md.</td></tr>
+              <tr><td><strong>A cada novo cliente/projeto</strong></td><td>Usar o Kerno Framework desde o início. Todos os passos deste roadmap.</td></tr>
+            </table>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="icon">🔮</span> 5.3 Fase futura — quando escalar</div>
+            <p>Ferramentas para adicionar quando o básico estiver maduro:</p>
+            <table class="checklist">
+              <tr><th>Ferramenta</th><th>Para quê</th><th>Quando</th></tr>
+              <tr><td><strong>Safe Zone</strong></td><td>Detecção de PII (dados pessoais) em tempo real</td><td>Quando tiver dados reais de saúde em produção</td></tr>
+              <tr><td><strong>Claude Code Security Review</strong></td><td>Análise de código com IA a cada PR</td><td>Quando quiser mais profundidade na análise</td></tr>
+              <tr><td><strong>Cloudflare WAF Rules</strong></td><td>Firewall de aplicação web avançado</td><td>Quando tiver tráfego significativo</td></tr>
+              <tr><td><strong>Sentry / LogRocket</strong></td><td>Monitoramento de erros em produção</td><td>Quando tiver usuários ativos</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+
+  <!-- SUMMARY -->
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-top: 20px;">
+    <h2 style="font-size: 18px; margin-bottom: 16px;">📁 Arquivos do Kerno BMAD</h2>
+    <table class="checklist">
+      <tr><th>Arquivo</th><th>Tipo</th><th>Quando usar</th></tr>
+      <tr><td><code>KERNO-DOCS.md</code></td><td>Upload no Lovable</td><td>Todo projeto — define os 23 docs obrigatórios (kebab-case)</td></tr>
+      <tr><td><code>LOVABLE-SYSTEM-PROMPT-V3.md</code></td><td>Custom Knowledge do Lovable</td><td>Todo projeto — Seção A no Knowledge, Seções B-G no chat</td></tr>
+      <tr><td><code>CLAUDE.md</code></td><td>Raiz do repositório</td><td>Todo projeto — contexto automático para Claude Code</td></tr>
+      <tr><td><code>SECURITY.md</code></td><td>Base para security-rules.md</td><td>Todo projeto — regras de segurança</td></tr>
+      <tr><td><code>security-audit-v2.yml</code></td><td>GitHub Actions</td><td>Todo projeto — pipeline SAST automático</td></tr>
+      <tr><td><code>dependabot.yml</code></td><td>GitHub</td><td>Todo projeto — monitoramento de dependências</td></tr>
+      <tr><td><code>vercel.json</code></td><td>Raiz do projeto</td><td>Todo projeto com Vercel — headers de segurança</td></tr>
+      <tr><td><code>KERNO-CURSOR-REVIEW.md</code></td><td>Referência — Etapa 5</td><td>Todo projeto — checklist e prompts para revisão no Cursor</td></tr>
+    </table>
+  </div>
+
+  <div class="footer">
+    Kerno BMAD v5.5.3 · BMAD Method + Lovable.dev + Supabase + Vercel<br>
+    Referências: OWASP Top 10 · OWASP LLM Top 10 · Semgrep · Awesome AI Security · Supabase Security Docs
+  </div>
+
+</div>
+</body>
+</html>

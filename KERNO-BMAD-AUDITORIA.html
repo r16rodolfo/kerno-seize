@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kerno — Auditoria BMAD · Revisão Inteligente Pós-Lovable</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06080f;
+      --surface: #0d1117;
+      --surface2: #161b22;
+      --border: #21262d;
+      --text: #e6edf3;
+      --text2: #8b949e;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --orange: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --pink: #f778ba;
+      --yellow: #e3b341;
+      --cyan: #39d353;
+      --teal: #3dd8c5;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    code, .mono { font-family: 'JetBrains Mono', monospace; }
+    .container { max-width: 940px; margin: 0 auto; padding: 24px; }
+
+    /* HERO */
+    .hero { text-align: center; padding: 50px 20px 30px; position: relative; }
+    .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 700px; height: 400px; background: radial-gradient(ellipse, rgba(188,140,255,0.09) 0%, rgba(88,166,255,0.04) 50%, transparent 70%); pointer-events: none; }
+    .hero .badge { display: inline-block; background: rgba(188,140,255,0.15); border: 1px solid rgba(188,140,255,0.35); border-radius: 20px; padding: 4px 16px; font-size: 12px; color: var(--purple); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+    .hero h1 { font-size: 42px; font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; }
+    .hero h1 .a { background: linear-gradient(135deg, var(--purple), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero h1 .b { background: linear-gradient(135deg, var(--accent), var(--teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p { color: var(--text2); font-size: 16px; margin-top: 12px; max-width: 640px; margin-left: auto; margin-right: auto; }
+    .hero .sub-badge { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 12px; color: var(--text2); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; }
+    .hero .sub-badge span { width: 6px; height: 6px; border-radius: 50%; background: var(--purple); display: inline-block; }
+
+    /* WHY BOX */
+    .why-box { background: linear-gradient(135deg, rgba(248,81,73,0.06), rgba(210,153,34,0.04)); border: 1px solid rgba(248,81,73,0.25); border-radius: 14px; padding: 28px; margin: 28px 0; }
+    .why-box h2 { font-size: 18px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+    .why-box p { font-size: 14px; color: var(--text2); margin-bottom: 10px; line-height: 1.8; }
+    .why-box strong { color: var(--text); }
+
+    .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px; }
+    .problem-card { background: var(--surface2); border-radius: 10px; padding: 18px; border-top: 3px solid var(--border); }
+    .problem-card.bad { border-top-color: var(--red); }
+    .problem-card.good { border-top-color: var(--green); }
+    .problem-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .problem-card p, .problem-card li { font-size: 13px; color: var(--text2); }
+    .problem-card ul { margin: 6px 0 0 18px; }
+    .problem-card li { margin: 3px 0; }
+
+    /* AGENTS */
+    .agents-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+    .agent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; }
+    .agent-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .agent-card.winston::before { background: linear-gradient(90deg, var(--purple), var(--accent)); }
+    .agent-card.bob::before { background: linear-gradient(90deg, var(--orange), var(--yellow)); }
+    .agent-card.mary::before { background: linear-gradient(90deg, var(--pink), var(--purple)); }
+    .agent-card.john::before { background: linear-gradient(90deg, var(--teal), var(--accent)); }
+    .agent-card .agent-name { font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+    .agent-card.winston .agent-name { color: var(--purple); }
+    .agent-card.bob .agent-name { color: var(--orange); }
+    .agent-card.mary .agent-name { color: var(--pink); }
+    .agent-card.john .agent-name { color: var(--teal); }
+    .agent-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .agent-card p { font-size: 13px; color: var(--text2); }
+    .agent-card .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .agent-card .tag { font-size: 11px; padding: 2px 9px; border-radius: 4px; background: var(--surface2); color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+
+    /* PHASES */
+    .phase-section { margin: 40px 0; }
+    .phase-banner { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-radius: 12px 12px 0 0; }
+    .phase-banner .num { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; padding: 6px 14px; border-radius: 8px; white-space: nowrap; }
+    .phase-banner h2 { font-size: 20px; font-weight: 700; }
+    .phase-banner .time { margin-left: auto; font-size: 12px; padding: 3px 12px; border-radius: 4px; background: rgba(255,255,255,0.05); color: var(--text2); white-space: nowrap; }
+    .phase-content { background: var(--surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; padding: 24px; }
+    .phase-content > p { font-size: 14px; color: var(--text2); margin-bottom: 14px; }
+
+    /* Phase color variants */
+    .pa1 .phase-banner { background: linear-gradient(135deg, rgba(188,140,255,0.12), var(--surface)); border: 1px solid rgba(188,140,255,0.3); }
+    .pa1 .num { background: rgba(188,140,255,0.15); color: var(--purple); }
+    .pa1 .step { border-left-color: var(--purple); }
+
+    .pa2 .phase-banner { background: linear-gradient(135deg, rgba(210,153,34,0.12), var(--surface)); border: 1px solid rgba(210,153,34,0.3); }
+    .pa2 .num { background: rgba(210,153,34,0.15); color: var(--orange); }
+    .pa2 .step { border-left-color: var(--orange); }
+
+    .pa3 .phase-banner { background: linear-gradient(135deg, rgba(247,120,186,0.12), var(--surface)); border: 1px solid rgba(247,120,186,0.3); }
+    .pa3 .num { background: rgba(247,120,186,0.15); color: var(--pink); }
+    .pa3 .step { border-left-color: var(--pink); }
+
+    .pa4 .phase-banner { background: linear-gradient(135deg, rgba(61,216,197,0.12), var(--surface)); border: 1px solid rgba(61,216,197,0.3); }
+    .pa4 .num { background: rgba(61,216,197,0.15); color: var(--teal); }
+    .pa4 .step { border-left-color: var(--teal); }
+
+    .pa5 .phase-banner { background: linear-gradient(135deg, rgba(63,185,80,0.12), var(--surface)); border: 1px solid rgba(63,185,80,0.3); }
+    .pa5 .num { background: rgba(63,185,80,0.15); color: var(--green); }
+    .pa5 .step { border-left-color: var(--green); }
+
+    /* STEPS */
+    .step { background: var(--surface2); border-radius: 8px; padding: 18px; margin: 12px 0; border-left: 3px solid var(--border); }
+    .step-title { font-weight: 700; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .step p, .step li { font-size: 13px; color: var(--text2); }
+    .step ul, .step ol { margin: 8px 0 0 20px; }
+    .step li { margin: 4px 0; }
+    .step code { background: var(--bg); padding: 1px 6px; border-radius: 3px; font-size: 12px; color: var(--accent); }
+    .step strong { color: var(--text); }
+
+    /* PROMPT BOX */
+    .prompt-box { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin: 14px 0; position: relative; }
+    .prompt-box::before { content: '💬 PROMPT PARA CLAUDE CODE'; position: absolute; top: -10px; left: 14px; background: var(--bg); padding: 0 8px; font-size: 10px; font-weight: 700; color: var(--purple); letter-spacing: 1px; border: 1px solid rgba(188,140,255,0.3); border-radius: 4px; }
+    .prompt-box pre { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text2); white-space: pre-wrap; word-wrap: break-word; margin-top: 4px; line-height: 1.8; }
+    .prompt-box .hl { color: var(--teal); }
+    .prompt-box .key { color: var(--purple); }
+    .prompt-box .warn-text { color: var(--yellow); }
+
+    .prompt-box.lovable::before { content: '💬 PROMPT PARA LOVABLE'; color: var(--accent); border-color: rgba(88,166,255,0.3); }
+
+    /* CALLOUTS */
+    .warn { background: rgba(210,153,34,0.1); border: 1px solid rgba(210,153,34,0.3); border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; color: var(--orange); }
+    .info { background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.2); border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; color: var(--accent); }
+    .danger { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; color: var(--red); }
+    .success { background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.25); border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; color: var(--green); }
+
+    /* FLOW */
+    .flow { display: flex; flex-direction: column; gap: 0; margin: 20px 0; }
+    .flow-step { display: flex; align-items: stretch; gap: 0; }
+    .flow-line { width: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+    .flow-dot { width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg); flex-shrink: 0; z-index: 1; margin-top: 20px; }
+    .flow-connector { width: 2px; flex: 1; min-height: 16px; background: var(--border); }
+    .flow-card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin: 6px 0 6px 8px; }
+    .flow-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .flow-card .where { font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 2px 8px; border-radius: 4px; background: var(--surface2); color: var(--text2); }
+    .flow-card p { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+    /* OUTPUT TABLE */
+    table.output { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+    table.output th { background: var(--surface2); padding: 9px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); border-bottom: 1px solid var(--border); }
+    table.output td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+    table.output .hl { color: var(--text); font-weight: 600; }
+    table.output .agent-tag { color: var(--purple); font-weight: 700; font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+
+    /* SEVERITY */
+    .sev { display: inline-block; padding: 2px 9px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+    .sev-crit { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+    .sev-high { background: rgba(210,153,34,0.15); color: var(--orange); border: 1px solid rgba(210,153,34,0.3); }
+    .sev-med { background: rgba(88,166,255,0.15); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); }
+    .sev-low { background: rgba(63,185,80,0.12); color: var(--green); border: 1px solid rgba(63,185,80,0.25); }
+
+    /* SUMMARY */
+    .summary-box { background: linear-gradient(135deg, rgba(188,140,255,0.07), rgba(88,166,255,0.04)); border: 1px solid rgba(188,140,255,0.3); border-radius: 14px; padding: 28px; margin: 36px 0; }
+    .summary-box h2 { font-size: 20px; font-weight: 700; margin-bottom: 16px; color: var(--purple); }
+
+    .checklist { display: flex; flex-direction: column; gap: 8px; }
+    .check-item { display: flex; align-items: flex-start; gap: 12px; font-size: 13px; color: var(--text2); }
+    .check-item .check { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; margin-top: 1px; }
+    .check-item strong { color: var(--text); display: block; margin-bottom: 2px; font-size: 13px; }
+
+    /* INSIGHT BOX */
+    .insight-box { background: rgba(61,216,197,0.05); border: 1px solid rgba(61,216,197,0.2); border-radius: 10px; padding: 16px 20px; margin: 14px 0; font-size: 13px; color: var(--teal); }
+    .insight-box::before { content: '💡 POR QUE ISSO IMPORTA: '; font-weight: 700; }
+
+    .footer { text-align: center; padding: 40px; color: var(--text2); font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 28px; }
+      .agents-grid { grid-template-columns: 1fr; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .phase-banner { flex-wrap: wrap; }
+      .phase-banner .time { margin-left: 0; margin-top: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ KERNO NAV CONTEXTUAL ═══ -->
+<div id="kerno-nav" style="position:sticky;top:0;z-index:200;background:rgba(6,8,15,.92);backdrop-filter:blur(16px);border-bottom:1px solid #21262d;padding:0 20px;">
+  <div style="max-width:940px;margin:0 auto;height:48px;display:flex;align-items:center;overflow-x:auto;gap:0;">
+    <a href="KERNO-FLUXO.html" style="display:flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#bc8cff;text-decoration:none;white-space:nowrap;padding:0 14px 0 0;border-right:1px solid #21262d;margin-right:14px;flex-shrink:0;">🗺️ Mapa do Fluxo</a>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#556680;white-space:nowrap;flex-shrink:0;">Trilha C · Fase 4.5</span>
+    <span style="color:#21262d;margin:0 10px;flex-shrink:0;">›</span>
+    <a href="KERNO-RETROFIT.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8b949e;text-decoration:none;white-space:nowrap;flex-shrink:0;">KERNO-RETROFIT</a>
+    <span style="color:#21262d;margin:0 10px;flex-shrink:0;">›</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#e6edf3;font-weight:700;white-space:nowrap;flex-shrink:0;">KERNO-BMAD-AUDITORIA</span>
+    <div style="margin-left:auto;flex-shrink:0;padding-left:14px;border-left:1px solid #21262d;">
+      <a href="KERNO-RETROFIT.html#fase-5" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#3fb950;text-decoration:none;white-space:nowrap;font-weight:700;">Próximo: Fase 5 Monitoramento →</a>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="badge">Retrofit · Módulo de Auditoria · Kerno BMAD v5.5.3</div>
+    <h1><span class="a">Auditoria</span> <span class="b">BMAD</span></h1>
+    <p>Use os agentes do BMAD para revisar, corrigir e elevar a qualidade de tudo que o Lovable gerou — antes de escalar.</p>
+    <div class="sub-badge"><span></span> Execute após gerar as documentações pelo Lovable</div>
+  </div>
+
+  <!-- WHY -->
+  <div class="why-box">
+    <h2>🚨 Por que este módulo existe?</h2>
+    <p>O Lovable é uma ferramenta poderosa de geração, mas não de <strong>revisão crítica</strong>. Quando você começa um projeto sem planejamento — como a maioria das pessoas faz — o Lovable vai implementar o que você pediu da forma que entendeu, e muitas vezes isso significa:</p>
+
+    <div class="problem-grid">
+      <div class="problem-card bad">
+        <h3 style="color: var(--red);">❌ O que o Lovable faz sem supervisão</h3>
+        <ul>
+          <li>Cria 3 componentes onde bastaria 1</li>
+          <li>Escreve 200 linhas de código que poderiam ser 40</li>
+          <li>Gera arquivos de configuração que nunca são usados</li>
+          <li>Duplica lógica em múltiplos lugares</li>
+          <li>Cria jornadas de UX quebradas ou confusas</li>
+          <li>Documenta o que fez, não o que deveria ser</li>
+          <li>Perde contexto entre sessões e cria inconsistências</li>
+        </ul>
+      </div>
+      <div class="problem-card good">
+        <h3 style="color: var(--green);">✅ O que a Auditoria BMAD entrega</h3>
+        <ul>
+          <li>Relatório de código redundante e como eliminar</li>
+          <li>Mapa das jornadas de UX com falhas identificadas</li>
+          <li>Documentação corrigida e consistente com o código real</li>
+          <li>Lista priorizada de refatorações por impacto</li>
+          <li>Arquitetura limpa antes de escalar</li>
+          <li>Insights de melhorias que o Lovable não vê</li>
+          <li>Base sólida para o próximo ciclo de desenvolvimento</li>
+        </ul>
+      </div>
+    </div>
+    <div class="danger" style="margin-top: 18px;">⚠️ <strong>Escalar código ruim custa 10x mais para corrigir depois.</strong> Um projeto com 500 linhas problemáticas vira 5.000 linhas problemáticas em 3 meses se você não auditar antes de crescer.</div>
+  </div>
+
+  <!-- QUANDO EXECUTAR -->
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin: 0 0 32px;">
+    <h2 style="font-size: 17px; margin-bottom: 14px;">📍 Quando executar a Auditoria BMAD no Retrofit?</h2>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-line">
+          <div class="flow-dot" style="background: var(--red);"></div>
+          <div class="flow-connector"></div>
+        </div>
+        <div class="flow-card">
+          <h4>Fase 0–2 do Retrofit concluída <span class="where">Segurança + Deploy</span></h4>
+          <p>As correções críticas de segurança já estão feitas. O projeto está estável.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-line">
+          <div class="flow-dot" style="background: var(--orange);"></div>
+          <div class="flow-connector"></div>
+        </div>
+        <div class="flow-card">
+          <h4>Documentações geradas pelo Lovable <span class="where">PRD · Stories · Docs</span></h4>
+          <p>Você pediu ao Lovable para documentar o projeto. Ele gerou os arquivos.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-line">
+          <div class="flow-dot" style="background: var(--purple);"></div>
+          <div class="flow-connector"></div>
+        </div>
+        <div class="flow-card" style="border-color: rgba(188,140,255,0.3); background: rgba(188,140,255,0.04);">
+          <h4 style="color: var(--purple);">▶ AUDITORIA BMAD (este módulo) <span class="where">Winston · Bob · Mary · John</span></h4>
+          <p>Os agentes revisam tudo que foi gerado e produzem um relatório de insights + lista de correções.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-line">
+          <div class="flow-dot" style="background: var(--accent);"></div>
+          <div class="flow-connector"></div>
+        </div>
+        <div class="flow-card">
+          <h4>Aplicar correções no Lovable <span class="where">Cirúrgico · Uma por vez</span></h4>
+          <p>Com o relatório em mãos, você volta ao Lovable com instruções precisas para corrigir apenas o necessário.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-line">
+          <div class="flow-dot" style="background: var(--green);"></div>
+        </div>
+        <div class="flow-card">
+          <h4>Projeto pronto para escalar <span class="where">Base limpa</span></h4>
+          <p>Código revisado, documentação correta, UX consistente. Agora é seguro crescer.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENTES -->
+  <div style="margin: 0 0 32px;">
+    <h2 style="font-size: 17px; margin-bottom: 6px;">🤖 Os 4 agentes e suas responsabilidades na auditoria</h2>
+    <p style="font-size: 14px; color: var(--text2); margin-bottom: 16px;">Cada agente tem uma perspectiva diferente. A auditoria completa usa os 4 em sequência.</p>
+    <div class="agents-grid">
+      <div class="agent-card winston">
+        <div class="agent-name">Winston</div>
+        <h3>Arquiteto</h3>
+        <p>Analisa a estrutura do projeto: arquivos desnecessários, componentes duplicados, organização de pastas, dependências não utilizadas, arquitetura que não escala.</p>
+        <div class="tag-list">
+          <span class="tag">estrutura</span>
+          <span class="tag">duplicações</span>
+          <span class="tag">arquitetura</span>
+          <span class="tag">deps</span>
+        </div>
+      </div>
+      <div class="agent-card bob">
+        <div class="agent-name">Bob</div>
+        <h3>Dev Sênior / SM</h3>
+        <p>Revisa qualidade do código: funções longas demais, lógica repetida, ausência de abstrações, padrões inconsistentes, código morto que nunca é chamado.</p>
+        <div class="tag-list">
+          <span class="tag">código</span>
+          <span class="tag">refatoração</span>
+          <span class="tag">padrões</span>
+          <span class="tag">dead code</span>
+        </div>
+      </div>
+      <div class="agent-card mary">
+        <div class="agent-name">Mary</div>
+        <h3>Product Manager</h3>
+        <p>Revisa documentação e UX: PRD com gaps, jornadas quebradas, fluxos inconsistentes, features documentadas que não existem no código, e vice-versa.</p>
+        <div class="tag-list">
+          <span class="tag">PRD</span>
+          <span class="tag">UX flows</span>
+          <span class="tag">jornadas</span>
+          <span class="tag">gaps</span>
+        </div>
+      </div>
+      <div class="agent-card john">
+        <div class="agent-name">John</div>
+        <h3>Analyst</h3>
+        <p>Detecta "drift": diferença entre o que foi documentado e o que foi implementado. Identifica inconsistências entre documentos, e entre docs e código real.</p>
+        <div class="tag-list">
+          <span class="tag">drift</span>
+          <span class="tag">consistência</span>
+          <span class="tag">docs vs código</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- FASE A0: GOVERNANÇA - INICIALIZAÇÃO -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section" style="margin: 40px 0;">
+    <div class="phase-banner" style="background: linear-gradient(135deg, rgba(88,166,255,0.12), var(--surface)); border: 1px solid rgba(88,166,255,0.3); border-radius: 12px 12px 0 0;">
+      <span class="num" style="background: rgba(88,166,255,0.15); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; padding: 6px 14px; border-radius: 8px;">A0</span>
+      <h2>Inicialização — Criar a pasta da auditoria</h2>
+      <span class="time">⏱️ 2 minutos</span>
+    </div>
+    <div class="phase-content" style="border-left-color: var(--accent);">
+      <p>Antes de invocar qualquer agente, crie a pasta datada que vai conter todos os relatórios desta rodada. <strong>Cada auditoria mensal vive em sua própria pasta</strong> — assim o histórico fica preservado automaticamente.</p>
+
+      <div class="step" style="border-left-color: var(--accent);">
+        <div class="step-title">📁 A0.1 Abrir o Claude Code e criar a estrutura</div>
+        <p>No terminal, navegue até a raiz do projeto e abra o Claude Code:</p>
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin: 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text2);">
+          cd seu-projeto/<br>
+          claude  <span style="color: var(--text2); opacity: 0.5;"># abre o Claude Code</span>
+        </div>
+        <p style="margin-top: 10px;">Em seguida, cole este prompt — ele cria a pasta do dia e verifica se já existe uma auditoria anterior para habilitar a comparação:</p>
+        <div class="prompt-box" style="margin-top: 10px;">
+          <pre><span class="hl">Inicialização da Auditoria BMAD — Governança mensal.</span>
+
+Execute os seguintes passos:
+
+<span class="warn-text">PASSO 1 — Criar pasta datada</span>
+Crie a pasta /docs/audit/<span class="key">HOJE</span>/ onde HOJE é a data atual no formato YYYY-MM-DD.
+Exemplo: /docs/audit/2026-03-06/
+
+<span class="warn-text">PASSO 2 — Verificar histórico</span>
+Verifique se existe alguma pasta de auditoria anterior em /docs/audit/ (com formato de data YYYY-MM-DD).
+- Se existir: anote o caminho da auditoria mais recente. Vamos usá-la para comparação na Fase A5-B.
+- Se não existir: esta é a primeira auditoria. Registre isso.
+
+<span class="warn-text">PASSO 3 — Verificar ou criar AUDIT-HISTORY.md</span>
+Verifique se existe /docs/audit/AUDIT-HISTORY.md.
+- Se não existir: crie-o com o seguinte cabeçalho:
+  # Histórico de Auditorias BMAD
+  > Registro mensal de todas as auditorias do projeto. Atualizado automaticamente.
+
+  | Data | Pasta | Críticos | Altos | Médios | Observação |
+  |------|-------|----------|-------|--------|------------|
+
+- Se já existir: apenas leia e confirme que está acessível.
+
+<span class="hl">Ao finalizar, confirme com:
+"✅ Pasta /docs/audit/[DATA]/ criada.
+ 📋 Auditoria anterior: [caminho ou 'nenhuma — primeira auditoria'].
+ 📖 AUDIT-HISTORY.md: [criado / já existia]."</span></pre>
+        </div>
+        <div class="info" style="margin-top: 10px;">💡 Não tem o projeto localmente? Vá no Lovable → GitHub → clone o repositório antes de continuar.</div>
+      </div>
+
+      <div style="background: var(--surface2); border-radius: 10px; padding: 18px; margin: 14px 0;">
+        <h3 style="font-size: 14px; margin-bottom: 10px;">📂 Como a estrutura vai ficar após algumas auditorias</h3>
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text2); line-height: 2;">
+          docs/audit/<br>
+          <span style="color: var(--accent);">├── AUDIT-HISTORY.md</span> <span style="opacity: 0.5; font-size: 11px;">← índice de todas as auditorias</span><br>
+          <span style="color: var(--green);">├── 2026-03-06/</span> <span style="opacity: 0.5; font-size: 11px;">← primeira auditoria (Retrofit)</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;├── audit-estrutura.md<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;├── audit-codigo.md<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;├── audit-produto-ux.md<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;├── audit-drift.md<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;└── RELATORIO-MESTRE-AUDITORIA.md<br>
+          <span style="color: var(--orange);">├── 2026-04-06/</span> <span style="opacity: 0.5; font-size: 11px;">← auditoria mensal #2</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;└── ...<br>
+          <span style="color: var(--purple);">└── 2026-05-06/</span> <span style="opacity: 0.5; font-size: 11px;">← auditoria mensal #3</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;└── ...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- FASE A1: WINSTON - ARQUITETURA -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section pa1">
+    <div class="phase-banner">
+      <span class="num">A1</span>
+      <h2>Winston — Auditoria de Arquitetura</h2>
+      <span class="time">⏱️ 20–40 min</span>
+    </div>
+    <div class="phase-content">
+      <p>Winston analisa a estrutura do projeto como um arquiteto experiente. O relatório é <strong>criado automaticamente</strong> em <code>/docs/audit/<strong>[DATA]/</strong>audit-estrutura.md</code> ao final do prompt — sem ação manual da sua parte.</p>
+
+      <div class="step">
+        <div class="step-title">🏛️ A1.1 Invocar Winston para análise estrutural</div>
+
+      <div class="step">
+        <div class="step-title">🔍 A1.2 Invocar Winston para análise estrutural</div>
+        <div class="prompt-box">
+          <pre><span class="key">@winston</span> <span class="hl">modo análise + geração de relatório. Não modifique nenhum arquivo existente.</span>
+
+Analise a estrutura deste projeto Lovable/React e produza um relatório de arquitetura completo.
+
+<span class="warn-text">PARTE 1 — INVENTÁRIO DE ARQUIVOS</span>
+- Liste todos os arquivos .tsx/.ts/.jsx/.js no /src
+- Para cada arquivo: tamanho estimado em linhas, se parece ativo ou morto
+- Identifique arquivos que parecem duplicatas ou redundâncias
+
+<span class="warn-text">PARTE 2 — ANÁLISE DE COMPONENTES</span>
+- Componentes que existem mas parecem nunca ser importados em lugar algum
+- Componentes com responsabilidades sobrepostas (fazem a mesma coisa)
+- Componentes com mais de 150 linhas (candidatos a split)
+- Componentes que poderiam ser um hook customizado
+
+<span class="warn-text">PARTE 3 — DEPENDÊNCIAS</span>
+- Packages no package.json que não aparecem em nenhum import do código
+- Packages importados mas que poderiam ser substituídos por código nativo
+- Inconsistências de versão
+
+<span class="warn-text">PARTE 4 — ORGANIZAÇÃO DE PASTAS</span>
+- A estrutura de pastas faz sentido para o projeto?
+- O que está mal categorizado ou poderia ser melhor organizado?
+
+<span class="warn-text">PARTE 5 — VEREDICTO E PRIORIDADES</span>
+- Liste as 5 mudanças estruturais de maior impacto, em ordem de prioridade
+- Para cada uma: esforço estimado (baixo/médio/alto) e benefício (limpeza/performance/manutenção)
+
+Seja direto e cirúrgico. Priorize clareza sobre completude.
+
+<span class="hl">Ao finalizar a análise, crie automaticamente o arquivo /docs/audit/[DATA]/audit-estrutura.md onde [DATA] é a pasta criada na Fase A0 (formato YYYY-MM-DD). Confirme com: "✅ audit-estrutura.md criado em /docs/audit/[DATA]/"</span></pre>
+        </div>
+        <div class="warn">⚠️ Não aplique nenhuma correção agora. Winston só analisa e gera o relatório. As correções acontecem depois, na Fase A6.</div>
+      </div>
+
+      <div class="insight-box">
+        Projetos Lovable sem planejamento acumulam em média 30–40% de código morto ou redundante após 30 dias de desenvolvimento. Winston identifica isso antes que vire um problema maior.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- FASE A2: BOB - CÓDIGO -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section pa2">
+    <div class="phase-banner">
+      <span class="num">A2</span>
+      <h2>Bob — Auditoria de Qualidade do Código</h2>
+      <span class="time">⏱️ 30–60 min</span>
+    </div>
+    <div class="phase-content">
+      <p>Bob é o desenvolvedor sênior que olha linha por linha e identifica onde o Lovable foi preguiçoso, repetitivo ou desnecessariamente complexo. O relatório é <strong>criado automaticamente</strong> em <code>/docs/audit/<strong>[DATA]/</strong>audit-codigo.md</code>.</p>
+
+      <div class="step">
+        <div class="step-title">💻 A2.1 Auditoria geral de qualidade</div>
+        <div class="prompt-box">
+          <pre><span class="key">@bob</span> <span class="hl">modo análise + geração de relatório. Não modifique nenhum arquivo existente.</span>
+
+Faça uma revisão de qualidade do código deste projeto como um dev sênior experiente.
+
+<span class="warn-text">PARTE 1 — CÓDIGO VERBOSO</span>
+- Funções com mais de 50 linhas que poderiam ser menores
+- Blocos de código que se repetem em 2+ lugares (candidatos a extração)
+- Condicionais aninhados que poderiam ser simplificados
+- Código comentado que nunca foi removido
+
+<span class="warn-text">PARTE 2 — PADRÕES INCONSISTENTES</span>
+- Mistura de estilos (arrow functions vs function declarations, async/await vs .then())
+- Nomes de variáveis/funções inconsistentes ou mal nomeados
+- TypeScript mal usado (any excessivo, tipagens faltando onde importa)
+- Import paths inconsistentes (relativos vs absolutos)
+
+<span class="warn-text">PARTE 3 — LÓGICA PROBLEMÁTICA</span>
+- useEffect com dependências erradas ou faltando
+- Estado sendo duplicado em múltiplos componentes que poderiam compartilhá-lo
+- Chamadas de API sem tratamento de erro
+- Dados sendo buscados em loop ou de forma ineficiente
+
+<span class="warn-text">PARTE 4 — OPORTUNIDADES DE ABSTRAÇÃO</span>
+- Lógica repetida que deveria virar um custom hook
+- Componentes UI genéricos que estão sendo reescritos ao invés de reutilizados
+- Utilitários que estão inline quando deveriam ser funções isoladas
+
+<span class="warn-text">PARTE 5 — RANKING DE CORREÇÕES</span>
+- Liste as 10 correções mais impactantes em ordem de prioridade
+- Para cada uma: arquivo específico, problema, solução sugerida, esforço estimado
+
+Seja específico: cite arquivos e linhas quando possível.
+
+<span class="hl">Ao finalizar a análise, crie automaticamente o arquivo /docs/audit/[DATA]/audit-codigo.md onde [DATA] é a pasta criada na Fase A0. Confirme com: "✅ audit-codigo.md criado em /docs/audit/[DATA]/"</span></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🎯 A2.2 Auditoria de componentes específicos (opcional)</div>
+        <p>Se Winston identificou componentes particularmente problemáticos na Fase A1, peça ao Bob uma análise focada:</p>
+        <div class="prompt-box">
+          <pre><span class="key">@bob</span> <span class="hl">modo análise apenas.</span>
+
+Analise em detalhe o componente <span class="warn-text">[NomeDoComponente.tsx]</span>.
+
+- O que ele faz vs. o que deveria fazer
+- Por que está grande/complexo demais
+- Como deveria ser refatorado
+- Qual seria a versão ideal em termos de linhas e responsabilidades
+
+Mostre a estrutura ideal do componente (não o código final, apenas a estrutura lógica).</pre>
+        </div>
+      </div>
+
+
+
+      <div class="insight-box">
+        O Lovable tende a criar soluções "funcionais mas não elegantes". Bob transforma essa lista em um plano de refatoração que vai reduzir o tamanho do codebase em 20–50% sem perder nenhuma funcionalidade.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- FASE A3: MARY - PRD + UX -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section pa3">
+    <div class="phase-banner">
+      <span class="num">A3</span>
+      <h2>Mary — Auditoria de Produto e UX</h2>
+      <span class="time">⏱️ 30–50 min</span>
+    </div>
+    <div class="phase-content">
+      <p>Mary olha o produto como uma PM experiente: jornadas do usuário, fluxos lógicos, lacunas entre o que foi documentado e o que o usuário realmente vai experienciar. O relatório é <strong>criado automaticamente</strong> em <code>/docs/audit/<strong>[DATA]/</strong>audit-produto-ux.md</code>.</p>
+
+      <div class="step">
+        <div class="step-title">📋 A3.1 Auditoria das jornadas de UX</div>
+        <div class="prompt-box">
+          <pre><span class="key">@mary</span> <span class="hl">modo análise + geração de relatório. Não modifique nenhum arquivo existente.</span>
+
+Analise as jornadas de usuário deste projeto Lovable como uma Product Manager sênior.
+
+<span class="warn-text">PARTE 1 — MAPEAMENTO DE JORNADAS EXISTENTES</span>
+Leia o código (rotas, componentes de página, formulários, modais) e mapeie:
+- Quais são as jornadas principais do usuário que existem hoje?
+- Qual é o fluxo passo a passo de cada jornada?
+- Onde cada jornada começa e termina?
+
+<span class="warn-text">PARTE 2 — ANÁLISE DE FALHAS DE UX</span>
+Para cada jornada identificada, avalie:
+- Há passos que parecem desnecessários ou confusos?
+- Há dead ends (o usuário chega num lugar sem saber o que fazer a seguir)?
+- Há fluxos que iniciam mas não têm conclusão clara?
+- Feedback visual ao usuário está adequado (loadings, erros, sucessos)?
+- Mensagens de erro são úteis ou genéricas?
+
+<span class="warn-text">PARTE 3 — INCONSISTÊNCIAS DE PRODUTO</span>
+- Features que parecem implementadas pela metade
+- Funcionalidades que contradizem outras (ex: pode fazer X em tela A mas não em tela B)
+- Botões/ações que existem mas não fazem nada ainda
+
+<span class="warn-text">PARTE 4 — GAPS DE EXPERIÊNCIA</span>
+- O que um usuário real vai tentar fazer que o produto não suporta?
+- Qual é o momento de maior frustração provável na experiência atual?
+- O que está faltando para as jornadas serem completas?
+
+<span class="warn-text">PARTE 5 — LISTA DE CORREÇÕES DE UX</span>
+- Liste as 8 melhorias de UX mais importantes, em ordem de impacto no usuário
+- Para cada uma: qual jornada afeta, qual é o problema, qual a solução sugerida
+
+Seja direta como uma PM: o produto está pronto para usuários reais? O que precisa mudar antes?
+
+<span class="hl">Ao finalizar a análise, crie automaticamente o arquivo /docs/audit/[DATA]/audit-produto-ux.md onde [DATA] é a pasta criada na Fase A0. Confirme com: "✅ audit-produto-ux.md criado em /docs/audit/[DATA]/"</span></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📄 A3.2 Auditoria da documentação de produto</div>
+        <div class="prompt-box">
+          <pre><span class="key">@mary</span> <span class="hl">modo análise + append no relatório. Não modifique nenhum arquivo existente de código.</span>
+
+Revise os documentos de produto gerados pelo Lovable (PRD, user stories, docs em /docs/).
+
+<span class="warn-text">PARTE 1 — QUALIDADE DO PRD</span>
+- O PRD descreve o produto real ou um produto idealizado que não existe?
+- Quais seções estão vagas, genéricas ou incorretas?
+- O que está documentado que não foi implementado?
+- O que foi implementado mas não está no PRD?
+
+<span class="warn-text">PARTE 2 — USER STORIES</span>
+- As stories seguem o formato "Como [usuário], quero [ação], para [benefício]"?
+- Há stories de aceitação (critérios de done) definidos?
+- As stories são testáveis? Um QA consegue verificar se estão completas?
+- Há stories para tratamento de erros e edge cases?
+
+<span class="warn-text">PARTE 3 — RECOMENDAÇÕES</span>
+- O que precisa ser reescrito do zero no PRD?
+- O que precisa ser adicionado?
+- O que pode ser aproveitado?
+
+Liste de forma priorizada.
+
+<span class="hl">Adicione esta análise ao final do arquivo /docs/audit/[DATA]/audit-produto-ux.md já existente, sob o título "## Auditoria de Documentação de Produto". Confirme com: "✅ Análise de PRD adicionada ao audit-produto-ux.md"</span></pre>
+        </div>
+      </div>
+
+      <div class="insight-box">
+        Jornadas de UX quebradas são invisíveis para quem construiu o produto. Mary encontra os pontos de atrito que vão frustrar usuários reais antes que eles existam.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- FASE A4: JOHN - DRIFT ANALYSIS -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section pa4">
+    <div class="phase-banner">
+      <span class="num">A4</span>
+      <h2>John — Análise de Drift (Docs vs. Código)</h2>
+      <span class="time">⏱️ 20–30 min</span>
+    </div>
+    <div class="phase-content">
+      <p>John detecta divergências: o que está documentado vs. o que foi implementado de fato. Esse "drift" é o maior gerador de inconsistência em projetos Lovable. O relatório é <strong>criado automaticamente</strong> em <code>/docs/audit/<strong>[DATA]/</strong>audit-drift.md</code>.</p>
+
+      <div class="step">
+        <div class="step-title">🔎 A4.1 Análise de drift completa</div>
+        <div class="prompt-box">
+          <pre><span class="key">@john</span> <span class="hl">modo análise + geração de relatório. Não modifique nenhum arquivo existente.</span>
+
+Faça uma análise de drift entre a documentação e a implementação deste projeto.
+
+<span class="warn-text">PARTE 1 — DOCS vs. CÓDIGO</span>
+Compare os arquivos em /docs com o que realmente existe no /src:
+- Features documentadas que NÃO existem no código
+- Features no código que NÃO estão documentadas
+- Fluxos documentados que funcionam de forma diferente do que foi descrito
+- Nomes de componentes/páginas na documentação que diferem do código
+
+<span class="warn-text">PARTE 2 — CONSISTÊNCIA INTERNA DOS DOCS</span>
+- Documentos que se contradizem entre si
+- Versões conflitantes da mesma informação em arquivos diferentes
+- Terminologia inconsistente (mesmo conceito, nomes diferentes nos docs)
+
+<span class="warn-text">PARTE 3 — SCHEMA vs. CÓDIGO</span>
+- Tabelas/colunas do banco que existem mas não são usadas no frontend
+- Queries no código que referenciam colunas que não existem no schema
+- Types/interfaces TypeScript que não refletem a estrutura real do banco
+
+<span class="warn-text">PARTE 4 — PRIORIZAÇÃO</span>
+- Liste os 5 drifts mais críticos para corrigir primeiro
+- Para cada um: impacto se não corrigido, esforço para corrigir
+
+<span class="hl">Ao finalizar a análise, crie automaticamente o arquivo /docs/audit/[DATA]/audit-drift.md onde [DATA] é a pasta criada na Fase A0. Confirme com: "✅ audit-drift.md criado em /docs/audit/[DATA]/"</span></pre>
+        </div>
+      </div>
+
+      <div class="insight-box">
+        Drift entre documentação e código é silencioso e perigoso. Quando um novo dev (ou o Lovable numa nova sessão) lê a documentação e implementa baseado nela, vai criar bugs que são difíceis de rastrear porque "segui o doc".
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- FASE A5: CONSOLIDAÇÃO -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section pa5">
+    <div class="phase-banner">
+      <span class="num">A5</span>
+      <h2>Consolidação — Relatório Mestre de Auditoria</h2>
+      <span class="time">⏱️ 15–20 min</span>
+    </div>
+    <div class="phase-content">
+      <p>Com os 4 relatórios em mãos, gere o relatório consolidado e atualize o histórico. Este é o documento que vai guiar todo o trabalho de correção no Lovable.</p>
+
+      <div class="step">
+        <div class="step-title">📊 A5.1 Gerar o relatório mestre</div>
+        <div class="prompt-box">
+          <pre><span class="key">@bmad-orchestrator</span> <span class="hl">modo análise + geração de relatório mestre. Não modifique código.</span>
+
+Leia os 4 relatórios de auditoria já criados em /docs/audit/[DATA]/ e gere um relatório mestre consolidado.
+
+<span class="warn-text">PARTE 1 — RESUMO EXECUTIVO</span>
+- Estado atual do projeto em 3–5 frases
+- Os 3 problemas mais críticos encontrados
+- Avaliação geral: o projeto está pronto para escalar? Por quê?
+
+<span class="warn-text">PARTE 2 — MATRIZ DE CORREÇÕES PRIORIZADAS</span>
+Para cada correção identificada pelos agentes, categorize em:
+
+🔴 CRÍTICO (bloqueia crescimento): resolver antes de qualquer novo feature
+🟠 ALTO (degrada experiência): resolver no próximo sprint
+🟡 MÉDIO (dívida técnica): resolver no próximo mês
+⚪ BAIXO (melhoria): resolver quando tiver oportunidade
+
+Para cada item: qual agente encontrou, qual arquivo/area, qual a correção sugerida, esforço estimado.
+Ao final desta parte, informe os totais: quantos Críticos, Altos, Médios e Baixos foram encontrados.
+
+<span class="warn-text">PARTE 3 — PLANO DE CORREÇÃO</span>
+Organize as correções em ordem de execução no Lovable:
+- Quais podem ser feitas em paralelo?
+- Quais têm dependências (B só depois de A)?
+- Quais o Lovable pode fazer bem vs. quais precisam de atenção manual?
+
+<span class="warn-text">PARTE 4 — MÉTRICAS ESPERADAS</span>
+Se todas as correções forem aplicadas:
+- Redução estimada de linhas de código
+- Número de arquivos que podem ser removidos
+- Jornadas de UX que serão corrigidas
+- Documentos que precisam ser reescritos
+
+<span class="hl">Ao finalizar:
+1. Crie /docs/audit/[DATA]/RELATORIO-MESTRE-AUDITORIA.md com todo o conteúdo acima.
+2. Adicione uma linha nova na tabela de /docs/audit/AUDIT-HISTORY.md no formato:
+   | [DATA] | /docs/audit/[DATA]/ | [nº críticos] | [nº altos] | [nº médios] | [resumo em 1 frase] |
+Confirme com: "✅ Relatório Mestre criado. AUDIT-HISTORY.md atualizado. 5/5 arquivos em /docs/audit/[DATA]/"</span></pre>
+        </div>
+      </div>
+
+      <div class="step" style="border-left-color: var(--teal);">
+        <div class="step-title">🔁 A5-B Comparação com auditoria anterior <span style="font-size: 11px; font-weight: 400; color: var(--text2); margin-left: 6px;">Execute apenas se existir auditoria anterior</span></div>
+        <p style="margin-bottom: 8px;">Se a Fase A0 identificou uma auditoria anterior, rode este prompt agora. Ele é o coração da governança: mostra evolução real, itens recorrentes e regressões.</p>
+        <div class="prompt-box" style="border-color: rgba(61,216,197,0.3);">
+          <pre style="color: var(--text2);"><span class="key">@john</span> <span class="hl">modo comparação entre auditorias. Não modifique nenhum arquivo existente.</span>
+
+Compare duas auditorias BMAD:
+- Auditoria ANTERIOR: /docs/audit/<span class="warn-text">[DATA-ANTERIOR]</span>/RELATORIO-MESTRE-AUDITORIA.md
+- Auditoria ATUAL:    /docs/audit/<span class="warn-text">[DATA-ATUAL]</span>/RELATORIO-MESTRE-AUDITORIA.md
+
+<span class="warn-text">PARTE 1 — EVOLUÇÃO GERAL</span>
+- O projeto melhorou ou piorou desde a última auditoria?
+- Comparação de totais: Críticos, Altos, Médios entre as duas auditorias
+- Qual foi a variação em %? (ex: "críticos caíram de 5 para 2, -60%")
+
+<span class="warn-text">PARTE 2 — ITENS RESOLVIDOS</span>
+Liste os problemas que estavam na auditoria anterior e não aparecem mais na atual.
+Estes são as vitórias do período.
+
+<span class="warn-text">PARTE 3 — ITENS RECORRENTES (atenção redobrada)</span>
+Liste os problemas que aparecem nas DUAS auditorias — anterior e atual.
+Estes são os itens que foram identificados, mas não corrigidos. Para cada um:
+- Há quanto tempo está aparecendo?
+- Por que pode estar sendo ignorado?
+- Qual o risco acumulado de continuar sem corrigir?
+
+<span class="warn-text">PARTE 4 — ITENS NOVOS</span>
+Liste problemas que aparecem APENAS na auditoria atual (não estavam na anterior).
+Estes são regressões ou novas dívidas criadas no período.
+
+<span class="warn-text">PARTE 5 — VEREDITO COMPARATIVO</span>
+Em 3 frases: o projeto está numa trajetória saudável? O que mais precisa de atenção no próximo ciclo?
+
+<span class="hl">Crie automaticamente /docs/audit/[DATA-ATUAL]/audit-comparacao.md com todo o conteúdo desta análise. Confirme com: "✅ audit-comparacao.md criado — comparação com [DATA-ANTERIOR] concluída."</span></pre>
+        </div>
+        <div style="background: rgba(61,216,197,0.06); border: 1px solid rgba(61,216,197,0.2); border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; color: var(--teal);">
+          💡 <strong>Na primeira auditoria, pule este passo.</strong> A partir da segunda auditoria mensal, este prompt é obrigatório — é onde você enxerga se o projeto está evoluindo ou acumulando dívida.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">✅ A5.2 Verificar os entregáveis gerados automaticamente</div>
+        <p>Todos os arquivos foram criados automaticamente pelos agentes. Confirme que existem em <code>/docs/audit/[DATA]/</code>:</p>
+        <table class="output">
+          <thead>
+            <tr>
+              <th>Arquivo</th>
+              <th>Gerado por</th>
+              <th>Conteúdo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>[DATA]/audit-estrutura.md</code></td>
+              <td><span class="agent-tag">WINSTON</span></td>
+              <td>Arquivos redundantes, estrutura, dependências</td>
+            </tr>
+            <tr>
+              <td><code>[DATA]/audit-codigo.md</code></td>
+              <td><span class="agent-tag" style="color: var(--orange);">BOB</span></td>
+              <td>Código verboso, padrões ruins, oportunidades de refatoração</td>
+            </tr>
+            <tr>
+              <td><code>[DATA]/audit-produto-ux.md</code></td>
+              <td><span class="agent-tag" style="color: var(--pink);">MARY</span></td>
+              <td>Jornadas quebradas, gaps de UX, PRD inconsistente</td>
+            </tr>
+            <tr>
+              <td><code>[DATA]/audit-drift.md</code></td>
+              <td><span class="agent-tag" style="color: var(--teal);">JOHN</span></td>
+              <td>Divergências docs vs. código, inconsistências</td>
+            </tr>
+            <tr>
+              <td><code>[DATA]/RELATORIO-MESTRE-AUDITORIA.md</code></td>
+              <td><span class="agent-tag" style="color: var(--green);">CONSOLIDADO</span></td>
+              <td>Matriz de correções priorizadas + plano de execução</td>
+            </tr>
+            <tr style="opacity: 0.6;">
+              <td><code>[DATA]/audit-comparacao.md</code> <span style="font-size: 11px; color: var(--teal);">2ª auditoria em diante</span></td>
+              <td><span class="agent-tag" style="color: var(--teal);">JOHN</span></td>
+              <td>Evolução vs. anterior, itens recorrentes, regressões</td>
+            </tr>
+            <tr>
+              <td><code>AUDIT-HISTORY.md</code> <span style="font-size: 11px; color: var(--accent);">raiz de /docs/audit/</span></td>
+              <td><span class="agent-tag" style="color: var(--accent);">AUTO</span></td>
+              <td>Índice histórico de todas as auditorias com métricas</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- FASE A6: APLICAR NO LOVABLE -->
+  <!-- ═══════════════════════════════════════ -->
+  <div style="background: var(--surface); border: 1px solid rgba(88,166,255,0.3); border-radius: 14px; padding: 28px; margin: 36px 0;">
+    <h2 style="font-size: 18px; margin-bottom: 14px; color: var(--accent);">⚡ A6 — Aplicar as Correções no Lovable</h2>
+    <p style="font-size: 14px; color: var(--text2); margin-bottom: 16px;">Com o Relatório Mestre em mãos, você tem clareza total sobre o que corrigir. Agora volte ao Lovable e aplique as correções em ordem de prioridade — <strong>uma de cada vez.</strong></p>
+
+    <div class="step" style="border-left-color: var(--red);">
+      <div class="step-title">🔴 Correções críticas primeiro</div>
+      <div class="prompt-box lovable">
+        <pre>CORREÇÃO CIRÚRGICA — Não altere nenhuma outra funcionalidade.
+
+Problema identificado na Auditoria BMAD:
+[cole o item específico do Relatório Mestre]
+
+Arquivo(s) afetado(s): [lista do relatório]
+Tipo: [estrutura / código / UX / documentação]
+
+Faça APENAS esta correção.
+Verifique que a aplicação continua funcionando após a mudança.
+Atualize /docs/audit/RELATORIO-MESTRE-AUDITORIA.md marcando este item como ✅ resolvido.</pre>
+      </div>
+      <div class="warn" style="margin-top: 10px;">⚠️ Fixe a versão no Lovable antes de cada bloco de correções. Se algo quebrar, você consegue voltar.</div>
+    </div>
+
+    <div class="step" style="border-left-color: var(--accent);">
+      <div class="step-title">📏 Regra de ouro para as correções</div>
+      <table class="output">
+        <thead>
+          <tr><th>✅ Faça</th><th>❌ Não faça</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Uma correção por vez</td>
+            <td>Pedir "refatora tudo de uma vez"</td>
+          </tr>
+          <tr>
+            <td>Citar o arquivo e problema específico</td>
+            <td>Ser vago: "melhora o código"</td>
+          </tr>
+          <tr>
+            <td>Testar após cada correção</td>
+            <td>Acumular 10 correções sem testar</td>
+          </tr>
+          <tr>
+            <td>Seguir a ordem de prioridade do relatório</td>
+            <td>Começar pelo que parece mais fácil</td>
+          </tr>
+          <tr>
+            <td>Fixar versão após cada bloco funcional</td>
+            <td>Avançar sem checkpoint</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TIPOS DE PROBLEMAS COMUNS -->
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin: 0 0 32px;">
+    <h2 style="font-size: 17px; margin-bottom: 16px;">🎯 O que a Auditoria tipicamente encontra em projetos Lovable sem planejamento</h2>
+    <table class="output">
+      <thead>
+        <tr>
+          <th>Problema</th>
+          <th>Frequência</th>
+          <th>Agente</th>
+          <th>Impacto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="hl">Componente de 300+ linhas que deveria ter 3 partes</td>
+          <td><span class="sev sev-crit">Muito comum</span></td>
+          <td><span class="agent-tag" style="color: var(--orange);">BOB</span></td>
+          <td>Manutenção impossível</td>
+        </tr>
+        <tr>
+          <td class="hl">Jornada de onboarding sem estado de erro</td>
+          <td><span class="sev sev-crit">Muito comum</span></td>
+          <td><span class="agent-tag" style="color: var(--pink);">MARY</span></td>
+          <td>Usuário trava sem feedback</td>
+        </tr>
+        <tr>
+          <td class="hl">5+ arquivos de tipos duplicando as mesmas interfaces</td>
+          <td><span class="sev sev-high">Comum</span></td>
+          <td><span class="agent-tag">WINSTON</span></td>
+          <td>Inconsistência de dados</td>
+        </tr>
+        <tr>
+          <td class="hl">PRD descreve feature que virou algo diferente</td>
+          <td><span class="sev sev-high">Comum</span></td>
+          <td><span class="agent-tag" style="color: var(--teal);">JOHN</span></td>
+          <td>Próximas sessões vão na direção errada</td>
+        </tr>
+        <tr>
+          <td class="hl">useEffect buscando dados em toda re-renderização</td>
+          <td><span class="sev sev-high">Comum</span></td>
+          <td><span class="agent-tag" style="color: var(--orange);">BOB</span></td>
+          <td>Performance degradada</td>
+        </tr>
+        <tr>
+          <td class="hl">3 botões que fazem a mesma coisa em telas diferentes</td>
+          <td><span class="sev sev-med">Moderado</span></td>
+          <td><span class="agent-tag" style="color: var(--pink);">MARY</span></td>
+          <td>Confusão do usuário</td>
+        </tr>
+        <tr>
+          <td class="hl">Packages no package.json nunca importados</td>
+          <td><span class="sev sev-med">Moderado</span></td>
+          <td><span class="agent-tag">WINSTON</span></td>
+          <td>Bundle maior, deploy mais lento</td>
+        </tr>
+        <tr>
+          <td class="hl">User stories sem critérios de aceitação</td>
+          <td><span class="sev sev-low">Quase sempre</span></td>
+          <td><span class="agent-tag" style="color: var(--pink);">MARY</span></td>
+          <td>Impossível saber quando está "pronto"</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CHECKLIST FINAL -->
+  <div class="summary-box">
+    <h2>✅ Checklist de Conclusão da Auditoria BMAD</h2>
+    <p style="font-size: 14px; color: var(--text2); margin-bottom: 18px;">Antes de considerar a auditoria completa e avançar para a próxima fase do Retrofit, verifique:</p>
+    <div class="checklist">
+      <div class="check-item">
+        <div class="check"></div>
+        <div><strong>Pasta datada criada</strong> <code>/docs/audit/[DATA]/</code> — criada na Fase A0</div>
+      </div>
+      <div class="check-item">
+        <div class="check"></div>
+        <div><strong>Relatório Winston gerado</strong> <code>[DATA]/audit-estrutura.md</code> — arquitetura analisada, duplicações mapeadas</div>
+      </div>
+      <div class="check-item">
+        <div class="check"></div>
+        <div><strong>Relatório Bob gerado</strong> <code>[DATA]/audit-codigo.md</code> — qualidade de código avaliada, refatorações priorizadas</div>
+      </div>
+      <div class="check-item">
+        <div class="check"></div>
+        <div><strong>Relatório Mary gerado</strong> <code>[DATA]/audit-produto-ux.md</code> — jornadas de UX mapeadas, gaps identificados</div>
+      </div>
+      <div class="check-item">
+        <div class="check"></div>
+        <div><strong>Relatório John gerado</strong> <code>[DATA]/audit-drift.md</code> — drift entre docs e código mapeado</div>
+      </div>
+      <div class="check-item">
+        <div class="check"></div>
+        <div><strong>Relatório Mestre gerado</strong> <code>[DATA]/RELATORIO-MESTRE-AUDITORIA.md</code> — tudo consolidado e priorizado</div>
+      </div>
+      <div class="check-item">
+        <div class="check"></div>
+        <div><strong>AUDIT-HISTORY.md atualizado</strong> — nova linha adicionada com data, métricas e observação</div>
+      </div>
+      <div class="check-item">
+        <div class="check"></div>
+        <div><strong>Comparação com auditoria anterior</strong> <code>[DATA]/audit-comparacao.md</code> — <em>pule se for a primeira auditoria</em></div>
+      </div>
+      <div class="check-item">
+        <div class="check"></div>
+        <div><strong>Correções críticas aplicadas no Lovable</strong> — itens 🔴 do Relatório Mestre resolvidos</div>
+      </div>
+      <div class="check-item">
+        <div class="check"></div>
+        <div><strong>Versão fixada pós-auditoria</strong> — checkpoint criado no Lovable com label "Pós-Auditoria BMAD — [DATA]"</div>
+      </div>
+      <div class="check-item">
+        <div class="check"></div>
+        <div><strong>Aplicação testada e funcional</strong> — todas as jornadas principais funcionando após as correções</div>
+      </div>
+    </div>
+    <div style="background: rgba(88,166,255,0.06); border: 1px solid rgba(88,166,255,0.2); border-radius: 8px; padding: 14px 18px; margin-top: 18px; font-size: 13px; color: var(--accent);">
+      📅 <strong>Próxima auditoria:</strong> agende para daqui a ~30 dias. Coloque um lembrete agora. Quando chegar a hora, volte aqui e comece pela Fase A0 — o processo é idêntico e levará menos tempo porque você já conhece o fluxo.
+    </div>
+    <div class="success" style="margin-top: 10px;">🎉 <strong>Auditoria BMAD concluída.</strong> Histórico preservado, projeto melhorado, governança em dia.</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Kerno Framework · KERNO-BMAD-AUDITORIA · Módulo do Retrofit · v1.0<br>
+  <span style="opacity: 0.5;">Execute após a geração de documentações pelo Lovable. Antes de escalar.</span>
+</div>
+
+</body>
+</html>

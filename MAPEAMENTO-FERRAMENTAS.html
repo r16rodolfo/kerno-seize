@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapeamento de Ferramentas — Awesome AI Security</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.7; }
+    .container { max-width: 860px; margin: 0 auto; padding: 24px; }
+    .header { text-align: center; padding: 30px 20px 20px; }
+    .header h1 { font-size: 24px; }
+    .header p { color: #94a3b8; margin-top: 6px; font-size: 14px; }
+    .tabs { display: flex; gap: 10px; margin: 20px 0 4px; }
+    .tab { flex: 1; padding: 12px 18px; border-radius: 10px; cursor: pointer; border: 1px solid #334155; font-size: 13px; font-weight: 600; text-align: center; transition: all .15s; }
+    .tab.active-std { background: rgba(59,130,246,.12); border-color: #3b82f6; color: #93c5fd; }
+    .tab.active-llm { background: rgba(168,85,247,.12); border-color: #a855f7; color: #d8b4fe; }
+    .tab:not(.active-std):not(.active-llm) { color: #64748b; }
+    .tab:not(.active-std):not(.active-llm):hover { border-color: #475569; color: #94a3b8; }
+    .context-note { background: #1e293b; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #94a3b8; margin-bottom: 16px; border-left: 3px solid #334155; }
+    .context-note.llm { border-left-color: #a855f7; color: #c4b5fd; background: rgba(168,85,247,.06); }
+    .context-note strong { color: #e2e8f0; }
+    .section { background: #1e293b; border-radius: 12px; padding: 24px; margin: 16px 0; }
+    .section h2 { font-size: 17px; margin-bottom: 14px; }
+    .section p { font-size: 14px; color: #cbd5e1; margin-bottom: 8px; }
+    .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-bottom: 6px; font-family: monospace; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    th { background: #334155; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; }
+    td { padding: 10px 12px; border-bottom: 1px solid rgba(30,41,59,.4); vertical-align: top; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .tag { display: inline-block; padding: 2px 9px; border-radius: 4px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .tag-green  { background: #14532d; color: #4ade80; }
+    .tag-red    { background: #450a0a; color: #fca5a5; }
+    .tag-yellow { background: #422006; color: #fde047; }
+    .tag-blue   { background: #0c1a3a; color: #93c5fd; }
+    .tag-purple { background: #2e1065; color: #d8b4fe; }
+    .tag-orange { background: #431407; color: #fb923c; }
+    .new-badge { display: inline-block; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; background: #a855f7; color: white; padding: 1px 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle; }
+    .phase-box { background: #0f172a; border-radius: 8px; padding: 16px; margin: 10px 0; border-left: 4px solid #3b82f6; }
+    .phase-box.llm-phase { border-left-color: #a855f7; }
+    .phase-box h3 { font-size: 15px; margin-bottom: 6px; }
+    .phase-box .tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .tool-tag { background: #1e3a5f; border: 1px solid #2563eb; border-radius: 6px; padding: 4px 12px; font-size: 12px; color: #93c5fd; }
+    .tool-tag.llm { background: #2e1065; border-color: #7c3aed; color: #c4b5fd; }
+    .table-divider td { background: #0f172a; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #475569; padding: 10px 12px 6px; font-family: monospace; }
+    .note { background: #1a2332; border: 1px solid #334155; border-radius: 8px; padding: 14px 16px; margin: 14px 0; font-size: 13px; color: #94a3b8; }
+    .note strong { color: #e2e8f0; }
+    .row-new td { background: rgba(168,85,247,.05); }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+    .summary-card { background: #0f172a; border-radius: 8px; padding: 14px 16px; text-align: center; border: 1px solid #1e293b; }
+    .summary-card .num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+    .summary-card .lbl { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🗺️ Mapeamento: Awesome AI Security → Pipeline Kerno</h1>
+    <p>Quais ferramentas da lista usamos, onde, e por quê — dois cenários distintos</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active-std" onclick="showTab('std')" id="tab-std">📦 Projetos sem LLM exposto</div>
+    <div class="tab" onclick="showTab('llm')" id="tab-llm">🤖 Projetos com LLM exposto ao usuário</div>
+  </div>
+
+  <!-- TAB: STANDARD -->
+  <div id="content-std">
+    <div class="context-note">
+      <strong>Cenário:</strong> Projeto Lovable com Supabase — sem chatbot, sem agentes, sem chamadas a APIs de IA dentro do produto. A IA (Lovable) é usada apenas para gerar o código, não como feature.
+    </div>
+    <div class="section">
+      <div class="section-label">Ferramentas da Lista</div>
+      <h2>Status de uso — Projetos sem LLM</h2>
+      <table>
+        <tr><th>Ferramenta</th><th>Seção na Lista</th><th>Status</th><th>Onde / Por quê</th></tr>
+        <tr class="table-divider"><td colspan="4">── Ativas no pipeline ──</td></tr>
+        <tr><td><strong>Semgrep</strong></td><td>Agentic AI Skills</td><td><span class="tag tag-green">✅ USANDO</span></td><td>GitHub Action — análise estática com regras OWASP, React, TypeScript, XSS, SQL Injection, Secrets. Roda a cada push.</td></tr>
+        <tr><td><strong>Dependabot</strong></td><td>—</td><td><span class="tag tag-green">✅ USANDO</span></td><td>GitHub nativo — monitora dependências, abre PRs automáticos de segurança toda semana.</td></tr>
+        <tr><td><strong>OWASP Top 10</strong></td><td>Learning Resources</td><td><span class="tag tag-green">✅ REFERÊNCIA</span></td><td>Base principal das regras do SECURITY.md e das verificações do scanner customizado.</td></tr>
+        <tr><td><strong>OWASP LLM Top 10</strong></td><td>Learning Resources</td><td><span class="tag tag-green">✅ REFERÊNCIA</span></td><td>Riscos de código gerado por IA — incorporados nas regras de validação do scanner.</td></tr>
+        <tr><td><strong>OWASP AI Security Guide</strong></td><td>Learning Resources</td><td><span class="tag tag-green">✅ REFERÊNCIA</span></td><td>Orientou a abordagem de prevenção na fonte (SECURITY.md no Custom Knowledge).</td></tr>
+        <tr class="table-divider"><td colspan="4">── Inspiração / conceito incorporado ──</td></tr>
+        <tr><td><strong>Project CodeGuard</strong> (CoSAI)</td><td>Defensive → Agentic AI</td><td><span class="tag tag-yellow">🟡 INSPIRAÇÃO</span></td><td>Guardrails para código gerado por IA → inspirou o SECURITY.md no Custom Knowledge do Lovable.</td></tr>
+        <tr><td><strong>claude-secure-coding-rules</strong></td><td>Defensive → Misc</td><td><span class="tag tag-yellow">🟡 INCORPORADO</span></td><td>Regras estudadas e adaptadas para Lovable + Supabase dentro do SECURITY.md.</td></tr>
+        <tr><td><strong>MITRE ATLAS</strong></td><td>Taxonomies</td><td><span class="tag tag-yellow">🟡 REFERÊNCIA</span></td><td>Taxonomia de ataques a ML — consultada para entender categorias de risco.</td></tr>
+        <tr class="table-divider"><td colspan="4">── Fase futura ──</td></tr>
+        <tr><td><strong>Safe Zone</strong></td><td>Defensive → LLM Guardrails</td><td><span class="tag tag-blue">📋 FASE FUTURA</span></td><td>Detecção de PII. Adicionar quando o projeto tiver dados sensíveis em produção real.</td></tr>
+        <tr><td><strong>Claude Code Security Review</strong></td><td>Defensive → AI for cyber</td><td><span class="tag tag-blue">📋 FASE FUTURA</span></td><td>GitHub Action com revisão de código por IA. Requer API key Anthropic ($).</td></tr>
+        <tr class="table-divider"><td colspan="4">── Não se aplica ──</td></tr>
+        <tr><td><strong>promptfoo / garak / FuzzyAI</strong></td><td>Attacking LLMs</td><td><span class="tag tag-red">❌ NÃO SE APLICA</span></td><td>Para testar LLMs. Projeto sem IA conversacional.</td></tr>
+        <tr><td><strong>NeMo Guardrails</strong></td><td>Defensive → LLM Guardrails</td><td><span class="tag tag-red">❌ NÃO SE APLICA</span></td><td>Runtime guardrails para LLMs. Sem LLM exposto, sem necessidade.</td></tr>
+        <tr><td><strong>modelscan / picklescan</strong></td><td>Defensive → Detection</td><td><span class="tag tag-red">❌ NÃO SE APLICA</span></td><td>Para modelos ML próprios. Projeto não treina nem hospeda modelos.</td></tr>
+        <tr><td><strong>Strix / HexStrikeAI</strong></td><td>AI for offensive cyber</td><td><span class="tag tag-red">❌ DESPROPORCIONAL</span></td><td>Pentest autônomo avançado. Excessivo para o estágio atual.</td></tr>
+      </table>
+    </div>
+    <div class="section">
+      <h2>Como as ferramentas se encaixam nas fases</h2>
+      <div class="phase-box"><h3>Fase 0 — Prevenir na fonte (Lovable)</h3><p>Código já sair seguro do Lovable</p><div class="tools"><span class="tool-tag">SECURITY.md ← OWASP Top 10</span><span class="tool-tag">Inspirado em Project CodeGuard</span><span class="tool-tag">Incorpora claude-secure-coding-rules</span></div></div>
+      <div class="phase-box"><h3>Fase 1 — Auditar o existente</h3><p>Encontrar problemas no código atual</p><div class="tools"><span class="tool-tag">Semgrep (oficial)</span><span class="tool-tag">npm audit</span><span class="tool-tag">Scanner customizado Lovable+Supabase</span></div></div>
+      <div class="phase-box"><h3>Fase 2 — Corrigir</h3><p>Resolver problemas encontrados</p><div class="tools"><span class="tool-tag">Semgrep + Scanner</span><span class="tool-tag">Lovable com SECURITY.md ativo</span></div></div>
+      <div class="phase-box"><h3>Fase 3 — Monitorar (contínuo)</h3><p>Proteção permanente</p><div class="tools"><span class="tool-tag">Semgrep (a cada push)</span><span class="tool-tag">npm audit (a cada push)</span><span class="tool-tag">Dependabot (semanal)</span></div></div>
+      <div class="phase-box" style="border-left-color:#a855f7"><h3>🔮 Fase Futura</h3><div class="tools"><span class="tool-tag">Safe Zone (PII)</span><span class="tool-tag">Claude Code Security Review</span></div></div>
+    </div>
+    <div class="note"><strong>Resumo:</strong> Das ferramentas avaliadas, <strong>5 estão ativas</strong> (Semgrep, Dependabot, OWASP x3), <strong>3 como inspiração</strong> (CodeGuard, claude-rules, MITRE), <strong>2 planejadas</strong> (Safe Zone, Claude Security Review), e o restante não se aplica a projetos sem LLM exposto.</div>
+  </div>
+
+  <!-- TAB: LLM -->
+  <div id="content-llm" style="display:none">
+    <div class="context-note llm">
+      <strong>Cenário:</strong> Projeto com chatbot, assistente, busca semântica ou agentes autônomos — LLM exposto a usuários via OpenAI, Anthropic, Gemini ou similares. Adicionar ao cenário base acima.
+    </div>
+    <div class="section">
+      <div class="section-label">Novos vetores de ataque neste cenário</div>
+      <h2>Ameaças específicas de LLM exposto</h2>
+      <table>
+        <tr><th>Vetor</th><th>OWASP LLM</th><th>Risco</th><th>Proteção</th></tr>
+        <tr><td><strong>Prompt Injection</strong></td><td>LLM01</td><td>Usuário injeta instruções para sobrescrever o system prompt</td><td>Validar input, limitar escopo no prompt, nunca interpolar input no system prompt</td></tr>
+        <tr><td><strong>System Prompt Leakage</strong></td><td>LLM07</td><td>Usuário extrai o conteúdo do system prompt</td><td>Chamada ao LLM no servidor, instruir o modelo a não revelar o prompt</td></tr>
+        <tr><td><strong>Insecure Output Handling</strong></td><td>LLM02</td><td>Resposta do LLM renderizada como HTML (XSS via IA)</td><td>Nunca dangerouslySetInnerHTML sem DOMPurify, nunca eval()</td></tr>
+        <tr><td><strong>Excessive Agency</strong></td><td>LLM06</td><td>Agente toma ações irreversíveis sem confirmação</td><td>Confirmação humana para ações destrutivas, mínimo de ferramentas</td></tr>
+        <tr><td><strong>Resource Exhaustion</strong></td><td>LLM10</td><td>Usuário gera custos abusivos na API de IA</td><td>Rate limiting por usuário, max_tokens explícito em toda chamada</td></tr>
+      </table>
+    </div>
+    <div class="section">
+      <div class="section-label">Ferramentas — adicionadas para este cenário</div>
+      <h2>Status de uso — Projetos com LLM</h2>
+      <p style="font-size:13px;color:#94a3b8;margin-bottom:14px">Todas as ferramentas do cenário base continuam. As novas entradas abaixo são específicas para LLM exposto:</p>
+      <table>
+        <tr><th>Ferramenta</th><th>Seção na Lista</th><th>Status</th><th>Onde / Por quê</th></tr>
+        <tr class="table-divider"><td colspan="4">── Novas — ativas neste cenário ──</td></tr>
+        <tr class="row-new"><td><strong>LLM-SECURITY.md</strong> <span class="new-badge">NOVO</span></td><td>Kerno — baseado em OWASP LLM + NeMo</td><td><span class="tag tag-purple">🟣 USANDO</span></td><td>Equivalente ao SECURITY.md para projetos com LLM. Cobre: system prompt seguro, prompt injection, autorização antes do LLM, rate limiting, dados sensíveis, output handling. Upload obrigatório no Custom Knowledge quando o projeto tiver LLM.</td></tr>
+        <tr class="row-new"><td><strong>NeMo Guardrails</strong> <span class="new-badge">NOVO</span></td><td>Defensive → LLM Guardrails</td><td><span class="tag tag-purple">🟣 DISPONÍVEL</span></td><td>Guardrails programáveis em YAML. Define o que o LLM pode e não pode discutir. Wrapper nas chamadas à API — gratuito, open-source, roda no servidor. Usar quando o escopo do assistente precisa ser rigidamente controlado.</td></tr>
+        <tr class="table-divider"><td colspan="4">── Fase futura / pré-deploy ──</td></tr>
+        <tr><td><strong>promptmap</strong></td><td>Attacking LLMs</td><td><span class="tag tag-blue">📋 PRÉ-DEPLOY</span></td><td>Scanner de prompt injection. Rodar uma vez antes de ir a produção — testa centenas de vetores de ataque contra seu endpoint. Gratuito. Adicionar ao checklist de deploy de projetos com LLM.</td></tr>
+        <tr><td><strong>Lakera Guard</strong></td><td>Defensive → LLM Guardrails</td><td><span class="tag tag-blue">📋 FASE FUTURA</span></td><td>Firewall em tempo real entre usuário e LLM (API externa). Detecta prompt injection em ms. Tem camada gratuita — adiciona latência. Considerar quando o produto tiver usuários reais em produção.</td></tr>
+        <tr><td><strong>langkit</strong> (WhyLabs)</td><td>Defensive → Detection</td><td><span class="tag tag-blue">📋 FASE FUTURA</span></td><td>Monitoramento de métricas de segurança em conversas. Detecta padrões de ataque ao longo do tempo. Útil quando houver volume suficiente para valer a análise.</td></tr>
+        <tr class="table-divider"><td colspan="4">── Passam a se aplicar (com expertise) ──</td></tr>
+        <tr><td><strong>promptfoo</strong></td><td>Attacking LLMs</td><td><span class="tag tag-orange">⚠️ COM EXPERTISE</span></td><td>Red teaming para LLMs. Poderoso, mas requer conhecimento para interpretar resultados. Usar se houver alguém com experiência em segurança de IA no time.</td></tr>
+        <tr class="table-divider"><td colspan="4">── Continuam não se aplicando ──</td></tr>
+        <tr><td><strong>modelscan / ART / cleverhans</strong></td><td>Adversarial ML / Detection</td><td><span class="tag tag-red">❌ NÃO SE APLICA</span></td><td>Para modelos ML próprios. Projeto usa APIs externas, não modelos locais.</td></tr>
+        <tr><td><strong>Strix / HexStrikeAI</strong></td><td>AI for offensive cyber</td><td><span class="tag tag-red">❌ DESPROPORCIONAL</span></td><td>Pentest autônomo avançado. Excessivo para o estágio atual.</td></tr>
+      </table>
+    </div>
+    <div class="section">
+      <h2>Como as ferramentas se encaixam nas fases — projetos com LLM</h2>
+      <div class="phase-box"><h3>Fase 0 — Prevenir na fonte (Lovable)</h3><p>Código seguro + LLM implementado com guardrails desde o início</p><div class="tools"><span class="tool-tag">SECURITY.md</span><span class="tool-tag llm">LLM-SECURITY.md ← upload obrigatório</span><span class="tool-tag llm">NeMo Guardrails ← se escopo rígido</span></div></div>
+      <div class="phase-box"><h3>Fase 1 — Auditar antes do deploy</h3><p>Problemas no código E no comportamento do LLM</p><div class="tools"><span class="tool-tag">Semgrep + npm audit + Scanner</span><span class="tool-tag llm">promptmap ← rodar uma vez antes de ir ao ar</span></div></div>
+      <div class="phase-box"><h3>Fase 2 — Corrigir</h3><p>Código E ajustes no system prompt com base no promptmap</p><div class="tools"><span class="tool-tag">Semgrep + Lovable</span><span class="tool-tag llm">Revisar system prompt com achados do promptmap</span></div></div>
+      <div class="phase-box"><h3>Fase 3 — Monitorar (contínuo)</h3><p>Proteção de código E de runtime do LLM</p><div class="tools"><span class="tool-tag">Semgrep + npm audit + Dependabot</span><span class="tool-tag llm">Rate limiting ativo (ai_usage_logs)</span><span class="tool-tag llm">Sentry capturando erros das chamadas ao LLM</span></div></div>
+      <div class="phase-box llm-phase"><h3>🔮 Fase Futura — com usuários reais</h3><div class="tools"><span class="tool-tag llm">Lakera Guard (firewall em tempo real)</span><span class="tool-tag llm">langkit (padrões de ataque)</span><span class="tool-tag">Safe Zone (PII)</span></div></div>
+    </div>
+    <div class="section">
+      <div class="section-label">Resumo</div>
+      <div class="summary-grid">
+        <div class="summary-card"><div class="num" style="color:#4ade80">7</div><div class="lbl">Ativas (base + LLM)</div></div>
+        <div class="summary-card"><div class="num" style="color:#93c5fd">4</div><div class="lbl">Fase futura / pré-deploy</div></div>
+        <div class="summary-card"><div class="num" style="color:#f87171">8+</div><div class="lbl">Não se aplicam</div></div>
+      </div>
+    </div>
+    <div class="note"><strong>O que fazer agora:</strong> Para cada projeto com LLM exposto — (1) adicionar <strong>LLM-SECURITY.md</strong> ao Custom Knowledge junto com o SECURITY.md, (2) rodar <strong>promptmap</strong> antes do deploy, (3) garantir chamadas ao LLM via Edge Function com autenticação e rate limiting. O resto é fase futura quando o produto tiver volume de uso real.</div>
+  </div>
+
+</div>
+<script>
+function showTab(tab) {
+  document.getElementById('content-std').style.display = tab === 'std' ? 'block' : 'none';
+  document.getElementById('content-llm').style.display = tab === 'llm' ? 'block' : 'none';
+  document.getElementById('tab-std').className = 'tab' + (tab === 'std' ? ' active-std' : '');
+  document.getElementById('tab-llm').className = 'tab' + (tab === 'llm' ? ' active-llm' : '');
+}
+</script>
+</body>
+</html>

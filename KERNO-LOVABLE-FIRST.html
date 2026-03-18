@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kerno Framework — Modo Lovable-First</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --s1: #0d1117;
+      --s2: #161b22;
+      --s3: #1c2128;
+      --bd: #21262d;
+      --t1: #e6edf3;
+      --t2: #8b949e;
+      --t3: #6e7681;
+      --acc: #58a6ff;
+      --grn: #3fb950;
+      --org: #d29922;
+      --red: #f85149;
+      --pur: #bc8cff;
+      --pnk: #f778ba;
+      --teal: #39d353;
+      --cyan: #56d0e0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t1); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', monospace; }
+    .ct { max-width: 860px; margin: 0 auto; padding: 24px; }
+
+    /* HERO */
+    .hero { text-align: center; padding: 70px 20px 40px; position: relative; }
+    .hero::before { content: ''; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 800px; height: 600px; background: radial-gradient(ellipse at 50% 30%, rgba(88,166,255,0.07) 0%, rgba(167,139,250,0.04) 40%, transparent 70%); pointer-events: none; }
+    .hero .ver { display: inline-block; background: linear-gradient(135deg, rgba(88,166,255,0.15), rgba(167,139,250,0.15)); border: 1px solid rgba(88,166,255,0.25); border-radius: 20px; padding: 5px 18px; font-size: 11px; color: var(--acc); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px; font-weight: 600; }
+    .hero h1 { font-size: 44px; font-weight: 800; letter-spacing: -2px; line-height: 1.1; }
+    .hero h1 span { background: linear-gradient(135deg, var(--acc), var(--pur), var(--pnk)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero .sub { color: var(--t2); font-size: 17px; margin-top: 14px; max-width: 600px; margin-left: auto; margin-right: auto; font-weight: 400; }
+    .hero .context { display: inline-block; margin-top: 20px; background: var(--s2); border: 1px solid var(--bd); border-radius: 10px; padding: 10px 20px; font-size: 13px; color: var(--acc); }
+
+    /* AUDIENCE */
+    .audience { background: linear-gradient(135deg, rgba(88,166,255,0.06), rgba(167,139,250,0.04)); border: 1px solid rgba(88,166,255,0.18); border-radius: 14px; padding: 24px 28px; margin: 30px 0; }
+    .audience h2 { font-size: 17px; color: var(--acc); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .audience p { font-size: 14px; color: var(--t2); margin-bottom: 6px; }
+    .audience .highlight { color: var(--t1); font-weight: 600; }
+
+    /* COMPARISON — quando usar cada modo */
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .compare-card { background: var(--s2); border-radius: 12px; padding: 18px; }
+    .compare-card.this { border: 1px solid rgba(88,166,255,0.3); }
+    .compare-card.that { border: 1px solid rgba(63,185,80,0.3); }
+    .compare-card h3 { font-size: 13px; margin-bottom: 10px; }
+    .compare-card.this h3 { color: var(--acc); }
+    .compare-card.that h3 { color: var(--grn); }
+    .compare-card ul { margin: 0 0 0 18px; }
+    .compare-card li { font-size: 13px; color: var(--t2); margin: 4px 0; line-height: 1.6; }
+
+    /* TOC */
+    .toc { background: var(--s1); border: 1px solid var(--bd); border-radius: 14px; padding: 28px; margin: 30px 0; }
+    .toc h2 { font-size: 16px; color: var(--acc); margin-bottom: 16px; letter-spacing: 0.5px; }
+    .toc-list { display: grid; gap: 4px; }
+    .toc-item { display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-radius: 8px; text-decoration: none; color: var(--t2); transition: all 0.2s; font-size: 14px; }
+    .toc-item:hover { background: var(--s2); color: var(--t1); }
+    .toc-item .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; min-width: 36px; text-align: center; padding: 3px 8px; border-radius: 6px; }
+    .toc-item .time { margin-left: auto; font-size: 11px; font-family: 'JetBrains Mono', monospace; opacity: 0.6; }
+    .n-prep { background: rgba(88,166,255,0.12); color: var(--acc); }
+    .n-env { background: rgba(167,139,250,0.12); color: var(--pur); }
+    .n-dev { background: rgba(63,185,80,0.12); color: var(--grn); }
+    .n-sec { background: rgba(248,81,73,0.12); color: var(--red); }
+    .n-dep { background: rgba(210,153,34,0.12); color: var(--org); }
+    .n-mon { background: rgba(247,120,186,0.12); color: var(--pnk); }
+
+    /* TIMELINE */
+    .jornada { margin: 50px 0 30px; position: relative; }
+    .jornada::before { content: ''; position: absolute; left: 22px; top: 60px; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--acc), var(--pur), var(--grn), var(--red), var(--org), var(--pnk)); }
+    .etapa { position: relative; margin-bottom: 0; padding-left: 56px; }
+    .etapa-dot { position: absolute; left: 12px; top: 24px; width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--bg); z-index: 2; }
+    .etapa-card { background: var(--s1); border: 1px solid var(--bd); border-radius: 14px; overflow: hidden; margin-bottom: 28px; }
+    .etapa-header { padding: 20px 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .etapa-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; }
+    .etapa-title { font-size: 19px; font-weight: 700; }
+    .etapa-when { margin-left: auto; font-size: 11px; color: var(--t2); background: var(--bg); padding: 3px 12px; border-radius: 5px; font-family: 'JetBrains Mono', monospace; }
+    .etapa-body { padding: 4px 24px 24px; }
+    .etapa-body > p { font-size: 14px; color: var(--t2); margin-bottom: 14px; padding-top: 14px; }
+
+    /* ETAPA COLORS */
+    .e-prep .etapa-dot { background: var(--acc); }
+    .e-prep .etapa-header { background: linear-gradient(135deg, rgba(88,166,255,0.08), var(--s1)); border-bottom: 1px solid rgba(88,166,255,0.15); }
+    .e-prep .etapa-num { background: rgba(88,166,255,0.15); color: var(--acc); }
+    .e-prep .passo { border-left-color: rgba(88,166,255,0.4); }
+
+    .e-env .etapa-dot { background: var(--pur); }
+    .e-env .etapa-header { background: linear-gradient(135deg, rgba(167,139,250,0.08), var(--s1)); border-bottom: 1px solid rgba(167,139,250,0.15); }
+    .e-env .etapa-num { background: rgba(167,139,250,0.15); color: var(--pur); }
+    .e-env .passo { border-left-color: rgba(167,139,250,0.4); }
+
+    .e-dev .etapa-dot { background: var(--grn); }
+    .e-dev .etapa-header { background: linear-gradient(135deg, rgba(63,185,80,0.08), var(--s1)); border-bottom: 1px solid rgba(63,185,80,0.15); }
+    .e-dev .etapa-num { background: rgba(63,185,80,0.15); color: var(--grn); }
+    .e-dev .passo { border-left-color: rgba(63,185,80,0.4); }
+
+    .e-sec .etapa-dot { background: var(--red); }
+    .e-sec .etapa-header { background: linear-gradient(135deg, rgba(248,81,73,0.08), var(--s1)); border-bottom: 1px solid rgba(248,81,73,0.15); }
+    .e-sec .etapa-num { background: rgba(248,81,73,0.15); color: var(--red); }
+    .e-sec .passo { border-left-color: rgba(248,81,73,0.4); }
+
+    .e-dep .etapa-dot { background: var(--org); }
+    .e-dep .etapa-header { background: linear-gradient(135deg, rgba(210,153,34,0.08), var(--s1)); border-bottom: 1px solid rgba(210,153,34,0.15); }
+    .e-dep .etapa-num { background: rgba(210,153,34,0.15); color: var(--org); }
+    .e-dep .passo { border-left-color: rgba(210,153,34,0.4); }
+
+    .e-mon .etapa-dot { background: var(--pnk); }
+    .e-mon .etapa-header { background: linear-gradient(135deg, rgba(247,120,186,0.08), var(--s1)); border-bottom: 1px solid rgba(247,120,186,0.15); }
+    .e-mon .etapa-num { background: rgba(247,120,186,0.15); color: var(--pnk); }
+    .e-mon .passo { border-left-color: rgba(247,120,186,0.4); }
+
+    /* PASSO */
+    .passo { background: var(--s2); border-radius: 10px; padding: 18px 20px; margin: 12px 0; border-left: 3px solid var(--bd); }
+    .passo-n { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--t3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+    .passo h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .passo p, .passo li { font-size: 13px; color: var(--t2); line-height: 1.8; }
+    .passo ul, .passo ol { margin: 8px 0 0 20px; }
+    .passo li { margin: 4px 0; }
+    .passo code { background: var(--bg); padding: 2px 7px; border-radius: 4px; font-size: 12px; color: var(--acc); }
+
+    /* BOXES */
+    .leigo { background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.2); border-radius: 10px; padding: 14px 18px; margin: 10px 0; font-size: 13px; }
+    .leigo strong { color: var(--pur); }
+    .leigo p { color: var(--t2); }
+    .warn { background: rgba(210,153,34,0.08); border: 1px solid rgba(210,153,34,0.25); border-radius: 10px; padding: 14px 18px; margin: 10px 0; font-size: 13px; color: var(--org); }
+    .info { background: rgba(88,166,255,0.06); border: 1px solid rgba(88,166,255,0.18); border-radius: 10px; padding: 14px 18px; margin: 10px 0; font-size: 13px; color: var(--acc); }
+    .danger { background: rgba(248,81,73,0.06); border: 1px solid rgba(248,81,73,0.2); border-radius: 10px; padding: 14px 18px; margin: 10px 0; font-size: 13px; color: var(--red); }
+    .success { background: rgba(63,185,80,0.06); border: 1px solid rgba(63,185,80,0.2); border-radius: 10px; padding: 14px 18px; margin: 10px 0; font-size: 13px; color: var(--grn); }
+    .upgrade { background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.25); border-radius: 10px; padding: 14px 18px; margin: 10px 0; font-size: 13px; color: var(--pur); }
+
+    /* GATE */
+    .gate { background: rgba(63,185,80,0.06); border: 1px solid rgba(63,185,80,0.2); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+    .gate-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--grn); margin-bottom: 8px; }
+    .gate ul { margin: 6px 0 0 18px; }
+    .gate li { font-size: 13px; color: var(--t2); margin: 4px 0; }
+    .gate code { background: var(--bg); padding: 1px 6px; border-radius: 4px; font-size: 11px; color: var(--acc); }
+
+    /* DOC REF */
+    .doc-ref { display: inline-flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--bd); border-radius: 7px; padding: 5px 14px; font-size: 12px; color: var(--acc); margin: 4px 2px; text-decoration: none; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; }
+    .doc-ref:hover { border-color: var(--acc); background: rgba(88,166,255,0.05); }
+    .doc-ref::before { content: '📄'; font-size: 11px; }
+
+    /* PROMPT BOX */
+    .prompt-box { background: var(--bg); border: 1px solid var(--bd); border-radius: 10px; padding: 20px; margin: 12px 0; position: relative; }
+    .prompt-box::before { content: '💬 COPIAR E COLAR'; position: absolute; top: -10px; left: 14px; background: var(--bg); padding: 0 10px; font-size: 10px; font-weight: 700; color: var(--teal); letter-spacing: 1px; border: 1px solid var(--bd); border-radius: 5px; }
+    .prompt-box pre { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--t2); white-space: pre-wrap; word-wrap: break-word; margin-top: 4px; line-height: 1.7; }
+    .prompt-box-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--t3); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+
+    /* CHECKLIST */
+    .checklist { background: var(--bg); border: 1px solid var(--bd); border-radius: 10px; padding: 16px 20px; margin: 12px 0; }
+    .checklist h4 { font-size: 13px; color: var(--t2); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'JetBrains Mono', monospace; }
+    .check-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; font-size: 13px; color: var(--t2); border-bottom: 1px solid rgba(33,38,45,0.5); }
+    .check-item:last-child { border: none; }
+    .check-item .box { color: var(--grn); font-size: 14px; min-width: 20px; }
+
+    /* TABLE */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    th { background: var(--s3); padding: 10px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--t3); border-bottom: 1px solid var(--bd); font-family: 'JetBrains Mono', monospace; }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--bd); color: var(--t2); vertical-align: top; }
+
+    /* FOOTER */
+    .footer { text-align: center; padding: 50px 20px; color: var(--t3); font-size: 11px; border-top: 1px solid var(--bd); margin-top: 50px; line-height: 2.2; }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 30px; }
+      .jornada::before { left: 14px; }
+      .etapa { padding-left: 44px; }
+      .etapa-dot { left: 4px; }
+      .etapa-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .etapa-when { margin-left: 0; }
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ KERNO NAV CONTEXTUAL ═══ -->
+<div id="kerno-nav" style="position:sticky;top:0;z-index:200;background:rgba(6,8,15,.92);backdrop-filter:blur(16px);border-bottom:1px solid #21262d;padding:0 20px;">
+  <div style="max-width:940px;margin:0 auto;height:48px;display:flex;align-items:center;overflow-x:auto;gap:0;">
+    <a href="KERNO-FLUXO.html" style="display:flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#e8a838;text-decoration:none;white-space:nowrap;padding:0 14px 0 0;border-right:1px solid #21262d;margin-right:14px;flex-shrink:0;">🗺️ Mapa do Fluxo</a>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#556680;white-space:nowrap;flex-shrink:0;">Trilha B · Lovable-First</span>
+    <span style="color:#21262d;margin:0 10px;flex-shrink:0;">›</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#e6edf3;font-weight:700;white-space:nowrap;flex-shrink:0;">KERNO-LOVABLE-FIRST</span>
+    <div style="margin-left:auto;flex-shrink:0;padding-left:14px;border-left:1px solid #21262d;">
+      <a href="KERNO-BMAD-AUDITORIA.html" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#bc8cff;text-decoration:none;white-space:nowrap;font-weight:700;">Cresceu? Rodar Auditoria BMAD →</a>
+    </div>
+  </div>
+</div>
+
+<div class="ct">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="ver">Kerno BMAD v5.5.3 · Modo Simplificado</div>
+    <h1>Kerno <span>Lovable‑First</span></h1>
+    <p class="sub">O fluxo sem BMAD. Para quem quer ir direto ao Lovable com o mínimo de planejamento — e ainda assim manter segurança, estabilidade e documentação.</p>
+    <div class="context">⚡ Tempo até o primeiro commit: ~45 minutos · PRD manual no lugar de agentes</div>
+  </div>
+
+  <!-- AUDIENCE -->
+  <div class="audience">
+    <h2>🎯 Para quem é este guia</h2>
+    <p>Para o vibe coder que <span class="highlight">quer começar agora</span> — ideia na cabeça, sem paciência para 3 horas de planejamento com agentes de IA. Você aceita algum retrabalho futuro em troca de velocidade no início.</p>
+    <p>Este guia <span class="highlight">mantém as proteções que não podem ser puladas</span> — GitHub com SAST, RLS no Supabase, Seção A no Lovable — mas elimina tudo que é planejamento antecipado. Você planeja à medida que constrói.</p>
+    <p style="margin-top: 10px; color: var(--org);">⚠️ <strong>Limite deste modo:</strong> quanto mais o produto cresce, mais difícil fica sem documentação de planejamento prévia. O BMAD não é obrigatório — mas quanto maior o escopo, mais ele vai cobrar depois. Se o seu MVP tem mais de 3 features core, considere pelo menos usar Mary + John antes de continuar.</p>
+  </div>
+
+  <!-- QUANDO USAR CADA MODO -->
+  <div style="background: var(--s1); border: 1px solid var(--bd); border-radius: 14px; padding: 24px 28px; margin: 30px 0;">
+    <h2 style="font-size: 16px; margin-bottom: 16px; color: var(--t1);">🔀 Lovable-First ou BMAD? — Guia rápido de decisão</h2>
+    <div class="compare-grid">
+      <div class="compare-card this">
+        <h3>⚡ Use este guia (Lovable-First) se:</h3>
+        <ul>
+          <li>A ideia tem &lt; 3 features core bem definidas</li>
+          <li>Você está só testando se a ideia funciona (spike)</li>
+          <li>É um projeto pessoal sem usuários reais</li>
+          <li>Você sabe descrever o produto em 2-3 parágrafos</li>
+          <li>Não há multi-tenancy, permissões complexas ou integrações externas</li>
+          <li>Tolerância alta para retrabalho futuro</li>
+        </ul>
+      </div>
+      <div class="compare-card that">
+        <h3>🏗️ Use o BMAD (KERNO-ROADMAP) se:</h3>
+        <ul>
+          <li>4+ features core ou escopo que vai crescer</li>
+          <li>Produto com usuários reais pagantes</li>
+          <li>Multi-tenancy, papéis, permissões granulares</li>
+          <li>Integração com sistemas externos (Stripe, APIs)</li>
+          <li>Você quer que o Lovable respeite uma arquitetura definida</li>
+          <li>Baixa tolerância para retrabalho</li>
+        </ul>
+      </div>
+    </div>
+    <div class="info" style="margin-top: 12px;">💡 <strong>Modo híbrido válido:</strong> comece com Lovable-First, e se o produto validar, faça o BMAD retroativamente — Mary faz o product-brief a partir do que já existe, Winston documenta a arquitetura atual. Não é obrigatório refazer do zero.</div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>⚡ Sua Jornada em 5 Etapas</h2>
+    <div class="toc-list">
+      <a href="#e1" class="toc-item"><span class="num n-prep">01</span> PRD Mínimo — Escreva antes de abrir o Lovable <span class="time">15 min</span></a>
+      <a href="#e2" class="toc-item"><span class="num n-env">02</span> Ambiente Seguro — GitHub + SAST antes do Lovable <span class="time">15 min</span></a>
+      <a href="#e3" class="toc-item"><span class="num n-dev">03</span> Desenvolvimento — Ciclo Lovable com prompts prontos <span class="time">contínuo</span></a>
+      <a href="#e4" class="toc-item"><span class="num n-sec">04</span> Revisão de Segurança — Antes de qualquer usuário real <span class="time">30 min</span></a>
+      <a href="#e5" class="toc-item"><span class="num n-dep">05</span> Deploy — Vercel + monitoramento <span class="time">20 min</span></a>
+    </div>
+    <div style="margin-top: 16px; padding: 12px 16px; background: var(--s2); border-radius: 8px; font-size: 13px; color: var(--t2);">
+      <strong style="color: var(--t1);">Diferença em relação ao guia completo:</strong> sem Etapa 00 (BMAD), sem revisão Cursor. O Lovable faz o planejamento interno no Plan Mode, baseado no seu PRD manual. Você assume a responsabilidade de escopo.
+    </div>
+  </div>
+
+  <!-- JORNADA -->
+  <div class="jornada">
+
+    <!-- ═══ ETAPA 01 ═══ -->
+    <div class="etapa e-prep" id="e1">
+      <div class="etapa-dot"></div>
+      <div class="etapa-card">
+        <div class="etapa-header">
+          <span class="etapa-num">ETAPA 01</span>
+          <span class="etapa-title">PRD Mínimo</span>
+          <span class="etapa-when">⏱️ 15 min · antes de abrir o Lovable</span>
+        </div>
+        <div class="etapa-body">
+          <p>Antes de digitar o primeiro prompt no Lovable, escreva o PRD mínimo. Sem isso, o Lovable inventa a arquitetura — e você vai gastar horas corrigindo decisões ruins de banco de dados. 15 minutos de escrita economizam 5 horas de retrabalho.</p>
+
+          <div class="passo">
+            <div class="passo-n">Passo 1.1</div>
+            <h4>📝 Crie o arquivo prd.md</h4>
+            <p>Crie uma pasta para o seu projeto e dentro dela uma subpasta <code>docs/</code>. Crie o arquivo <code>docs/prd.md</code> com o template abaixo. Preencha os campos marcados com <code>[...]</code> — os demais são instruções para o Lovable e ficam exatamente assim.</p>
+            <div class="prompt-box">
+              <div class="prompt-box-label">docs/prd.md — template</div>
+              <pre># PRD — [Nome do Produto]
+
+## Visão geral
+[Descreva em 2-4 frases o que é o produto e para quem é.
+Ex: "App web para personal trainers gerenciarem fichas de treino de alunos.
+O personal cria fichas, associa exercícios e o aluno consulta pelo celular."]
+
+## Usuários
+- **Usuário principal:** [quem vai usar — papel e contexto]
+- **Usuário secundário (se houver):** [outro papel, se existir]
+
+## Funcionalidades do MVP (em ordem de prioridade)
+1. [Feature mais importante — seja específico. Ex: "Cadastro e login de trainers e alunos"]
+2. [Segunda feature]
+3. [Terceira feature]
+[Adicione mais se necessário. Máximo 5-6 para um MVP real.]
+
+## Funcionalidades FORA do escopo (não implementar agora)
+- [Feature que pode parecer óbvia mas não é para o MVP]
+- [Outra funcionalidade que vem depois]
+[Esta seção é tão importante quanto as de cima. Diga ao Lovable o que NÃO fazer.]
+
+## Dados que o sistema precisa guardar
+[Liste os "objetos" principais. Ex: "trainers (nome, email, especialidade), alunos
+(nome, email, trainer responsável), fichas de treino (título, data, lista de exercícios),
+exercícios (nome, séries, repetições, carga, observações)"]
+
+## Requisitos não-negociáveis
+- Autenticação obrigatória — nenhuma tela acessível sem login
+- Cada trainer só vê seus próprios alunos e fichas (RLS no Supabase)
+- Funcionar bem no celular (mobile-first)
+- [Adicione outros se houver — ex: "exportar PDF", "funcionar offline"]
+
+## Stack
+- Frontend: React + TypeScript + Tailwind + shadcn/ui
+- Backend: Supabase (Auth + PostgreSQL + RLS)
+- Deploy: Vercel</pre>
+            </div>
+            <div class="leigo"><strong>💡 Por que o seção "fora do escopo" é importante?</strong><p>O Lovable é empolgado. Se você não diz o que não quer, ele vai adicionar funcionalidades que pareceram óbvias para ele — e você vai ter código que não pediu, bugs que não entende, e um app maior do que precisa. Dizer "NÃO" é tão importante quanto dizer "SIM".</p></div>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 1.2</div>
+            <h4>🗺️ Pense nas milestones antes de começar</h4>
+            <p>Você não precisa escrever um <code>prd-milestones.md</code> formal (o Lovable vai criar isso). Mas antes de começar, tenha clareza mental sobre a ordem:</p>
+            <ul>
+              <li><strong>Milestone 1:</strong> Auth + layout base (sempre primeiro — adicionar auth depois quebra tudo)</li>
+              <li><strong>Milestone 2:</strong> Schema do banco + RLS (o Supabase não reverte bem — planejamento aqui é crítico)</li>
+              <li><strong>Milestone 3:</strong> Feature principal (o core do produto)</li>
+              <li><strong>Milestone 4+:</strong> Features secundárias, polish, integrações</li>
+            </ul>
+            <div class="warn">⚠️ <strong>Armadilha comum do modo Lovable-First:</strong> pedir features antes de ter auth e banco configurados. O Lovable vai aceitar — e depois você vai passar horas refazendo porque a estrutura estava errada. Auth SEMPRE primeiro.</div>
+          </div>
+
+          <div class="gate">
+            <div class="gate-title">✅ Gate — Saída da Etapa 01</div>
+            <ul>
+              <li>Arquivo <code>docs/prd.md</code> criado e preenchido</li>
+              <li>Funcionalidades fora do escopo listadas</li>
+              <li>Você sabe descrever o produto em 2 frases para qualquer pessoa</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ETAPA 02 ═══ -->
+    <div class="etapa e-env" id="e2">
+      <div class="etapa-dot"></div>
+      <div class="etapa-card">
+        <div class="etapa-header">
+          <span class="etapa-num">ETAPA 02</span>
+          <span class="etapa-title">Ambiente Seguro</span>
+          <span class="etapa-when">⏱️ 15 min · antes do primeiro prompt</span>
+        </div>
+        <div class="etapa-body">
+          <p>Esta etapa é idêntica ao guia completo — não há atalho aqui. Pipeline SAST e Seção A no Lovable são os dois pilares de segurança que precisam estar no lugar desde o início. Segurança retroativa é mais cara que segurança desde o dia 1.</p>
+
+          <div class="passo">
+            <div class="passo-n">Passo 2.1</div>
+            <h4>🔗 Criar repositório GitHub privado</h4>
+            <ol>
+              <li>Acesse <strong>github.com → New repository</strong></li>
+              <li>Nome: o nome do seu projeto (minúsculas, sem espaços)</li>
+              <li>Visibilidade: <strong>Private</strong></li>
+              <li>Crie o repositório</li>
+            </ol>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 2.2</div>
+            <h4>🔒 Adicionar pipeline SAST + Dependabot</h4>
+            <p>No GitHub, adicione os dois arquivos de segurança do Kerno:</p>
+            <ol>
+              <li>Vá em <strong>Add file → Create new file</strong></li>
+              <li>Nome: <code>.github/workflows/security-audit.yml</code></li>
+              <li>Cole o conteúdo do arquivo <code>security-audit-v2.yml</code> do Kerno</li>
+              <li>Repita para <code>.github/dependabot.yml</code></li>
+            </ol>
+            <a class="doc-ref" href="security-audit-v2.yml">security-audit-v2.yml</a>
+            <a class="doc-ref" href="dependabot.yml">dependabot.yml</a>
+            <div class="danger">⚠️ Não pule este passo. O pipeline roda em todo push automaticamente. Sem ele, você não tem como saber se o Lovable está criando vulnerabilidades — e ele cria, às vezes.</div>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 2.3</div>
+            <h4>⚙️ Configurar o Lovable — Seção A</h4>
+            <p>No Lovable, vá em <strong>Settings → Knowledge</strong> e cole o conteúdo de KERNO-KNOWLEDGE.md. Esta seção define as regras de segurança, documentação e ordem de implementação que o Lovable vai seguir em todo o projeto.</p>
+            <a class="doc-ref" href="LOVABLE-SYSTEM-PROMPT-V3.md">LOVABLE-SYSTEM-PROMPT-V3.md — Seção A</a>
+            <div class="leigo"><strong>💡 O que a Seção A faz:</strong><p>São as regras permanentes do seu projeto. Elas ficam em todo prompt sem você precisar repetir. Elas dizem ao Lovable: sempre use RLS, nunca use service_role no frontend, atualize a documentação em todo prompt, siga a ordem auth → dados → features. É o "contrato de trabalho" da IA.</p></div>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 2.4</div>
+            <h4>📤 Conectar Lovable ao GitHub + Upload do PRD</h4>
+            <ol>
+              <li>No Lovable, conecte ao repositório GitHub que você criou</li>
+              <li>Faça upload do <code>docs/prd.md</code> no Knowledge do Lovable</li>
+              <li>Faça upload do <code>KERNO-DOCS.md</code> e <code>SECURITY.md</code> do Kerno</li>
+            </ol>
+            <a class="doc-ref" href="KERNO-DOCS.md">KERNO-DOCS.md</a>
+            <a class="doc-ref" href="SECURITY.md">SECURITY.md</a>
+          </div>
+
+          <div class="gate">
+            <div class="gate-title">✅ Gate — Saída da Etapa 02</div>
+            <ul>
+              <li>Repositório GitHub privado criado</li>
+              <li><code>security-audit-v2.yml</code> e <code>dependabot.yml</code> no GitHub (aba Actions visível)</li>
+              <li>KERNO-KNOWLEDGE.md colado no Custom Knowledge do Lovable</li>
+              <li>Lovable conectado ao GitHub</li>
+              <li><code>prd.md</code>, <code>KERNO-DOCS.md</code> e <code>SECURITY.md</code> no Knowledge do Lovable</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ETAPA 03 ═══ -->
+    <div class="etapa e-dev" id="e3">
+      <div class="etapa-dot"></div>
+      <div class="etapa-card">
+        <div class="etapa-header">
+          <span class="etapa-num">ETAPA 03</span>
+          <span class="etapa-title">Desenvolvimento</span>
+          <span class="etapa-when">⏱️ Contínuo · ciclo de prompts</span>
+        </div>
+        <div class="etapa-body">
+          <p>O ciclo de desenvolvimento Lovable-First usa o mesmo conjunto de prompts do guia completo (Seções B-F), mas com uma diferença crítica: na Seção B, o Lovable vai criar os milestones a partir do seu PRD manual — não importar milestones do BMAD. Você vai ver e aprovar o plano antes de qualquer código.</p>
+
+          <div class="passo">
+            <div class="passo-n">Passo 3.1 — Prompt de Início de Projeto</div>
+            <h4>🚀 Seção B — Iniciar projeto</h4>
+            <p>Vá ao chat do Lovable e cole o prompt abaixo. <strong>Use Plan Mode</strong> se disponível — o Lovable vai planejar sem escrever código:</p>
+            <div class="prompt-box">
+              <pre>Leia o prd.md e o KERNO-DOCS.md que enviei no Knowledge.
+
+Use o Plan Mode. Antes de implementar qualquer código, faça:
+
+1. Analise o prd.md e entenda o produto, usuários e escopo
+
+2. Crie /docs/prd-milestones.md com as milestones seguindo
+   OBRIGATORIAMENTE a Árvore de Dependências do Custom Knowledge:
+   - Milestone 1: Auth + layout base (login, registro, proteção de rotas, sidebar/header)
+   - Milestone 2: Banco de dados (schema completo, RLS em todas as tabelas, policies)
+   - Milestone 3: Feature core (a funcionalidade principal do prd.md)
+   - Milestone 4+: Features secundárias em ordem de prioridade do prd.md
+   
+   Cada milestone deve ter:
+   - Features incluídas (do prd.md)
+   - Critérios de aceite objetivos
+   - Dependências (o que precisa estar pronto antes)
+
+3. Crie os documentos operacionais que ainda não existem:
+   /docs/ui-components.md (estrutura inicial)
+   /docs/flows.md (estrutura inicial)
+   /docs/changelog.md (v0.1.0 — início do projeto)
+   /docs/handover.md (estrutura inicial)
+   /docs/security-rules.md (baseado no SECURITY.md)
+   /docs/documentation-rules.md
+   /docs/session-close.md (estrutura)
+   /docs/delivery-report.md (estrutura)
+   /docs/security-report.md (estrutura)
+
+4. Apresente o plano da Milestone 1 para minha aprovação ANTES de implementar.
+
+Não implemente nada ainda. Só planeje, crie os docs, e me mostre o plano.</pre>
+            </div>
+            <div class="leigo"><strong>💡 O que vai acontecer:</strong><p>O Lovable vai ler o seu PRD e criar um plano organizado em milestones. Ele vai mostrar quais features entram em cada fase. Leia com atenção — se ele incluiu algo que você não quer ou colocou na ordem errada, corrija antes de aprovar. Isso é muito mais fácil agora do que depois.</p></div>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 3.2 — Prompt de Aprovação</div>
+            <h4>✅ Seção C — Aprovar e começar Milestone 1</h4>
+            <p>Quando o plano estiver bom, cole:</p>
+            <div class="prompt-box">
+              <pre>O plano está aprovado. Implemente a Milestone 1 agora.
+
+Lembrete:
+- Auth SEMPRE primeiro (login, registro, proteção de rotas)
+- Depois layout base (header, sidebar, navegação)
+- Mobile-first
+- RLS em toda tabela nova com policies para auth.uid() = user_id
+- Valide formulários com Zod
+- Atualize /docs a cada passo
+- Ao final, avise para fixar a versão</pre>
+            </div>
+            <div class="warn">⚠️ <strong>Se o plano NÃO estiver bom:</strong> diga o que quer mudar antes de aprovar. Exemplo: "Remova pagamentos da Milestone 3, isso é pós-MVP" ou "Adicione a exportação de PDF na Milestone 4". Ajuste agora — depois é mais caro.</div>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 3.3 — Ciclo de sessões</div>
+            <h4>🔄 Seção D — Retomar sessão</h4>
+            <p>Ao retomar o trabalho depois de fechar o navegador, cole este prompt <strong>antes de qualquer outro</strong>:</p>
+            <div class="prompt-box">
+              <pre>Retomando sessão. Contexto:
+
+- Última sessão: [data]
+- Milestone atual: [número] — [X]% concluída
+- Pendências: [copie o conteúdo de /docs/session-close.md]
+
+Continue a implementação. Siga a ordem de dependências
+do Custom Knowledge. Atualize /docs conforme o KERNO-DOCS.md.</pre>
+            </div>
+            <div class="leigo"><strong>💡 Por que copiar o session-close.md?</strong><p>O Lovable não tem memória entre sessões. O session-close.md é o "caderno de anotações" — ele guarda onde você parou, o que está pendente, decisões tomadas. Sem ele, o Lovable começa do zero e pode contradizer o que já foi feito.</p></div>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 3.4 — Fechar sessão</div>
+            <h4>💾 Seção E — Fechar sessão</h4>
+            <p>Ao terminar de trabalhar por hoje, sempre feche a sessão com:</p>
+            <div class="prompt-box">
+              <pre>Fechar sessão.
+
+Atualize /docs/session-close.md com:
+- O que foi implementado hoje
+- O que está pendente para a próxima sessão
+- Decisões técnicas tomadas
+- Problemas encontrados e como foram resolvidos
+
+Atualize também /docs/changelog.md com as mudanças desta sessão.</pre>
+            </div>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 3.5 — Fechar milestone</div>
+            <h4>🏁 Seção F — Fechar milestone</h4>
+            <p>Ao concluir uma milestone completa:</p>
+            <div class="prompt-box">
+              <pre>Fechar Milestone [N].
+
+1. Atualize /docs/prd-milestones.md marcando a Milestone [N] como concluída
+2. Gere /docs/delivery-report.md com:
+   - Escopo planejado vs. entregue
+   - Features implementadas com status
+   - Issues conhecidos (se houver)
+   - Recomendação: pronto para avançar para Milestone [N+1]?
+3. Atualize /docs/changelog.md
+
+Avise quando terminar — vou fixar a versão antes de iniciar a próxima milestone.</pre>
+            </div>
+            <div class="danger">⚠️ <strong>Fixar versão antes de iniciar a próxima milestone é obrigatório.</strong> No histórico do Lovable, clique em "pin" na versão atual. Se a próxima milestone quebrar algo, você consegue voltar.</div>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 3.6 — QA durante desenvolvimento</div>
+            <h4>🧪 Teste enquanto constrói</h4>
+            <p>A cada milestone, teste manualmente no preview do Lovable:</p>
+            <ul>
+              <li>Abra uma aba anônima e tente acessar páginas protegidas sem login — deve redirecionar</li>
+              <li>Crie dois usuários diferentes e verifique que cada um só vê seus próprios dados</li>
+              <li>Teste em mobile (redimensione o navegador para &lt;375px)</li>
+              <li>Abra DevTools → Console — não deve ter erros visíveis</li>
+            </ul>
+
+            <p style="margin-top: 12px;">Para QA mais profundo, use este prompt:</p>
+            <div class="prompt-box">
+              <pre>Faça uma revisão de segurança da Milestone [N] que acabamos de implementar.
+
+Verifique:
+1. RLS ativo em todas as tabelas novas? Liste cada tabela e status
+2. Algum service_role usado no frontend? Onde?
+3. Formulários com validação Zod? Quais ainda faltam?
+4. Rotas protegidas? Listar quais precisam de auth
+5. Dados sensíveis em localStorage? Listar se houver
+
+Para cada problema encontrado, proponha e implemente a correção.
+Atualize /docs/security-report.md ao final.</pre>
+            </div>
+          </div>
+
+          <div class="gate">
+            <div class="gate-title">✅ Gate — Por milestone (antes de avançar)</div>
+            <ul>
+              <li>Critérios de aceite da milestone conferidos contra <code>prd-milestones.md</code></li>
+              <li><code>delivery-report.md</code> gerado: escopo planejado = entregue</li>
+              <li>Versão fixada (pin) no Lovable</li>
+              <li>Pipeline SAST sem findings críticos (aba Actions verde no GitHub)</li>
+              <li>Teste de acesso não-autorizado passou (aba anônima não entra em páginas protegidas)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ETAPA 04 ═══ -->
+    <div class="etapa e-sec" id="e4">
+      <div class="etapa-dot"></div>
+      <div class="etapa-card">
+        <div class="etapa-header">
+          <span class="etapa-num">ETAPA 04</span>
+          <span class="etapa-title">Revisão de Segurança</span>
+          <span class="etapa-when">⏱️ 30 min · antes de qualquer usuário real</span>
+        </div>
+        <div class="etapa-body">
+          <p>Antes de dar acesso a qualquer pessoa real — mesmo em beta privado — passe pelo checklist de segurança. No modo Lovable-First, você não teve Murat (TEA) nem revisão no Cursor, então esta etapa compensa parcialmente essa ausência.</p>
+
+          <div class="passo">
+            <div class="passo-n">Passo 4.1</div>
+            <h4>🔍 SAST — Verificar resultado do pipeline</h4>
+            <p>Acesse <strong>GitHub → seu repositório → Actions</strong>. Veja o resultado do último workflow:</p>
+            <ul>
+              <li>✅ Verde: sem findings críticos — pode avançar</li>
+              <li>❌ Vermelho: abra o log e veja o que falhou</li>
+            </ul>
+            <p style="margin-top: 10px;">Se houver findings críticos, cole-os no Lovable:</p>
+            <div class="prompt-box">
+              <pre>O pipeline SAST encontrou os seguintes problemas:
+
+[cole aqui o output do GitHub Actions]
+
+Analise cada finding e implemente as correções necessárias.
+Priorize por severidade: Critical > High > Medium > Low.
+Atualize /docs/security-report.md ao final.</pre>
+            </div>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 4.2</div>
+            <h4>🗄️ Supabase — Verificação manual de RLS</h4>
+            <p>No painel do Supabase, vá em <strong>Table Editor → cada tabela → Policies</strong>. Verifique para cada tabela que contém dados de usuário:</p>
+            <table>
+              <tr><th>Verificação</th><th>Onde</th><th>Status</th></tr>
+              <tr><td>RLS ativo</td><td>Table Editor → cada tabela</td><td>⬜</td></tr>
+              <tr><td>Policy SELECT: <code>auth.uid() = user_id</code></td><td>Policies de cada tabela</td><td>⬜</td></tr>
+              <tr><td>Policy INSERT com user_id correto</td><td>Policies de cada tabela</td><td>⬜</td></tr>
+              <tr><td>Email confirmation ativo</td><td>Auth → Settings</td><td>⬜</td></tr>
+              <tr><td>Nenhum bucket de Storage público com dados sensíveis</td><td>Storage → buckets</td><td>⬜</td></tr>
+            </table>
+            <div class="danger">⚠️ <strong>RLS desabilitado é a vulnerabilidade mais comum em apps Lovable.</strong> Qualquer usuário autenticado consegue ver os dados de todos os outros. Verifique manualmente — o scanner não acessa o banco diretamente.</div>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 4.3</div>
+            <h4>🌐 Testes dinâmicos manuais</h4>
+            <p>Com a app no preview, execute estes testes — são os que o Lovable não consegue fazer por você:</p>
+            <div class="checklist">
+              <h4>Checklist de segurança — executar antes de qualquer usuário real</h4>
+              <div class="check-item"><span class="box">⬜</span> Aba anônima: acessar URL de página protegida diretamente → redireciona para login?</div>
+              <div class="check-item"><span class="box">⬜</span> Criar usuário A e usuário B → usuário A não vê dados de B?</div>
+              <div class="check-item"><span class="box">⬜</span> Tentar mudar ID na URL para ver dados de outro usuário → bloqueado?</div>
+              <div class="check-item"><span class="box">⬜</span> Digitar <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> em campos de texto → não executa?</div>
+              <div class="check-item"><span class="box">⬜</span> DevTools → Console → não mostra dados sensíveis ou tokens de API?</div>
+              <div class="check-item"><span class="box">⬜</span> DevTools → Application → LocalStorage → não tem senhas, tokens, dados de usuário?</div>
+              <div class="check-item"><span class="box">⬜</span> Tentar enviar formulário vazio em campo obrigatório → validação aparece?</div>
+            </div>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 4.4 — Opcional mas recomendado</div>
+            <h4>🤖 Revisão TEA com Murat (se tiver Claude Code)</h4>
+            <p>Se você tiver o BMAD instalado, pode usar o Murat agora — retroativamente — para criar um qa-plan baseado no código que existe:</p>
+            <div class="prompt-box">
+              <pre>@murat Analise o projeto que já foi implementado.
+
+Leia /docs/prd.md para entender o escopo.
+Leia /docs/prd-milestones.md para entender o que foi construído.
+
+Crie /docs/qa-plan.md retroativo com:
+1. Classifique as features existentes em P0 a P3 por risco
+2. Para cada P0: liste casos de teste manuais obrigatórios
+3. Checklist de segurança específico para este projeto
+4. Critério objetivo de "pronto para deploy"</pre>
+            </div>
+            <div class="upgrade">🔮 <strong>Quando considerar migrar para o fluxo completo:</strong> Se o produto validou e você está prestes a ter usuários reais pagantes, este é o momento certo para fazer o BMAD retroativamente. Mary pode fazer o product-brief a partir do que já existe. Winston pode documentar a arquitetura real. O Murat pode criar o qa-plan definitivo. O custo de fazer agora é muito menor do que depois de ter 50 usuários.</div>
+          </div>
+
+          <div class="gate">
+            <div class="gate-title">✅ Gate — Saída da Etapa 04 (antes de qualquer usuário real)</div>
+            <ul>
+              <li>SAST verde no GitHub Actions</li>
+              <li>RLS ativo em 100% das tabelas com dados de usuário</li>
+              <li>Sem <code>service_role</code> no frontend (Scanner Kerno passou)</li>
+              <li>Todos os 7 itens do checklist manual acima verificados</li>
+              <li>Acesso não-autorizado bloqueado em teste manual</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ETAPA 05 ═══ -->
+    <div class="etapa e-dep" id="e5">
+      <div class="etapa-dot"></div>
+      <div class="etapa-card">
+        <div class="etapa-header">
+          <span class="etapa-num">ETAPA 05</span>
+          <span class="etapa-title">Deploy</span>
+          <span class="etapa-when">⏱️ 20 min · quando a revisão de segurança passar</span>
+        </div>
+        <div class="etapa-body">
+          <p>Deploy idêntico ao guia completo. Vercel para hospedagem, headers de segurança obrigatórios, Supabase em configuração de produção, e monitoramento básico.</p>
+
+          <div class="passo">
+            <div class="passo-n">Passo 5.1</div>
+            <h4>▲ Vercel — Headers de segurança</h4>
+            <p>Antes de fazer o deploy, peça ao Lovable para criar o <code>vercel.json</code>:</p>
+            <div class="prompt-box">
+              <pre>Crie o arquivo vercel.json na raiz do projeto com os headers de segurança
+do Kerno Framework (X-Frame-Options, X-Content-Type-Options, HSTS, CSP).
+Use os valores padrão do Kerno para um projeto React + Supabase.</pre>
+            </div>
+            <p style="margin-top: 10px;">Depois do deploy, verifique em <a href="https://securityheaders.com" style="color: var(--acc);">securityheaders.com</a> — deve mostrar nota A ou B.</p>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 5.2</div>
+            <h4>🗄️ Supabase — Configuração de produção</h4>
+            <table>
+              <tr><th>Configuração</th><th>Onde</th></tr>
+              <tr><td>Email confirmation: ON</td><td>Auth → Settings</td></tr>
+              <tr><td>Site URL: sua URL de produção</td><td>Auth → URL Configuration</td></tr>
+              <tr><td>Redirect URLs: adicionar domínio de produção</td><td>Auth → URL Configuration</td></tr>
+              <tr><td>Backups: ativar Point-in-Time Recovery</td><td>Database → Backups</td></tr>
+            </table>
+          </div>
+
+          <div class="passo">
+            <div class="passo-n">Passo 5.3</div>
+            <h4>📡 Monitoramento mínimo</h4>
+            <p>Dois serviços gratuitos que você precisa ter antes de qualquer usuário real:</p>
+            <ul>
+              <li><strong>Sentry</strong> (<a href="https://sentry.io" style="color: var(--acc);">sentry.io</a> — plano gratuito) — detecta erros em produção automaticamente</li>
+              <li><strong>UptimeRobot</strong> (<a href="https://uptimerobot.com" style="color: var(--acc);">uptimerobot.com</a> — plano gratuito) — monitora se a app está no ar</li>
+            </ul>
+            <p style="margin-top: 10px;">Para adicionar o Sentry ao projeto:</p>
+            <div class="prompt-box">
+              <pre>Adicione o Sentry ao projeto para monitoramento de erros em produção.
+DSN do Sentry: [cole aqui o DSN que o Sentry gerou para você]
+
+Configure para capturar erros em produção mas não em desenvolvimento local.
+Não capture dados pessoais dos usuários nas mensagens de erro.</pre>
+            </div>
+          </div>
+
+          <div class="gate">
+            <div class="gate-title">✅ Gate — Deploy completo</div>
+            <ul>
+              <li>App acessível na URL de produção sem erros</li>
+              <li>securityheaders.com mostra nota A ou B</li>
+              <li>Supabase configurado para produção (email confirmation ON, Site URL correto)</li>
+              <li>Sentry recebendo eventos (faça um erro de teste)</li>
+              <li>UptimeRobot monitorando (criou monitor HTTP para a URL)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /jornada -->
+
+  <!-- REFERÊNCIA RÁPIDA — Prompts -->
+  <div style="background: var(--s1); border: 1px solid var(--bd); border-radius: 14px; padding: 28px; margin: 40px 0;">
+    <h2 style="font-size: 17px; margin-bottom: 16px; color: var(--t1);">💬 Referência Rápida de Prompts</h2>
+    <table>
+      <tr><th>Momento</th><th>Seção</th><th>Quando usar</th></tr>
+      <tr><td><strong>Início do projeto</strong></td><td>Seção B (Passo 3.1)</td><td>Primeiro prompt — cria milestones e docs operacionais</td></tr>
+      <tr><td><strong>Aprovar e construir</strong></td><td>Seção C (Passo 3.2)</td><td>Após revisar o plano e aprovar</td></tr>
+      <tr><td><strong>Retomar sessão</strong></td><td>Seção D (Passo 3.3)</td><td>Sempre que reabrir o projeto após fechar</td></tr>
+      <tr><td><strong>Fechar sessão</strong></td><td>Seção E (Passo 3.4)</td><td>Antes de fechar o navegador</td></tr>
+      <tr><td><strong>Fechar milestone</strong></td><td>Seção F (Passo 3.5)</td><td>Quando uma milestone estiver 100% implementada</td></tr>
+      <tr><td><strong>QA de segurança</strong></td><td>Passo 3.6</td><td>Ao final de cada milestone (P0s)</td></tr>
+      <tr><td><strong>Corrigir findings SAST</strong></td><td>Passo 4.1</td><td>Quando pipeline falhar</td></tr>
+    </table>
+  </div>
+
+  <!-- LIMITES DO MODO LOVABLE-FIRST -->
+  <div style="background: linear-gradient(135deg, rgba(248,81,73,0.04), rgba(210,153,34,0.04)); border: 1px solid rgba(248,81,73,0.15); border-radius: 14px; padding: 24px 28px; margin: 40px 0;">
+    <h2 style="font-size: 16px; margin-bottom: 16px; color: var(--org);">⚠️ Limites deste modo — quando migrar para o fluxo completo</h2>
+    <p style="font-size: 14px; color: var(--t2); margin-bottom: 16px;">O modo Lovable-First funciona bem para MVPs rápidos e validação de ideia. À medida que o produto cresce, estes sinais indicam que chegou a hora de adotar o BMAD:</p>
+    <table>
+      <tr><th>Sinal</th><th>O que acontece sem BMAD</th><th>Solução</th></tr>
+      <tr><td>O Lovable está "esquecendo" decisões antigas</td><td>Contradições no código, features reimplementadas de formas diferentes</td><td>Winston retroativo: documenta a arquitetura real</td></tr>
+      <tr><td>Você não sabe mais o que está em qual milestone</td><td>Escopo descontrolado, features incompletas por todo lado</td><td>John retroativo: reestrutura milestones a partir do código existente</td></tr>
+      <tr><td>Schema do banco com tabelas desnecessárias ou estrutura estranha</td><td>Queries complexas, RLS difícil de manter</td><td>Winston retroativo + migração de schema</td></tr>
+      <tr><td>Primeiro usuário pagante está chegando</td><td>Sem QA plan formal, sem critério de "pronto para produção"</td><td>Murat retroativo: cria qa-plan a partir do que existe</td></tr>
+      <tr><td>Time de 2+ pessoas vai mexer no projeto</td><td>Conflitos de decisão, sem onboarding novo membro</td><td>Fluxo BMAD completo: a documentação é o onboarding</td></tr>
+    </table>
+    <div class="upgrade" style="margin-top: 16px;">🔮 <strong>O BMAD retroativo existe.</strong> Você não precisa reconstruir do zero. Leia a seção "E os agentes BMAD?" no <a href="KERNO-RETROFIT.html" style="color: var(--pur);">KERNO-RETROFIT.html</a> para entender como fazer a transição.</div>
+  </div>
+
+  <!-- LINKS -->
+  <div style="background: var(--s1); border: 1px solid var(--bd); border-radius: 14px; padding: 24px 28px; margin: 40px 0;">
+    <h2 style="font-size: 16px; margin-bottom: 16px; color: var(--t1);">📁 Documentos do Kerno referenciados neste guia</h2>
+    <table>
+      <tr><th>Arquivo</th><th>Tipo</th><th>Quando usar</th></tr>
+      <tr><td><code>LOVABLE-SYSTEM-PROMPT-V3.md</code></td><td>Custom Knowledge</td><td>Seção A → cola no Settings; Seções B-F → usa no chat</td></tr>
+      <tr><td><code>KERNO-DOCS.md</code></td><td>Upload no Lovable</td><td>Etapa 02 — define os 23 documentos que o Lovable mantém</td></tr>
+      <tr><td><code>SECURITY.md</code></td><td>Upload no Lovable</td><td>Etapa 02 — regras OWASP que o Lovable segue</td></tr>
+      <tr><td><code>security-audit-v2.yml</code></td><td>GitHub Actions</td><td>Etapa 02 — pipeline SAST automático</td></tr>
+      <tr><td><code>dependabot.yml</code></td><td>GitHub</td><td>Etapa 02 — monitoramento de dependências</td></tr>
+      <tr><td><code>KERNO-ROADMAP.html</code></td><td>Guia de referência</td><td>Se quiser migrar para o fluxo completo com BMAD</td></tr>
+      <tr><td><code>KERNO-BMAD-INICIO.md</code></td><td>Tutorial BMAD</td><td>Se quiser usar os agentes de planejamento</td></tr>
+      <tr><td><code>KERNO-RETROFIT.html</code></td><td>Guia</td><td>Se quiser adotar BMAD retroativamente no projeto existente</td></tr>
+    </table>
+  </div>
+
+  <div class="footer">
+    Kerno BMAD v5.5.3 · Modo Lovable-First<br>
+    Documentação completa: KERNO-ROADMAP.html · Tutorial BMAD: KERNO-BMAD-INICIO.md · Retrofit: KERNO-RETROFIT.html<br>
+    Referências: docs.lovable.dev · OWASP Top 10 · Supabase Security Docs · BMAD Method v6
+  </div>
+
+</div>
+</body>
+</html>

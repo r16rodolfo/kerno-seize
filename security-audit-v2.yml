@@ -1,0 +1,402 @@
+name: 🔒 Lovable Security Audit
+
+# ============================================================
+# PIPELINE DE SEGURANÇA COMPLETO
+# Integra ferramentas da lista "Awesome AI Security":
+# - Semgrep (análise estática — OWASP, React, TypeScript)
+# - npm audit (vulnerabilidades em dependências)
+# - Scanner customizado (Supabase, secrets, auth, XSS)
+#
+# Referências:
+# - OWASP Top 10
+# - OWASP LLM Top 10
+# - Supabase Security Best Practices
+# ============================================================
+
+on:
+  workflow_dispatch:  # Botão manual "Run workflow"
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  # ════════════════════════════════════════════════════
+  # JOB 1: SEMGREP — Análise estática profunda
+  # Fonte: https://github.com/semgrep/semgrep
+  # Da lista: Semgrep Skills (Agentic AI skills)
+  # ════════════════════════════════════════════════════
+  semgrep:
+    name: "🔍 Semgrep — Análise Estática"
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rodar Semgrep com regras de segurança
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  Semgrep — Análise Estática de Código"
+          echo "  Regras: OWASP, React, TypeScript, XSS"
+          echo "════════════════════════════════════════"
+
+          semgrep scan \
+            --config "p/owasp-top-ten" \
+            --config "p/react" \
+            --config "p/typescript" \
+            --config "p/security-audit" \
+            --config "p/secrets" \
+            --config "p/xss" \
+            --config "p/sql-injection" \
+            --json \
+            --output semgrep-results.json \
+            . || true
+
+          # Gerar versão legível
+          semgrep scan \
+            --config "p/owasp-top-ten" \
+            --config "p/react" \
+            --config "p/typescript" \
+            --config "p/security-audit" \
+            --config "p/secrets" \
+            --config "p/xss" \
+            --config "p/sql-injection" \
+            --text \
+            --output semgrep-results.txt \
+            . || true
+
+          echo ""
+          echo "✅ Semgrep concluído"
+
+          # Contar findings
+          if [ -f semgrep-results.json ]; then
+            TOTAL=$(cat semgrep-results.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('results',[])))" 2>/dev/null || echo "?")
+            echo "📊 Total de findings: $TOTAL"
+          fi
+
+      - name: Salvar relatório Semgrep
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-report
+          path: |
+            semgrep-results.json
+            semgrep-results.txt
+          retention-days: 30
+
+      - name: Resumo Semgrep no GitHub
+        if: always()
+        run: |
+          echo "## 🔍 Semgrep — Análise Estática" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f semgrep-results.txt ]; then
+            LINES=$(wc -l < semgrep-results.txt)
+            if [ "$LINES" -gt 5 ]; then
+              echo "⚠️ Problemas encontrados. Baixe o relatório completo em **Artifacts → semgrep-report**." >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              head -50 semgrep-results.txt >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ Nenhum problema encontrado pelo Semgrep." >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+  # ════════════════════════════════════════════════════
+  # JOB 2: NPM AUDIT — Vulnerabilidades em dependências
+  # ════════════════════════════════════════════════════
+  dependency-audit:
+    name: "📦 Dependências — npm audit"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependências
+        run: npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts 2>/dev/null || echo "Sem lock file"
+
+      - name: Rodar npm audit
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  npm audit — Vulnerabilidades em deps"
+          echo "════════════════════════════════════════"
+
+          npm audit --json > npm-audit-results.json 2>/dev/null || true
+          npm audit 2>/dev/null > npm-audit-results.txt || true
+
+          echo ""
+          echo "✅ npm audit concluído"
+
+          # Extrair contagem
+          if [ -f npm-audit-results.json ]; then
+            python3 -c "
+          import json, sys
+          try:
+              d = json.load(open('npm-audit-results.json'))
+              v = d.get('metadata', {}).get('vulnerabilities', {})
+              c, h, m = v.get('critical',0), v.get('high',0), v.get('moderate',0)
+              print(f'📊 Críticas: {c} | Altas: {h} | Moderadas: {m}')
+              if c > 0 or h > 0:
+                  print('🚨 Vulnerabilidades graves encontradas!')
+                  sys.exit(1)
+          except:
+              print('⚠️ Não foi possível parsear resultados')
+          " || true
+          fi
+
+      - name: Salvar relatório npm audit
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-audit-report
+          path: |
+            npm-audit-results.json
+            npm-audit-results.txt
+          retention-days: 30
+
+      - name: Resumo npm audit no GitHub
+        if: always()
+        run: |
+          echo "## 📦 npm audit — Dependências" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f npm-audit-results.json ]; then
+            python3 -c "
+          import json
+          try:
+              d = json.load(open('npm-audit-results.json'))
+              v = d.get('metadata', {}).get('vulnerabilities', {})
+              c, h, m, l = v.get('critical',0), v.get('high',0), v.get('moderate',0), v.get('low',0)
+              total = c + h + m + l
+              if total == 0:
+                  print('✅ Nenhuma vulnerabilidade encontrada.')
+              else:
+                  print(f'| Gravidade | Quantidade |')
+                  print(f'|-----------|-----------|')
+                  print(f'| 🔴 Crítica | {c} |')
+                  print(f'| 🟠 Alta | {h} |')
+                  print(f'| 🟡 Moderada | {m} |')
+                  print(f'| 🔵 Baixa | {l} |')
+                  print(f'')
+                  print(f'Execute \`npm audit fix\` para tentar corrigir automaticamente.')
+          except:
+              print('⚠️ Não foi possível gerar resumo.')
+          " >> $GITHUB_STEP_SUMMARY || true
+          fi
+
+  # ════════════════════════════════════════════════════
+  # JOB 3: SCANNER CUSTOMIZADO — Lovable + Supabase
+  # Verifica: secrets, service_role, RLS, XSS, auth,
+  #           localStorage, headers, error handling
+  # ════════════════════════════════════════════════════
+  lovable-scanner:
+    name: "🏠 Scanner Lovable + Supabase"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependências
+        run: npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts 2>/dev/null || true
+
+      - name: Rodar Scanner Lovable
+        run: |
+          cat << 'AUDIT_SCRIPT' > /tmp/audit.js
+          const fs = require("fs");
+          const path = require("path");
+          const { execSync } = require("child_process");
+
+          const P = process.argv[2] || process.cwd();
+          const results = { projectPath: P, scanDate: new Date().toLocaleString("pt-BR"), categories: [], summary: { critical:0, high:0, medium:0, low:0, passed:0 } };
+
+          function addCat(n, d) { const c = { name:n, description:d, findings:[] }; results.categories.push(c); return c; }
+          function addF(cat, sev, title, desc, fix) { cat.findings.push({severity:sev,title,description:desc,fix}); if(["critical","high","medium","low"].includes(sev)) results.summary[sev]++; else if(sev==="passed") results.summary.passed++; }
+
+          function getFiles(dir, exts, ign=[]) {
+            const skip = ["node_modules",".git","dist","build",".next",".cache","coverage",...ign];
+            let r = [];
+            try { for (const i of fs.readdirSync(dir, {withFileTypes:true})) { const fp = path.join(dir,i.name); if(i.isDirectory()&&!skip.includes(i.name)) r=r.concat(getFiles(fp,exts,ign)); else if(i.isFile()&&exts.includes(path.extname(i.name).toLowerCase())) r.push(fp); } } catch{}
+            return r;
+          }
+          function read(f) { try{return fs.readFileSync(f,"utf-8")}catch{return""} }
+          function rel(f) { return path.relative(P,f).replace(/\\/g,"/") }
+
+          // SCAN SECRETS
+          function scanSecrets() {
+            console.log("🔑 Escaneando secrets...");
+            const cat = addCat("🔑 Secrets e Credenciais","Chaves, senhas e tokens no código");
+            const files = getFiles(P,[".ts",".tsx",".js",".jsx",".json",".env",".yaml",".yml"]);
+            const pats = [
+              {n:"Supabase Service Role",p:/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[A-Za-z0-9_-]{50,}/g,s:"critical"},
+              {n:"Stripe Live Key",p:/sk_live_[A-Za-z0-9]{20,}/g,s:"critical"},
+              {n:"Stripe Test Key",p:/sk_test_[A-Za-z0-9]{20,}/g,s:"high"},
+              {n:"API Key hardcoded",p:/(api_key|apikey|api_secret|secret_key)\s*[:=]\s*["'][A-Za-z0-9_\-]{16,}["']/gi,s:"high"},
+              {n:"Senha hardcoded",p:/(password|passwd|pwd)\s*[:=]\s*["'][^"']{4,}["']/gi,s:"high"},
+              {n:"Private Key",p:/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/g,s:"critical"},
+              {n:"AWS Key",p:/AKIA[0-9A-Z]{16}/g,s:"critical"},
+              {n:"DB Connection String",p:/postgres(ql)?:\/\/[^\s"']+:[^\s"']+@[^\s"']+/gi,s:"critical"},
+              {n:"JWT hardcoded",p:/eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g,s:"high"},
+            ];
+            let count=0;
+            for(const f of files){const c=read(f);if(!c)continue;for(const sp of pats){const m=c.match(sp.p);if(m){if(/\.example|\.sample|\.template/.test(f))continue;if(m.some(x=>/placeholder|example|changeme|your[-_]?key/i.test(x)))continue;count++;addF(cat,sp.s,sp.n+` encontrada`,`<code>${rel(f)}</code>`,sp.s==="critical"?"URGENTE: Rotacione esta chave.":"Mova para .env");}}}
+
+            // .gitignore
+            const gi=path.join(P,".gitignore");
+            if(fs.existsSync(gi)){const gc=read(gi);const miss=[".env",".env.local",".env.production"].filter(e=>!gc.split("\n").some(l=>l.trim()===e||l.trim().startsWith(e)));
+            if(miss.length)addF(cat,"critical",".gitignore incompleto",`Faltam: <code>${miss.join(", ")}</code>`,`Adicione ao .gitignore`);
+            else addF(cat,"passed",".gitignore OK","Protege arquivos .env","");}
+            else addF(cat,"critical",".gitignore ausente","","Crie um .gitignore");
+
+            // Git history
+            try{const h=execSync('git log --all --diff-filter=A --name-only --pretty=format:"" -- "*.env" ".env*"',{cwd:P,encoding:"utf-8",timeout:30000}).trim();
+            if(h){const ff=h.split("\n").filter(x=>x.trim());addF(cat,"critical",".env no histórico Git!",`<code>${ff.join(", ")}</code>`,"Rotacione TODAS as chaves");} else addF(cat,"passed","Histórico Git limpo","","")}catch{}
+
+            try{for(const sg of [{l:"service_role",g:"service_role"},{l:"sk_live",g:"sk_live_"}]){try{const r=execSync(`git log --all -p -S "${sg.g}" --oneline -- "*.ts" "*.tsx" "*.js" "*.jsx"`,{cwd:P,encoding:"utf-8",timeout:30000}).trim();if(r&&r.length>10)addF(cat,"critical",`${sg.l} no histórico`,`O termo aparece em commits anteriores.`,"Rotacione esta chave");}catch{}}}catch{}
+            if(count===0)console.log("  ✅ Nenhum secret nos arquivos");
+          }
+
+          // SCAN SUPABASE
+          function scanSupabase() {
+            console.log("🗄️ Escaneando Supabase...");
+            const cat = addCat("🗄️ Supabase","Configuração de segurança do Supabase");
+            const files = getFiles(P,[".ts",".tsx",".js",".jsx"]);
+            let has=false, noErr=[], unsafe=[], rpcs=[];
+            for(const f of files){const c=read(f);if(!c)continue;const rp=rel(f);const fe=rp.startsWith("src/")||rp.includes("/components/")||rp.includes("/pages/");
+            if(c.includes("supabase"))has=true;
+            if(fe&&/service_role/i.test(c)){addF(cat,"critical","service_role no frontend!",`<code>${rp}</code>`,"Remova. Use Edge Functions.");}
+            if(/https:\/\/[a-z]+\.supabase\.co/i.test(c)&&!c.includes("import.meta.env")&&!c.includes("process.env")&&!rp.includes(".env"))addF(cat,"medium","URL Supabase hardcoded",`<code>${rp}</code>`,"Use import.meta.env");
+            const lines=c.split("\n");for(let i=0;i<lines.length;i++){const l=lines[i];
+            if(/\.from\s*\(/.test(l)&&/\.(select|insert|update|delete|upsert)\s*\(/.test(l)){const ctx=lines.slice(i,i+5).join("\n");if(!/error/i.test(ctx)&&!/catch/i.test(ctx))noErr.push({f:rp,l:i+1});}
+            if(/\.rpc\s*\(/.test(l))rpcs.push({f:rp,l:i+1});
+            if(/\.(or|filter)\s*\(.*\$\{/.test(l))unsafe.push({f:rp,l:i+1});}}
+            if(!has)return;
+            if(!cat.findings.some(f=>f.title.includes("service_role")))addF(cat,"passed","service_role OK","Não encontrada no frontend","");
+            if(noErr.length)addF(cat,"medium",`${noErr.length} queries sem error handling`,noErr.slice(0,10).map(n=>`<code>${n.f}:${n.l}</code>`).join("<br>"),"Use: const { data, error } = await supabase...");
+            if(unsafe.length)addF(cat,"high","Queries com interpolação insegura",`${unsafe.length} queries vulneráveis`,"Use .eq(), .in() em vez de template strings");
+            if(rpcs.length)addF(cat,"medium",`${rpcs.length} chamadas .rpc()`,`Valide parâmetros`,"Verifique as funções SQL no Supabase");
+            addF(cat,"medium","⚠️ VERIFICAÇÃO MANUAL: RLS","Verifique no painel do Supabase se RLS está ATIVO em todas as tabelas.<br>Este scanner não acessa o banco remotamente.","Acesse app.supabase.com → Table Editor → Policies");
+          }
+
+          // SCAN CODE
+          function scanCode() {
+            console.log("🛡️ Escaneando código...");
+            const cat = addCat("🛡️ Vulnerabilidades no Código","Padrões perigosos");
+            const files = getFiles(P,[".ts",".tsx",".js",".jsx"]);
+            const pats = [
+              {n:"dangerouslySetInnerHTML",p:/dangerouslySetInnerHTML/g,s:"high",d:"XSS: permite injeção de HTML malicioso",f:"Use DOMPurify.sanitize()"},
+              {n:"eval()",p:/\beval\s*\(/g,s:"critical",d:"Execução de código arbitrário",f:"Remova. Use JSON.parse() para JSON"},
+              {n:"innerHTML",p:/\.innerHTML\s*=/g,s:"high",d:"XSS",f:"Use .textContent ou DOMPurify"},
+              {n:"document.write",p:/document\.write\s*\(/g,s:"high",d:"Injeção de conteúdo",f:"Use createElement/appendChild"},
+              {n:"localStorage sensível",p:/localStorage\.(setItem|getItem)\s*\(\s*["'](token|password|secret|key|auth|session|credit|card|cpf|ssn)/gi,s:"high",d:"Dados sensíveis acessíveis via XSS",f:"Use cookies HttpOnly"},
+              {n:"Fetch HTTP",p:/fetch\s*\(\s*["']http:\/\//g,s:"medium",d:"Sem criptografia",f:"Use HTTPS"},
+              {n:"console.log sensível",p:/console\.(log|info|debug)\s*\(.*?(password|token|secret|key|credit|cpf)/gi,s:"medium",d:"Pode vazar dados",f:"Remova antes de produção"},
+            ];
+            let total=0;
+            for(const f of files){const c=read(f);if(!c)continue;for(const dp of pats){const m=c.match(dp.p);if(m){total+=m.length;addF(cat,dp.s,`${dp.n} (${m.length}x)`,`<code>${rel(f)}</code><br>${dp.d}`,dp.f);}}}
+            if(total===0)addF(cat,"passed","Código limpo","Nenhum padrão perigoso","");
+            // Forms
+            let fv=0;for(const f of files){const c=read(f);if(/onSubmit|handleSubmit/i.test(c)&&!/zod|yup|joi|validate|schema\./i.test(c)){fv++;if(fv<=5)addF(cat,"medium","Formulário sem validação",`<code>${rel(f)}</code>`,"Use Zod");}}
+            if(fv>5)addF(cat,"medium",`+${fv-5} formulários sem validação`,"","");
+            if(fv===0)addF(cat,"passed","Validação OK","","");
+          }
+
+          // SCAN AUTH
+          function scanAuth() {
+            console.log("🔐 Escaneando autenticação...");
+            const cat = addCat("🔐 Autenticação","Controle de acesso");
+            const files = getFiles(P,[".ts",".tsx",".js",".jsx"]);
+            let ap=false,pr=false,up=[];
+            for(const f of files){const c=read(f);const rp=rel(f);
+            if(/AuthProvider|SessionProvider|AuthContext|useAuth|useSession/i.test(c))ap=true;
+            if(/ProtectedRoute|PrivateRoute|RequireAuth|AuthGuard|isAuthenticated/i.test(c))pr=true;
+            if(/\.(select|insert|update|delete)\s*\(/.test(c)&&(rp.includes("/pages/")||rp.includes("/app/"))&&!/useAuth|useSession|getSession|ProtectedRoute/i.test(c))up.push(rp);}
+            if(ap)addF(cat,"passed","Auth Provider OK","",""); else addF(cat,"high","Sem Auth Provider","","Implemente com Supabase Auth");
+            if(pr)addF(cat,"passed","Rotas protegidas OK","",""); else addF(cat,"high","Sem proteção de rotas","","Crie ProtectedRoute");
+            if(up.length)addF(cat,"medium",`${up.length} páginas sem auth check`,`<code>${[...new Set(up)].slice(0,5).join("<br>")}</code>`,"Adicione verificação de auth");
+          }
+
+          // SCAN CONFIG
+          function scanConfig() {
+            console.log("⚙️ Escaneando configuração...");
+            const cat = addCat("⚙️ Configuração","Headers e CORS");
+            let hdr=false;
+            for(const cf of ["vercel.json","netlify.toml","vite.config.ts","vite.config.js"]){const fp=path.join(P,cf);if(fs.existsSync(fp)){const c=read(fp);if(/Content-Security-Policy|X-Frame-Options|X-Content-Type/i.test(c))hdr=true;if(/Access-Control-Allow-Origin.*\*/i.test(c))addF(cat,"medium","CORS wildcard","","Restrinja para seus domínios");}}
+            if(!hdr)addF(cat,"medium","Sem headers de segurança","CSP, X-Frame-Options ausentes","Adicione na config de deploy");
+            else addF(cat,"passed","Headers OK","","");
+          }
+
+          // REPORT
+          function report() {
+            const sc={critical:"#dc2626",high:"#ea580c",medium:"#ca8a04",low:"#2563eb",passed:"#16a34a"};
+            const sl={critical:"🔴 CRÍTICO",high:"🟠 ALTO",medium:"🟡 MÉDIO",low:"🔵 BAIXO",passed:"✅ OK"};
+            const so={critical:0,high:1,medium:2,low:3,passed:4};
+            const tot=results.summary.critical+results.summary.high+results.summary.medium+results.summary.low;
+            let rl,rc,re;if(results.summary.critical>0){rl="CRÍTICO";rc="#dc2626";re="🚨";}else if(results.summary.high>0){rl="ALTO";rc="#ea580c";re="⚠️";}else if(results.summary.medium>0){rl="MÉDIO";rc="#ca8a04";re="⚡";}else{rl="SEGURO";rc="#16a34a";re="🛡️";}
+            let cats="";for(const cat of results.categories){cat.findings.sort((a,b)=>(so[a.severity]||5)-(so[b.severity]||5));let fh="";for(const f of cat.findings)fh+=`<div class="f ${f.severity}"><div class="fh"><span class="b" style="background:${sc[f.severity]}">${sl[f.severity]}</span><span class="ft">${f.title}</span></div><div class="fb"><p>${f.description}</p>${f.fix?`<div class="fx">🔧 ${f.fix}</div>`:""}</div></div>`;
+            const cp=cat.findings.filter(f=>f.severity==="critical").length;const pp=cat.findings.filter(f=>f.severity==="passed").length;
+            cats+=`<div class="c"><h2>${cat.name}<span class="cs">${pp}/${cat.findings.length} OK${cp?` · <span style="color:#dc2626">${cp} críticos</span>`:""}</span></h2><p class="cd">${cat.description}</p>${fh}</div>`;}
+
+            const html=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Relatório Segurança</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;line-height:1.6}.ct{max-width:900px;margin:0 auto;padding:20px}.hd{text-align:center;padding:40px 20px;border-bottom:1px solid #1e293b;margin-bottom:30px}.hd h1{font-size:28px}.hd .st{color:#94a3b8;font-size:14px}.rb{background:#1e293b;border-radius:12px;padding:24px;margin-bottom:30px;text-align:center;border-left:6px solid ${rc}}.rl{font-size:36px;font-weight:bold;color:${rc}}.rla{color:#94a3b8;font-size:14px;margin-top:4px}.sg{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:30px}.sc{background:#1e293b;border-radius:8px;padding:16px;text-align:center}.sn{font-size:28px;font-weight:bold}.sla{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:4px}.c{background:#1e293b;border-radius:12px;padding:24px;margin-bottom:20px}.c h2{font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.cs{font-size:12px;color:#94a3b8;font-weight:normal}.cd{color:#94a3b8;font-size:13px;margin-bottom:16px}.f{background:#0f172a;border-radius:8px;padding:16px;margin-bottom:10px;border-left:4px solid #334155}.f.critical{border-left-color:#dc2626}.f.high{border-left-color:#ea580c}.f.medium{border-left-color:#ca8a04}.f.low{border-left-color:#2563eb}.f.passed{border-left-color:#16a34a;background:#0f2a1e}.fh{display:flex;align-items:center;gap:10px;margin-bottom:8px}.b{color:white;font-size:11px;font-weight:bold;padding:2px 8px;border-radius:4px;white-space:nowrap}.ft{font-weight:600;font-size:14px}.fb{font-size:13px;color:#cbd5e1}.fb code{background:#334155;padding:1px 6px;border-radius:3px;font-size:12px}.fb p{margin-bottom:8px}.fx{background:#1a2332;border:1px solid #2d4a5e;border-radius:6px;padding:12px;margin-top:8px;font-size:13px;color:#93c5fd}.ns{background:#1e293b;border-radius:12px;padding:24px;margin-top:30px}.ns h2{margin-bottom:16px}.sp{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #334155}.sp:last-child{border-bottom:none}.spn{background:#3b82f6;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:13px;flex-shrink:0}.spc{font-size:14px}.spc strong{color:#f8fafc}.ref{background:#1e293b;border-radius:12px;padding:24px;margin-top:20px;font-size:13px;color:#94a3b8}.ref h3{color:#f8fafc;margin-bottom:10px;font-size:16px}.ref a{color:#60a5fa}.ft2{text-align:center;padding:30px;color:#475569;font-size:12px}@media(max-width:600px){.sg{grid-template-columns:repeat(3,1fr)}}</style></head><body><div class="ct"><div class="hd"><h1>🔒 Relatório de Segurança</h1><div class="st">Projeto: ${results.projectPath}<br>Data: ${results.scanDate}<br>Pipeline: Semgrep + npm audit + Scanner Lovable</div></div><div class="rb"><div class="rl">${re} RISCO ${rl}</div><div class="rla">${tot} problema(s) · ${results.summary.passed} verificações OK</div></div><div class="sg"><div class="sc"><div class="sn" style="color:#dc2626">${results.summary.critical}</div><div class="sla">Críticos</div></div><div class="sc"><div class="sn" style="color:#ea580c">${results.summary.high}</div><div class="sla">Altos</div></div><div class="sc"><div class="sn" style="color:#ca8a04">${results.summary.medium}</div><div class="sla">Médios</div></div><div class="sc"><div class="sn" style="color:#2563eb">${results.summary.low}</div><div class="sla">Baixos</div></div><div class="sc"><div class="sn" style="color:#16a34a">${results.summary.passed}</div><div class="sla">OK</div></div></div>${cats}<div class="ns"><h2>📋 Próximos Passos</h2><div class="sp"><div class="spn">1</div><div class="spc"><strong>Corrija os CRÍTICOS 🔴 agora.</strong></div></div><div class="sp"><div class="spn">2</div><div class="spc"><strong>Verifique RLS no Supabase</strong> — o scanner não acessa o banco.</div></div><div class="sp"><div class="spn">3</div><div class="spc"><strong>Veja também o relatório do Semgrep</strong> (Artifacts → semgrep-report) para análise mais profunda.</div></div><div class="sp"><div class="spn">4</div><div class="spc"><strong>Corrija os ALTOS 🟠 esta semana.</strong></div></div></div><div class="ref"><h3>📚 Referências de Auditoria</h3><p>Este relatório é baseado em:</p><p>• <a href="https://owasp.org/www-project-top-ten/">OWASP Top 10</a> — Vulnerabilidades web mais exploradas</p><p>• <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/">OWASP LLM Top 10</a> — Riscos de código gerado por IA</p><p>• <a href="https://supabase.com/docs/guides/auth/row-level-security">Supabase RLS Docs</a> — Segurança do banco</p><p>• <a href="https://github.com/semgrep/semgrep">Semgrep</a> — Análise estática</p><p>• <a href="https://github.com/ottosulin/awesome-ai-security">Awesome AI Security</a></p></div><div class="ft2">Lovable Security Audit v2.0 · Semgrep + npm audit + Scanner customizado</div></div></body></html>`;
+
+            fs.writeFileSync(path.join(P,"relatorio-seguranca.html"),html);
+            console.log("✅ Relatório gerado");
+          }
+
+          // MAIN
+          console.log("╔══════════════════════════════════════╗");
+          console.log("║  🔒 LOVABLE SECURITY AUDIT v2.0     ║");
+          console.log("╚══════════════════════════════════════╝\n");
+          scanSecrets(); scanSupabase(); scanCode(); scanAuth(); scanConfig(); report();
+          const s=results.summary,t=s.critical+s.high+s.medium+s.low;
+          console.log(`\n🔴 ${s.critical} | 🟠 ${s.high} | 🟡 ${s.medium} | 🔵 ${s.low} | ✅ ${s.passed}`);
+          if(s.critical>0)process.exit(1);
+          AUDIT_SCRIPT
+
+          node /tmp/audit.js "$GITHUB_WORKSPACE"
+
+      - name: Salvar relatório Lovable Scanner
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lovable-scanner-report
+          path: relatorio-seguranca.html
+          retention-days: 30
+
+  # ════════════════════════════════════════════════════
+  # JOB 4: RESUMO FINAL — Combina todos os resultados
+  # ════════════════════════════════════════════════════
+  summary:
+    name: "📊 Resumo Final"
+    runs-on: ubuntu-latest
+    needs: [semgrep, dependency-audit, lovable-scanner]
+    if: always()
+    steps:
+      - name: Gerar resumo consolidado
+        run: |
+          echo "## 🔒 Auditoria de Segurança — Resumo" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Ferramenta | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔍 Semgrep (análise estática) | ${{ needs.semgrep.result == 'success' && '✅ Passou' || '⚠️ Ver relatório' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📦 npm audit (dependências) | ${{ needs.dependency-audit.result == 'success' && '✅ Passou' || '⚠️ Ver relatório' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🏠 Scanner Lovable+Supabase | ${{ needs.lovable-scanner.result == 'success' && '✅ Passou' || '⚠️ Ver relatório' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📥 Relatórios para download:" >> $GITHUB_STEP_SUMMARY
+          echo "- **semgrep-report** — Análise estática detalhada (OWASP, React, XSS, SQL Injection)" >> $GITHUB_STEP_SUMMARY
+          echo "- **npm-audit-report** — Vulnerabilidades em dependências" >> $GITHUB_STEP_SUMMARY
+          echo "- **lovable-scanner-report** — Relatório visual com secrets, Supabase, auth, código" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📚 Referências:" >> $GITHUB_STEP_SUMMARY
+          echo "- [OWASP Top 10](https://owasp.org/www-project-top-ten/)" >> $GITHUB_STEP_SUMMARY
+          echo "- [OWASP LLM Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Semgrep](https://github.com/semgrep/semgrep)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Awesome AI Security](https://github.com/ottosulin/awesome-ai-security)" >> $GITHUB_STEP_SUMMARY

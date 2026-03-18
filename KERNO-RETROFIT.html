@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kerno Retrofit — Adotar o Framework em Projetos Existentes</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06080f;
+      --surface: #0d1117;
+      --surface2: #161b22;
+      --border: #21262d;
+      --text: #e6edf3;
+      --text2: #8b949e;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --orange: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --pink: #f778ba;
+      --yellow: #e3b341;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    code, .mono { font-family: 'JetBrains Mono', monospace; }
+    .container { max-width: 940px; margin: 0 auto; padding: 24px; }
+
+    .hero { text-align: center; padding: 50px 20px 30px; position: relative; }
+    .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse, rgba(248,81,73,0.08) 0%, transparent 70%); pointer-events: none; }
+    .hero .badge { display: inline-block; background: rgba(248,81,73,0.15); border: 1px solid rgba(248,81,73,0.3); border-radius: 20px; padding: 4px 16px; font-size: 12px; color: var(--red); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+    .hero h1 { font-size: 38px; font-weight: 800; letter-spacing: -1px; }
+    .hero h1 span { background: linear-gradient(135deg, var(--red), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p { color: var(--text2); font-size: 16px; margin-top: 10px; max-width: 620px; margin-left: auto; margin-right: auto; }
+
+    .context-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 24px 0; }
+    .context-box h2 { font-size: 17px; margin-bottom: 12px; }
+    .context-box p { font-size: 14px; color: var(--text2); margin-bottom: 8px; }
+
+    .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .vs-card { background: var(--surface2); border-radius: 10px; padding: 18px; border-top: 3px solid var(--border); }
+    .vs-card.bad { border-top-color: var(--red); }
+    .vs-card.good { border-top-color: var(--green); }
+    .vs-card h3 { font-size: 14px; margin-bottom: 8px; }
+    .vs-card p { font-size: 13px; color: var(--text2); }
+
+    /* PHASES */
+    .phase-section { margin: 40px 0; }
+    .phase-banner { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-radius: 12px 12px 0 0; }
+    .phase-banner .num { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 8px; }
+    .phase-banner h2 { font-size: 20px; font-weight: 700; }
+    .phase-banner .time { margin-left: auto; font-size: 12px; padding: 3px 12px; border-radius: 4px; background: rgba(255,255,255,0.05); color: var(--text2); }
+    .phase-content { background: var(--surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; padding: 24px; }
+    .phase-content > p { font-size: 14px; color: var(--text2); margin-bottom: 14px; }
+
+    .p1 .phase-banner { background: linear-gradient(135deg, rgba(248,81,73,0.15), var(--surface)); border: 1px solid rgba(248,81,73,0.3); }
+    .p1 .num { background: rgba(248,81,73,0.2); color: var(--red); }
+    .p2 .phase-banner { background: linear-gradient(135deg, rgba(210,153,34,0.15), var(--surface)); border: 1px solid rgba(210,153,34,0.3); }
+    .p2 .num { background: rgba(210,153,34,0.2); color: var(--orange); }
+    .p3 .phase-banner { background: linear-gradient(135deg, rgba(188,140,255,0.15), var(--surface)); border: 1px solid rgba(188,140,255,0.3); }
+    .p3 .num { background: rgba(188,140,255,0.2); color: var(--purple); }
+    .p4 .phase-banner { background: linear-gradient(135deg, rgba(63,185,80,0.15), var(--surface)); border: 1px solid rgba(63,185,80,0.3); }
+    .p4 .num { background: rgba(63,185,80,0.2); color: var(--green); }
+    .p5 .phase-banner { background: linear-gradient(135deg, rgba(88,166,255,0.15), var(--surface)); border: 1px solid rgba(88,166,255,0.3); }
+    .p5 .num { background: rgba(88,166,255,0.2); color: var(--accent); }
+
+    .step { background: var(--surface2); border-radius: 8px; padding: 16px; margin: 10px 0; border-left: 3px solid var(--border); }
+    .p1 .step { border-left-color: var(--red); }
+    .p2 .step { border-left-color: var(--orange); }
+    .p3 .step { border-left-color: var(--purple); }
+    .p4 .step { border-left-color: var(--green); }
+    .p5 .step { border-left-color: var(--accent); }
+    .step-title { font-weight: 600; font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .step p, .step li { font-size: 13px; color: var(--text2); }
+    .step ul, .step ol { margin: 6px 0 0 20px; }
+    .step li { margin: 3px 0; }
+    .step code { background: var(--bg); padding: 1px 6px; border-radius: 3px; font-size: 12px; color: var(--accent); }
+
+    .prompt-box { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin: 14px 0; position: relative; }
+    .prompt-box::before { content: '💬 PROMPT'; position: absolute; top: -10px; left: 14px; background: var(--bg); padding: 0 8px; font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: 1px; border: 1px solid var(--border); border-radius: 4px; }
+    .prompt-box pre { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text2); white-space: pre-wrap; word-wrap: break-word; margin-top: 4px; }
+
+    .warn { background: rgba(210,153,34,0.1); border: 1px solid rgba(210,153,34,0.3); border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; color: var(--orange); }
+    .info { background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.2); border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; color: var(--accent); }
+    .danger { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 13px; color: var(--red); }
+
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    th { background: var(--surface2); padding: 8px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+
+    .config-block { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 10px 0; }
+    .config-block .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); margin-bottom: 8px; }
+    .config-block pre { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text2); overflow-x: auto; white-space: pre-wrap; }
+
+    .summary-box { background: linear-gradient(135deg, rgba(88,166,255,0.08), var(--surface)); border: 1px solid var(--accent); border-radius: 12px; padding: 28px; margin: 30px 0; }
+    .summary-box h2 { color: var(--accent); margin-bottom: 14px; }
+
+    .footer { text-align: center; padding: 40px; color: var(--text2); font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 26px; }
+      .vs-grid { grid-template-columns: 1fr; }
+      .phase-banner { flex-wrap: wrap; }
+      .phase-banner .time { margin-left: 0; margin-top: 4px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ KERNO NAV CONTEXTUAL ═══ -->
+<div id="kerno-nav" style="position:sticky;top:0;z-index:200;background:rgba(6,8,12,.92);backdrop-filter:blur(16px);border-bottom:1px solid #1e2a3a;padding:0 20px;">
+  <div style="max-width:940px;margin:0 auto;height:48px;display:flex;align-items:center;overflow-x:auto;gap:0;">
+    <a href="KERNO-FLUXO.html" style="display:flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#4ecdc4;text-decoration:none;white-space:nowrap;padding:0 14px 0 0;border-right:1px solid #1e2a3a;margin-right:14px;flex-shrink:0;">🗺️ Mapa do Fluxo</a>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#556680;white-space:nowrap;flex-shrink:0;">Trilha C · Projeto Existente</span>
+    <span style="color:#2a3a50;margin:0 10px;flex-shrink:0;">›</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#e4eaf4;font-weight:700;white-space:nowrap;flex-shrink:0;">KERNO-RETROFIT</span>
+    <div style="margin-left:auto;flex-shrink:0;padding-left:14px;border-left:1px solid #1e2a3a;">
+      <a href="KERNO-BMAD-AUDITORIA.html" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9884f2;text-decoration:none;white-space:nowrap;font-weight:700;">Próximo: Fase 4.5 Auditoria BMAD →</a>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="badge">Projetos Existentes · Kerno BMAD v5.5.3</div>
+    <h1>Kerno <span>Retrofit</span></h1>
+    <p>Processo passo a passo para adotar o framework Kerno BMAD em projetos Lovable que já existem — sem quebrar o que funciona.</p>
+  </div>
+
+  <!-- CONTEXT -->
+  <div class="context-box">
+    <h2>📍 Seu cenário</h2>
+    <p>Você tem projetos Lovable conectados ao Supabase e Vercel, no ar mas só você usa/testa, sem documentação estruturada. Precisa aplicar segurança, hardening de deploy, estabilidade e documentação — nessa ordem de prioridade.</p>
+
+    <div class="vs-grid">
+      <div class="vs-card bad">
+        <h3>❌ Abordagem errada</h3>
+        <p>Tentar fazer tudo de uma vez. Pedir ao Lovable para "refatorar todo o projeto com segurança e documentação". Resultado: ele vai quebrar coisas, misturar mudanças, e você não vai saber o que voltou a funcionar.</p>
+      </div>
+      <div class="vs-card good">
+        <h3>✅ Abordagem correta</h3>
+        <p>Fase por fase, começando pelo que dá mais risco. Fixar versão antes de cada fase. Verificar que tudo funciona antes de avançar. Uma coisa por vez — exatamente como a documentação do Lovable recomenda.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINCÍPIO: USUÁRIO NÃO-TÉCNICO -->
+  <div style="background: rgba(88,166,255,0.06); border: 1px solid rgba(88,166,255,0.25); border-left: 4px solid var(--accent); border-radius: 10px; padding: 20px 24px; margin: 0 0 0;">
+    <h2 style="font-size: 15px; margin-bottom: 8px; color: var(--accent);">🧭 Princípio deste framework: você não precisa saber o que está fazendo tecnicamente</h2>
+    <p style="font-size: 13px; color: var(--text2); line-height: 1.8; margin: 0;">Cada passo deste guia foi desenhado para que <strong style="color: var(--text);">você não precise tomar decisões técnicas</strong>. O Lovable analisa, classifica e te diz o que está errado — e em qual ordem corrigir. Quando o resultado for confuso, cada passo indica exatamente o que copiar e onde colar para obter ajuda. <strong style="color: var(--text);">Siga os passos na ordem. Não pule etapas. Não improvise.</strong></p>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- DECISÃO: RETROFIT vs RECONSTRUÇÃO -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="context-box" style="border-left: 4px solid var(--purple); margin-top: 0;">
+    <h2>🔀 Antes de tudo: Retrofit ou Reconstrução?</h2>
+    <p>Nem todo projeto existente vale a pena recuperar. Use o diagnóstico abaixo para obter um <strong>veredicto automático</strong> antes de gastar tempo no processo de Retrofit — o próprio Lovable faz a análise e calcula a pontuação.</p>
+
+    <div style="margin: 20px 0;">
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--text);">Cole este prompt no Lovable (Plan Mode, sem editar código):</h3>
+      <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--green); white-space: pre-wrap; line-height: 1.8;">MODO LEITURA APENAS. Nenhum arquivo deve ser criado, modificado ou removido. Esta é uma análise de diagnóstico — apenas leitura e resposta em texto.
+
+Leia o código e os arquivos do projeto e gere um relatório de diagnóstico com o seguinte formato:
+
+---
+DIAGNÓSTICO KERNO RETROFIT
+---
+
+PARTE 1 — PONTUAÇÃO DE SAÚDE (máximo 70 pontos)
+Para cada item abaixo, informe se a condição é verdadeira ou falsa no projeto atual e a pontuação correspondente:
+
+  Item S1: O schema do banco reflete o produto real, sem tabelas de teste ou colunas sem uso.
+           Verdadeiro: 15 pontos. Falso: 0 pontos.
+
+  Item S2: Autenticação existe e o fluxo principal de login/logout funciona.
+           Verdadeiro: 15 pontos. Falso: 0 pontos.
+
+  Item S3: Há no máximo 2 tabelas sem RLS ativo.
+           Verdadeiro: 10 pontos. Falso: 0 pontos.
+
+  Item S4: A chave service_role está ausente do frontend, ou aparece em no máximo 2 arquivos.
+           Verdadeiro: 10 pontos. Falso: 0 pontos.
+
+  Item S5: O fluxo principal do produto funciona de ponta a ponta sem erros críticos.
+           Verdadeiro: 10 pontos. Falso: 0 pontos.
+
+  Item S6: O projeto tem menos de 60 dias de desenvolvimento acumulado.
+           Verdadeiro: 5 pontos. Falso: 0 pontos.
+
+  Item S7: As funcionalidades do projeto são descritíveis sem necessidade de ler o código.
+           Verdadeiro: 5 pontos. Falso: 0 pontos.
+
+PARTE 2 — PONTUAÇÃO DE RISCO (desconta pontos)
+Para cada item abaixo, informe se a condição é verdadeira ou falsa:
+
+  Item R1: Há mais de 4 tabelas sem RLS contendo dados reais de usuários.
+           Verdadeiro: desconta 20 pontos. Falso: desconta 0 pontos.
+
+  Item R2: A chave service_role aparece em 3 ou mais componentes do frontend.
+           Verdadeiro: desconta 20 pontos. Falso: desconta 0 pontos.
+
+  Item R3: O schema está irreconhecível, com colunas duplicadas ou migrations quebradas.
+           Verdadeiro: desconta 15 pontos. Falso: desconta 0 pontos.
+
+  Item R4: O produto nunca funcionou de forma estável — há mais bugs do que funcionalidades.
+           Verdadeiro: desconta 15 pontos. Falso: desconta 0 pontos.
+
+  Item R5: O histórico de sessões mostra código inconsistente por perda de contexto.
+           Verdadeiro: desconta 10 pontos. Falso: desconta 0 pontos.
+
+  Item R6: A dívida técnica aparente é superior a 7 em uma escala de 0 a 10.
+           Verdadeiro: desconta 10 pontos. Falso: desconta 0 pontos.
+
+PARTE 3 — RESULTADO FINAL
+Informe:
+  - Subtotal de saúde (soma dos itens S1 a S7)
+  - Subtotal de risco (soma dos descontos R1 a R6)
+  - Pontuação final (subtotal de saúde menos subtotal de risco)
+  - Os 2 ou 3 fatores que mais influenciaram o resultado
+
+PARTE 4 — VEREDICTO
+Com base na pontuação final, emita exatamente um dos três veredictos abaixo:
+
+  Pontuação 40 ou mais:  RETROFIT VIAVEL
+  Pontuação de 20 a 39:  RETROFIT ARRISCADO
+  Pontuação abaixo de 20: RECONSTRUCAO RECOMENDADA
+
+LEMBRETE FINAL: Este prompt é somente de análise. Nenhum código foi alterado.</div>
+    </div>
+
+    <div class="vs-grid" style="margin-top: 20px;">
+      <div style="background: rgba(63,185,80,0.06); border: 1px solid rgba(63,185,80,0.2); border-radius: 10px; padding: 18px;">
+        <h3 style="font-size: 14px; color: var(--green); margin-bottom: 12px;">✅ Retrofit viável — quando:</h3>
+        <ul style="font-size: 13px; color: var(--text2); margin-left: 18px; line-height: 2;">
+          <li>Schema do banco reflete o produto real (não tem tabelas "de teste" aleatórias)</li>
+          <li>Autenticação já existe e funciona</li>
+          <li>Máximo 1–2 tabelas sem RLS (corrigível em &lt;30 min)</li>
+          <li>Não há <code>service_role</code> no frontend, ou há em apenas 1–2 lugares</li>
+          <li>O produto está funcional — usuário consegue fazer o fluxo principal</li>
+          <li>Menos de 60 dias de desenvolvimento acumulado (base ainda não explodiu)</li>
+          <li>Você entende o que o código faz (consegue descrever as features para o Lovable)</li>
+        </ul>
+        <div class="info" style="margin-top: 12px;">👉 <strong>Siga o Retrofit.</strong> As fases abaixo resolvem os problemas sem recriar o que funciona.</div>
+      </div>
+
+      <div style="background: rgba(248,81,73,0.06); border: 1px solid rgba(248,81,73,0.2); border-radius: 10px; padding: 18px;">
+        <h3 style="font-size: 14px; color: var(--red); margin-bottom: 12px;">🔁 Reconstrução recomendada — quando:</h3>
+        <ul style="font-size: 13px; color: var(--text2); margin-left: 18px; line-height: 2;">
+          <li>Schema está irreconhecível — tabelas sem sentido, colunas duplicadas, migrations quebradas</li>
+          <li>Mais de 4 tabelas sem RLS com dados reais de usuário</li>
+          <li><code>service_role</code> espalhado por múltiplos componentes no frontend</li>
+          <li>O produto nunca chegou a funcionar direito — mais bugs do que features</li>
+          <li>O Lovable perdeu o contexto do projeto em múltiplas sessões (código inconsistente)</li>
+          <li>Você não consegue descrever o que o código faz sem lê-lo linha a linha</li>
+          <li>Dívida técnica &gt; 7/10 na avaliação acima</li>
+        </ul>
+        <div class="danger" style="margin-top: 12px;">⚠️ <strong>Não faça Retrofit.</strong> O custo de consertar será maior do que reconstruir com o BMAD do zero. Use o <a href="KERNO-ROADMAP.html" style="color: var(--red);">KERNO-ROADMAP.html</a> (Etapa 0 em diante).</div>
+      </div>
+    </div>
+
+    <div style="background: var(--surface2); border-radius: 10px; padding: 18px; margin-top: 20px;">
+      <h3 style="font-size: 14px; margin-bottom: 10px;">⚖️ Casos intermediários — o que fazer</h3>
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <thead>
+          <tr style="background: var(--bg);">
+            <th style="padding: 8px 12px; text-align: left; color: var(--text2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border);">Situação</th>
+            <th style="padding: 8px 12px; text-align: left; color: var(--text2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border);">Decisão</th>
+            <th style="padding: 8px 12px; text-align: left; color: var(--text2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border);">Justificativa</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 8px 12px; color: var(--text2);">Schema OK, mas UI completamente errada</td>
+            <td style="padding: 8px 12px; color: var(--green);">Retrofit parcial</td>
+            <td style="padding: 8px 12px; color: var(--text2);">Preserve o banco e reconstrói só o frontend com WDS Onda 2</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 8px 12px; color: var(--text2);">Produto funciona, mas escopo mudou muito</td>
+            <td style="padding: 8px 12px; color: var(--orange);">Depende</td>
+            <td style="padding: 8px 12px; color: var(--text2);">Se &gt;60% das features mudam, reconstrução com BMAD é mais rápida a longo prazo</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 8px 12px; color: var(--text2);">Múltiplos problemas de segurança críticos</td>
+            <td style="padding: 8px 12px; color: var(--orange);">Retrofit urgente</td>
+            <td style="padding: 8px 12px; color: var(--text2);">Corrija segurança primeiro (Fases 1–2). Considere reconstrução depois</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; color: var(--text2);">Projeto com usuários reais pagantes</td>
+            <td style="padding: 8px 12px; color: var(--green);">Retrofit</td>
+            <td style="padding: 8px 12px; color: var(--text2);">Não pode tirar do ar. Faça o Retrofit com muito cuidado na Fase 0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PHASE 0: BEFORE TOUCHING ANYTHING -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section p1">
+    <div class="phase-banner">
+      <span class="num">FASE 0</span>
+      <h2>Antes de tocar em qualquer coisa</h2>
+      <span class="time">⏱️ 15 minutos por projeto</span>
+    </div>
+    <div class="phase-content">
+      <p>Regra de ouro: <strong>nunca modifique um projeto em produção sem primeiro garantir que pode voltar atrás</strong>.</p>
+
+      <div class="step">
+        <div class="step-title">📌 0.1 Fixar versão estável no Lovable</div>
+        <p>Antes de qualquer mudança:</p>
+        <ol>
+          <li>Abra o projeto no Lovable</li>
+          <li>Verifique que o app funciona como está no preview</li>
+          <li>Vá no histórico de versões e <strong>fixe (pin) a versão atual</strong></li>
+          <li>Anote: "Versão estável pré-Kerno — [DATA]"</li>
+        </ol>
+        <div class="danger">⚠️ Se você pular este passo e algo quebrar, não vai conseguir voltar. O Supabase em particular NÃO reverte bem.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📋 0.2 Fotografar o estado atual</div>
+        <p>Antes de mudar, documente o que existe. Dois passos: primeiro o Lovable analisa (Plan Mode), depois cria o arquivo (modo normal).</p>
+
+        <p style="font-size: 13px; color: var(--text2); margin-top: 8px;"><strong>Passo A — Análise (Plan Mode):</strong></p>
+        <div class="prompt-box">
+          <pre>NÃO altere nenhum código. Apenas analise e me responda:
+
+1. Liste TODAS as tabelas do Supabase deste projeto
+2. Para cada tabela, diga:
+   - Colunas e tipos
+   - Se RLS está ativo (sim/não/não sei)
+   - Que policies existem
+3. Liste TODAS as páginas/rotas da aplicação
+4. Liste todos os componentes customizados
+5. Existe service_role no código frontend? Onde?
+6. Existe algum dado sensível em localStorage?
+7. Os formulários usam validação (Zod, Yup)?
+8. O vercel.json tem headers de segurança?</pre>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text2); margin-top: 12px;"><strong>Passo B — Criar arquivo (desative o Plan Mode):</strong></p>
+        <div class="prompt-box">
+          <pre>Com base na análise que você acabou de fazer, crie o arquivo
+/docs/retrofit/raio-x.md com todo o conteúdo do relatório.
+
+NÃO altere nenhum outro arquivo. Apenas crie este documento.
+Confirme com: "✅ raio-x.md criado em /docs/retrofit/"</pre>
+        </div>
+        <div class="info">💡 O arquivo <code>/docs/retrofit/raio-x.md</code> é a base de toda a Fase 1. Sem ele criado, não avance.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">⚙️ 0.3 Configurar Custom Knowledge do Kerno</div>
+        <p>Agora sim — cole o conteúdo de <strong>KERNO-KNOWLEDGE.md</strong> no Custom Knowledge:</p>
+        <ol>
+          <li>Lovable → Settings (⚙️) → Knowledge</li>
+          <li>Cole todo o conteúdo do arquivo KERNO-KNOWLEDGE.md (< 4KB, cabe no limite)</li>
+          <li>Salve</li>
+        </ol>
+        <div class="info">💡 Isso NÃO muda nenhum código. Apenas configura as regras para as próximas interações.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PHASE 1: SECURITY AUDIT -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section p1">
+    <div class="phase-banner">
+      <span class="num">FASE 1</span>
+      <h2>Auditoria de Segurança</h2>
+      <span class="time">⏱️ 30-60 min por projeto</span>
+    </div>
+    <div class="phase-content">
+      <p>Prioridade máxima. Verificar e corrigir vulnerabilidades antes de qualquer outra coisa.</p>
+
+      <div class="warn" style="margin-bottom: 16px;">⚠️ <strong>ANTES DE CADA PASSO:</strong> Fixe a versão no Lovable (📌 pin). Se qualquer correção quebrar algo, você volta para a versão fixada. Não avance sem fixar.</div>
+
+      <div class="step">
+        <div class="step-title">🔍 1.1 Pipeline SAST no GitHub</div>
+        <p>Crie os 2 arquivos no GitHub e rode o pipeline pela primeira vez:</p>
+        <table>
+          <tr><th>Arquivo</th><th>Caminho no GitHub</th><th>O que faz</th></tr>
+          <tr><td><code>security-audit-v2.yml</code></td><td><code>.github/workflows/security-audit.yml</code></td><td>Semgrep + npm audit + Scanner Lovable</td></tr>
+          <tr><td><code>dependabot.yml</code></td><td><code>.github/dependabot.yml</code></td><td>Monitora dependências semanalmente</td></tr>
+        </table>
+        <p style="margin-top: 8px;"><strong>Como criar:</strong> GitHub → Add file → Create new file → colar conteúdo → Commit</p>
+        <p style="margin-top: 8px;"><strong>Rodar o pipeline:</strong> GitHub → aba Actions → selecione "Security Audit" → Run workflow → aguarde (~2 min)</p>
+        <p style="margin-top: 8px;">Se aparecer ✅ verde, o pipeline rodou (pode ter encontrado problemas, mas funcionou). Se ❌ vermelho, verifique se colou o YAML corretamente.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🗄️ 1.2 Diagnóstico de segurança</div>
+        <p>O Lovable vai analisar o projeto, identificar todos os problemas de segurança, e <strong>gerar os prompts de correção na ordem certa</strong> — você só precisa copiar e colar cada prompt.</p>
+
+        <p style="font-size: 13px; color: var(--text2); margin: 8px 0 4px;"><strong>Passo A — Análise (Plan Mode ativado):</strong></p>
+        <div class="prompt-box">
+          <pre>NÃO altere nenhum código. Apenas analise e me diga o que está errado.
+
+Leia o arquivo /docs/retrofit/raio-x.md e o código do projeto, depois:
+
+PARTE 1 — DIAGNÓSTICO DE SEGURANÇA
+Para cada item abaixo, responda com ✅ OK ou 🔴/🟠/🟡 PROBLEMA:
+
+- RLS: todas as tabelas com dados de usuário têm RLS ativo?
+- service_role: a chave service_role aparece em algum arquivo do frontend?
+- Secrets: há chaves de API ou senhas escritas diretamente no código?
+- dangerouslySetInnerHTML: é usado em algum lugar sem sanitização?
+- localStorage: há tokens, senhas ou dados sensíveis sendo guardados?
+- Formulários: os campos de entrada usam validação (Zod ou similar)?
+- Headers: o vercel.json tem headers de segurança configurados?
+
+PARTE 2 — PROMPTS DE CORREÇÃO
+Para cada PROBLEMA encontrado, gere um prompt pronto para eu colar no Lovable.
+Cada prompt deve seguir este modelo exato:
+
+---
+CORREÇÃO [N] de [TOTAL] — [🔴/🟠/🟡] [Nome do problema]
+Risco: [o que acontece se não corrigir, em 1 frase simples]
+
+[Instrução específica do que o Lovable deve fazer para corrigir]
+
+Regras:
+- Corrija APENAS este problema
+- NÃO altere nenhuma funcionalidade existente
+- Atualize /docs/changelog.md com a correção
+- Confirme com: "✅ Corrigido: [nome]. Teste: [o que o usuário deve verificar]"
+---
+
+Liste os prompts na ordem correta de execução:
+1. Primeiro todos os 🔴 URGENTES
+2. Depois os 🟠 IMPORTANTES
+3. Por último os 🟡 RECOMENDADOS</pre>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text2); margin: 12px 0 4px;"><strong>Passo B — Salvar diagnóstico (desative o Plan Mode):</strong></p>
+        <div class="prompt-box">
+          <pre>Com base no diagnóstico que você acabou de fazer, crie o arquivo
+/docs/retrofit/diagnostico-seguranca.md com todo o conteúdo:
+o diagnóstico E os prompts de correção gerados.
+
+NÃO altere nenhum outro arquivo. Apenas crie este documento.
+Confirme com: "✅ diagnostico-seguranca.md criado. X problema(s): Y urgentes, Z importantes."</pre>
+        </div>
+
+        <div class="info">
+          💡 <strong>O que você recebeu:</strong> Uma lista de prompts prontos, na ordem certa, que você vai colar um por um no passo seguinte. Não precisa interpretar nada — só seguir a sequência.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔧 1.3 Aplicar correções (uma por vez)</div>
+        <div class="danger" style="margin-bottom: 12px;">🚨 <strong>📌 Fixe a versão ANTES de cada correção.</strong> Se a correção quebrar algo, volte para a versão fixada.</div>
+
+        <p>Abra o arquivo <code>/docs/retrofit/diagnostico-seguranca.md</code> no Lovable e copie o primeiro prompt de correção. Cole no chat. Quando o Lovable confirmar, teste o que ele indicou. Se funcionar, fixe a versão e passe para o próximo prompt.</p>
+
+        <p style="margin-top: 8px;"><strong>Fluxo para cada correção:</strong></p>
+        <ol>
+          <li>📌 Fixar versão no Lovable</li>
+          <li>Copiar o prompt de correção N do diagnostico-seguranca.md</li>
+          <li>Colar no chat do Lovable (Plan Mode desativado)</li>
+          <li>Verificar o que o Lovable disse para testar</li>
+          <li>Se funciona → 📌 fixar versão → próximo prompt</li>
+          <li>Se quebrou → voltar para versão fixada → tentar com prompt mais específico</li>
+        </ol>
+
+        <p style="margin-top: 12px; font-size: 13px; color: var(--text2);">Repita até todos os prompts de correção terem sido aplicados. Itens 🟡 RECOMENDADOS podem ficar para depois se o tempo for curto — os 🔴 e 🟠 são obrigatórios.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-title">✅ 1.4 Validar correções</div>
+        <div class="warn" style="margin-bottom: 12px;">📌 <strong>Fixe a versão antes de validar:</strong> "Pós-auditoria segurança — [DATA]"</div>
+
+        <p>Cole este prompt no Lovable (Plan Mode ativado) para ele confirmar que tudo foi corrigido:</p>
+        <div class="prompt-box">
+          <pre>NÃO altere nenhum código. Apenas verifique.
+
+Leia o /docs/retrofit/diagnostico-seguranca.md e compare com o estado
+atual do código. Para cada problema que foi listado, me diga:
+
+✅ CORRIGIDO — [nome do problema]
+❌ AINDA PRESENTE — [nome do problema] — [o que falta fazer]
+
+No final, diga:
+- Quantos problemas foram corrigidos
+- Quantos ainda restam (se algum)
+- Se o projeto está seguro para avançar para a Fase 2</pre>
+        </div>
+
+        <p style="margin-top: 8px;">Depois, verifique manualmente: abra a aplicação, faça login, navegue pelas telas principais, teste as features que mais usa. Se tudo funciona, avance para a Fase 2.</p>
+
+        <div class="info">💡 O pipeline SAST no GitHub (passo 1.1) roda automaticamente a cada push que o Lovable faz. Vá em GitHub → Actions para ver se os checks estão ✅ verdes agora.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PHASE 2: DEPLOY HARDENING -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section p2">
+    <div class="phase-banner">
+      <span class="num">FASE 2</span>
+      <h2>Hardening de Deploy</h2>
+      <span class="time">⏱️ 20-40 min por projeto</span>
+    </div>
+    <div class="phase-content">
+      <p>Mover o projeto para uma infraestrutura de produção segura — com headers de segurança, variáveis de ambiente protegidas e um deploy profissional fora do preview do Lovable.</p>
+
+      <!-- 2.0 DIAGNÓSTICO DE SITUAÇÃO -->
+      <div class="step">
+        <div class="step-title">🔍 2.0 Primeiro: descubra onde seu projeto está hoje</div>
+        <p>Antes de fazer qualquer coisa, você precisa saber em qual situação está. Abra o Lovable no projeto e olhe o topo da tela — onde fica o botão de publicar/deploy.</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0;">
+          <div style="background: var(--s2); border: 1px solid var(--bd2); border-left: 3px solid var(--amber); border-radius: 8px; padding: 16px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--amber); letter-spacing: 1px; margin-bottom: 8px;">SITUAÇÃO A</div>
+            <div style="font-size: 14px; font-weight: 600; color: var(--t1); margin-bottom: 6px;">Só tenho o preview do Lovable</div>
+            <div style="font-size: 12px; color: var(--t2); line-height: 1.7;">A URL do projeto termina em <code>.lovable.app</code> ou similar. Nunca foi publicado em outro lugar. Não sei o que é Vercel.</div>
+            <div style="margin-top: 10px; font-size: 12px; font-weight: 700; color: var(--amber);">→ Siga o Caminho A abaixo</div>
+          </div>
+          <div style="background: var(--s2); border: 1px solid var(--bd2); border-left: 3px solid var(--blue); border-radius: 8px; padding: 16px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--blue); letter-spacing: 1px; margin-bottom: 8px;">SITUAÇÃO B</div>
+            <div style="font-size: 14px; font-weight: 600; color: var(--t1); margin-bottom: 6px;">Já está na Vercel (ou Netlify)</div>
+            <div style="font-size: 12px; color: var(--t2); line-height: 1.7;">Tenho uma conta na Vercel/Netlify com este projeto conectado. A URL vem de lá, ou eu mesmo conectei o GitHub.</div>
+            <div style="margin-top: 10px; font-size: 12px; font-weight: 700; color: var(--blue);">→ Siga o Caminho B abaixo</div>
+          </div>
+        </div>
+
+        <div class="info">💡 <strong>Não sabe qual situação é a sua?</strong> Se o seu app está em <code>meu-app.lovable.app</code> ou <code>meu-app.lovableproject.com</code>, você está na Situação A. Se a URL tem o nome da Vercel ou um domínio próprio que você configurou manualmente, é a Situação B.</div>
+      </div>
+
+      <!-- CAMINHO A -->
+      <div style="border: 1px solid rgba(232,168,56,0.3); border-radius: 10px; padding: 20px 24px; margin: 20px 0; background: rgba(232,168,56,0.04);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--amber); letter-spacing: 1px; margin-bottom: 16px;">▼ CAMINHO A — Saindo do preview Lovable e indo para a Vercel</div>
+
+        <div class="step" style="margin-bottom: 16px;">
+          <div class="step-title">A.1 Conectar o projeto ao GitHub</div>
+          <p>No Lovable, clique no ícone do GitHub (canto superior direito do editor) e escolha <strong>"Connect to GitHub"</strong>. Siga o fluxo de autorização. O Lovable vai criar automaticamente um repositório com o código do seu projeto.</p>
+          <div class="info">💡 Isso não publica nada ainda. Só cria uma cópia do código no GitHub — que é necessária para o próximo passo.</div>
+        </div>
+
+        <div class="step" style="margin-bottom: 16px;">
+          <div class="step-title">A.2 Preparar o arquivo de segurança antes de publicar</div>
+          <p>Com o GitHub conectado, envie este prompt no Lovable <strong>antes</strong> de conectar a Vercel:</p>
+          <div class="prompt-box">
+            <pre>Crie o arquivo vercel.json na raiz do projeto com headers de segurança completos:
+X-Frame-Options DENY, X-Content-Type-Options nosniff,
+Referrer-Policy strict-origin-when-cross-origin,
+Permissions-Policy restritiva, HSTS com max-age 2 anos,
+e Content-Security-Policy que permita apenas self, Supabase e fontes do Google.
+Não altere nenhum outro arquivo.
+Confirme com: "✅ vercel.json criado"</pre>
+          </div>
+        </div>
+
+        <div class="step" style="margin-bottom: 16px;">
+          <div class="step-title">A.3 Importar na Vercel</div>
+          <ol>
+            <li>Acesse <strong>vercel.com</strong> — crie uma conta gratuita com o mesmo email do GitHub</li>
+            <li>Clique em <strong>"Add New Project"</strong></li>
+            <li>Escolha <strong>"Import Git Repository"</strong> e selecione o repositório que o Lovable criou</li>
+            <li>Na tela de configuração, <strong>não mexa em nada</strong> — a Vercel detecta o projeto automaticamente</li>
+            <li>Antes de clicar em Deploy, expanda <strong>"Environment Variables"</strong> e adicione:
+              <ul style="margin-top: 8px; font-family: 'Geist Mono', monospace; font-size: 12px;">
+                <li><code>VITE_SUPABASE_URL</code> — valor: a URL do seu projeto no Supabase</li>
+                <li><code>VITE_SUPABASE_ANON_KEY</code> — valor: a chave anon/public do Supabase</li>
+              </ul>
+            </li>
+            <li>Clique em <strong>"Deploy"</strong></li>
+          </ol>
+          <div class="info">💡 Onde encontrar os valores do Supabase: acesse <strong>app.supabase.com</strong> → seu projeto → Settings → API. Os dois valores estão lá, claramente identificados.</div>
+        </div>
+
+        <div class="step">
+          <div class="step-title">A.4 Confirmar que está funcionando</div>
+          <p>A Vercel vai gerar uma URL como <code>meu-app.vercel.app</code>. Abra essa URL e teste: o app carrega? Login funciona? Se sim, você tem dois deploys funcionando — o Lovable Cloud (original) e a Vercel (novo). <strong>A partir de agora, use a URL da Vercel.</strong></p>
+          <div class="warn">⚠️ O Lovable Cloud continua funcionando normalmente. Não precisa (nem deve) excluir nada. Ele serve como backup enquanto você valida que a Vercel está tudo certo.</div>
+        </div>
+      </div>
+
+      <!-- CAMINHO B -->
+      <div style="border: 1px solid rgba(91,156,246,0.3); border-radius: 10px; padding: 20px 24px; margin: 20px 0; background: rgba(91,156,246,0.04);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--blue); letter-spacing: 1px; margin-bottom: 16px;">▼ CAMINHO B — Projeto já está na Vercel, adicionar hardening</div>
+
+        <div class="step" style="margin-bottom: 16px;">
+          <div class="step-title">B.1 Verificar variáveis de ambiente</div>
+          <p>Na Vercel, abra o projeto → <strong>Settings → Environment Variables</strong>. Verifique se existem as duas variáveis abaixo <strong>apenas com o escopo "Production"</strong> selecionado (não "Preview" ou "Development"):</p>
+          <ul style="font-family: 'Geist Mono', monospace; font-size: 13px; margin: 8px 0 8px 20px;">
+            <li><code>VITE_SUPABASE_URL</code></li>
+            <li><code>VITE_SUPABASE_ANON_KEY</code></li>
+          </ul>
+          <div class="danger">🚨 Se não existem ou estão com escopo errado: adicione/corrija agora. Sem essas variáveis, o Supabase não funciona na Vercel e você pode estar usando valores hardcoded no código — o que é um risco de segurança.</div>
+        </div>
+
+        <div class="step">
+          <div class="step-title">B.2 Adicionar headers de segurança</div>
+          <p>Envie este prompt no Lovable:</p>
+          <div class="prompt-box">
+            <pre>Verifique se existe um arquivo vercel.json na raiz do projeto.
+Se não existir, crie com headers de segurança completos:
+X-Frame-Options DENY, X-Content-Type-Options nosniff,
+Referrer-Policy strict-origin-when-cross-origin,
+Permissions-Policy restritiva, HSTS com max-age 2 anos,
+e Content-Security-Policy que permita apenas self, Supabase e fontes do Google.
+Se já existir, verifique se tem esses headers e adicione os que estiverem faltando.
+Não altere nenhum outro arquivo.
+Confirme com: "✅ vercel.json atualizado" ou "✅ vercel.json já estava correto"</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.1 SUPABASE — IGUAL PARA TODOS -->
+      <div class="step">
+        <div class="step-title">🗄️ 2.1 Atualizar URLs no Supabase (para todos)</div>
+        <p>Agora que o projeto tem uma URL de produção, o Supabase precisa saber qual é essa URL para que o login e os redirecionamentos funcionem corretamente. Envie este prompt no Lovable:</p>
+        <div class="prompt-box">
+          <pre>NÃO altere nenhum código. Me diga apenas:
+1. Qual é a URL de produção atual deste projeto (vercel.app ou domínio próprio)?
+2. Quais URLs de redirecionamento de autenticação estão configuradas no Supabase?
+3. Elas incluem a URL de produção atual?
+
+Se não incluírem, me dê as instruções exatas de onde clicar no painel do Supabase
+para adicionar a URL correta — em linguagem simples, passo a passo.</pre>
+        </div>
+        <div class="info">💡 O Lovable vai te dar as instruções exatas para o painel do Supabase, personalizadas para o seu projeto. Siga o que ele disser.</div>
+      </div>
+
+      <!-- 2.2 GITHUB SECURITY -->
+      <div class="step">
+        <div class="step-title">🔐 2.2 Ativar proteções no GitHub (2 minutos)</div>
+        <p>No GitHub, abra o repositório do projeto → <strong>Settings → Code security and analysis</strong>. Ative os quatro botões abaixo clicando em <strong>"Enable"</strong> em cada um:</p>
+        <ul style="margin: 10px 0 10px 20px; line-height: 2;">
+          <li><strong>Secret scanning</strong> — detecta chaves e senhas acidentalmente commitadas</li>
+          <li><strong>Push protection</strong> — bloqueia pushes com secrets antes de chegarem ao repositório</li>
+          <li><strong>Dependabot alerts</strong> — avisa quando uma dependência tem vulnerabilidade conhecida</li>
+          <li><strong>Dependabot security updates</strong> — abre PRs automáticos para corrigir dependências vulneráveis</li>
+        </ul>
+        <div class="info">💡 Cada um tem um botão "Enable" ao lado. São apenas cliques — sem configuração adicional.</div>
+      </div>
+
+      <!-- 2.3 VALIDAR -->
+      <div class="step">
+        <div class="step-title">✅ 2.3 Validar e fechar a fase</div>
+        <p>Peça ao Lovable para confirmar que tudo está em ordem:</p>
+        <div class="prompt-box">
+          <pre>NÃO altere nenhum código. Verifique e me diga:
+1. O arquivo vercel.json existe e tem headers de segurança?
+2. As variáveis de ambiente VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
+   estão no código ou referenciadas via import.meta.env?
+3. Há algum outro problema de configuração de deploy que devo resolver?
+
+Responda de forma simples: OK ou PROBLEMA ENCONTRADO para cada item.</pre>
+        </div>
+        <p style="margin-top: 12px;">Depois teste manualmente: abra a URL de produção, faça login, navegue pelas telas principais. Se tudo funciona → <strong>📌 Fixe a versão no Lovable: "Deploy hardening completo — [DATA]"</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PHASE 3: STABILITY -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section p3">
+    <div class="phase-banner">
+      <span class="num">FASE 3</span>
+      <h2>Estabilidade</h2>
+      <span class="time">⏱️ 15-20 min por projeto</span>
+    </div>
+    <div class="phase-content">
+      <p>Configurar o Lovable para parar de quebrar coisas quando evolui o projeto.</p>
+
+      <div class="step">
+        <div class="step-title">🧠 3.1 Custom Knowledge já está configurado</div>
+        <p>Se você fez a Fase 0.3, as regras de estabilidade já estão no Custom Knowledge:</p>
+        <ul>
+          <li>Prompts incrementais (uma coisa por vez)</li>
+          <li>Nunca alterar componentes não relacionados</li>
+          <li>Planejar antes de implementar (Plan Mode)</li>
+          <li>Recomendar fixar versão após cada feature</li>
+          <li>Alertar antes de mudanças em schema do Supabase</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📐 3.2 Adotar o padrão de prompts</div>
+        <p>A partir de agora, sempre use este formato ao pedir features:</p>
+        <div class="prompt-box">
+          <pre>[FEATURE] Descrição clara e específica do que quero.
+
+Regras:
+- Implemente APENAS isto, não mexa em nada que não seja
+  diretamente necessário
+- Se precisar alterar algo existente, me diga ANTES
+- Atualize os /docs correspondentes
+- Me diga se devo fixar a versão atual antes desta mudança</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔄 3.3 Fluxo de trabalho estável</div>
+        <p>Adote este ciclo para cada sessão de desenvolvimento:</p>
+        <ol>
+          <li><strong>Verificar</strong> — o app funciona no preview? Sim → continuar</li>
+          <li><strong>Fixar</strong> — pin na versão atual antes de começar</li>
+          <li><strong>Planejar</strong> — Plan Mode para features complexas</li>
+          <li><strong>Implementar</strong> — um pedido por vez</li>
+          <li><strong>Testar</strong> — funciona? Login, CRUD, responsivo</li>
+          <li><strong>Fixar</strong> — pin se funciona, revert se não</li>
+          <li><strong>Fechar</strong> — prompt de fechamento de sessão</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PHASE 4: DOCUMENTATION -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section p4">
+    <div class="phase-banner">
+      <span class="num">FASE 4</span>
+      <h2>Documentação</h2>
+      <span class="time">⏱️ 20-30 min por projeto</span>
+    </div>
+    <div class="phase-content">
+      <p>Gerar a documentação retroativa do que já existe, e ativar manutenção contínua.</p>
+
+      <div class="step">
+        <div class="step-title">📄 4.1 Gerar documentação retroativa</div>
+        <p>Envie o KERNO-DOCS.md ao Lovable e peça para mapear o projeto existente:</p>
+
+        <div class="prompt-box">
+          <pre>Leia o arquivo KERNO-DOCS.md que enviei.
+
+Este projeto JÁ EXISTE e está em produção. Eu preciso que
+você gere a documentação retroativa baseada no código atual.
+
+NÃO altere nenhum código. Apenas crie os seguintes arquivos
+em /docs baseado no que já existe no projeto:
+
+1. /docs/architecture.md — analise o código e documente a stack,
+   estrutura de pastas, padrões e variáveis de ambiente
+2. /docs/database.md — analise as tabelas do Supabase, colunas,
+   tipos, RLS policies e functions
+3. /docs/ui-components.md — liste todos os componentes, hooks,
+   páginas e rotas
+4. /docs/flows.md — descreva os fluxos de autenticação, CRUD
+   e navegação baseado no código
+5. /docs/features.md — liste todas as features implementadas
+6. /docs/decisions.md — registre as decisões técnicas visíveis
+   no código (stack, libs, patterns)
+7. /docs/changelog.md — crie com versão 1.0.0 "Estado inicial documentado"
+8. /docs/handover.md — resumo executivo do projeto
+9. /docs/security-rules.md — cole as regras do Kerno Security
+10. /docs/documentation-rules.md — regras de documentação do Kerno
+11. /docs/qa-plan.md — plano de testes baseado nas features existentes
+12. /docs/security-report.md — resultados da auditoria de segurança
+
+Crie os arquivos session-close.md, delivery-report.md e
+prd-milestones.md com estrutura vazia (template).
+
+IMPORTANTE: todos os nomes em kebab-case (minúsculas com hífen).
+Use EXATAMENTE os formatos definidos no KERNO-DOCS.md.</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">✅ 4.2 Validar e fixar</div>
+        <ol>
+          <li>Revise os documentos gerados (não precisa ser perfeito, mas deve refletir a realidade)</li>
+          <li>Verifique que o código NÃO foi alterado (apenas /docs foi criado)</li>
+          <li>Teste que a aplicação continua funcionando</li>
+          <li>📌 Fixe a versão: "Documentação Kerno adicionada — [DATA]"</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔄 4.3 A partir de agora: manutenção contínua</div>
+        <p>Com o KERNO-KNOWLEDGE.md no Custom Knowledge e os docs criados, o Lovable vai atualizar a documentação automaticamente em toda resposta. Você não precisa mais lembrar de pedir — está no DNA do projeto agora.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PHASE 5: ONGOING -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="phase-section p5">
+    <div class="phase-banner">
+      <span class="num">FASE 5</span>
+      <h2>Monitoramento Contínuo</h2>
+      <span class="time">⏱️ 5 min/semana por projeto</span>
+    </div>
+    <div class="phase-content">
+      <div class="step">
+        <div class="step-title">🤖 5.1 O que roda automaticamente</div>
+        <table>
+          <tr><th>O que</th><th>Frequência</th><th>Onde verificar</th></tr>
+          <tr><td>Semgrep + npm audit + Scanner</td><td>A cada push</td><td>GitHub → Actions</td></tr>
+          <tr><td>Dependabot</td><td>Semanal</td><td>GitHub → Security</td></tr>
+          <tr><td>Secret scanning</td><td>Contínuo</td><td>GitHub → Security</td></tr>
+        </table>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📅 5.2 Agenda de revisão manual</div>
+        <table>
+          <tr><th>Quando</th><th>O que fazer</th></tr>
+          <tr><td><strong>Toda semana</strong></td><td>Olhar aba Actions no GitHub (✅ ou ❌)</td></tr>
+          <tr><td><strong>Todo mês</strong></td><td>Verificar RLS no Supabase. Rodar scanner manualmente. <strong style="color: #bc8cff;">Rodar Auditoria BMAD (KERNO-BMAD-AUDITORIA.html).</strong></td></tr>
+          <tr><td><strong>A cada 3 meses</strong></td><td>Rotacionar chaves. Revisar policies. Atualizar security-report.md.</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-box">
+    <h2>📋 Resumo — Checklist por projeto</h2>
+    <table>
+      <tr><th>#</th><th>Ação</th><th>Tempo</th><th>⬜</th></tr>
+      <tr><td>0.1</td><td>Fixar versão estável no Lovable</td><td>2 min</td><td>⬜</td></tr>
+      <tr><td>0.2</td><td>Raio-X do projeto → <code>/docs/retrofit/raio-x.md</code> criado</td><td>5 min</td><td>⬜</td></tr>
+      <tr><td>0.3</td><td>Colar Custom Knowledge do Kerno</td><td>3 min</td><td>⬜</td></tr>
+      <tr><td>1.1</td><td>Criar pipeline SAST no GitHub</td><td>5 min</td><td>⬜</td></tr>
+      <tr><td>1.2</td><td>Diagnóstico de segurança via Lovable → <code>/docs/retrofit/diagnostico-seguranca.md</code> criado</td><td>10 min</td><td>⬜</td></tr>
+      <tr><td>1.3</td><td>Corrigir vulnerabilidades via Lovable</td><td>15-30 min</td><td>⬜</td></tr>
+      <tr><td>1.4</td><td>Validar correções + fixar versão</td><td>5 min</td><td>⬜</td></tr>
+      <tr><td>2.0</td><td>Identificar situação de deploy (Lovable Cloud ou Vercel já conectada)</td><td>2 min</td><td>⬜</td></tr>
+      <tr><td>2.A</td><td><em>Se Situação A:</em> GitHub conectado + vercel.json criado + projeto importado na Vercel</td><td>15 min</td><td>⬜</td></tr>
+      <tr><td>2.B</td><td><em>Se Situação B:</em> variáveis de ambiente verificadas + vercel.json atualizado</td><td>5 min</td><td>⬜</td></tr>
+      <tr><td>2.1</td><td>URLs do Supabase atualizadas para a URL de produção</td><td>5 min</td><td>⬜</td></tr>
+      <tr><td>2.2</td><td>4 proteções do GitHub ativadas (secret scanning, push protection, Dependabot x2)</td><td>3 min</td><td>⬜</td></tr>
+      <tr><td>2.3</td><td>Deploy validado — app abre, login funciona, versão fixada no Lovable</td><td>5 min</td><td>⬜</td></tr>
+      <tr><td>3.1</td><td>Adotar padrão de prompts</td><td>Contínuo</td><td>⬜</td></tr>
+      <tr><td>4.1</td><td>Gerar documentação retroativa</td><td>15 min</td><td>⬜</td></tr>
+      <tr><td style="color: var(--purple); font-weight: 700;">4.2</td><td><strong style="color: var(--purple);">Auditoria BMAD — Revisão dos documentos gerados</strong></td><td>1h30–3h</td><td>⬜</td></tr>
+    </table>
+    <p style="margin-top: 14px; font-size: 14px; color: var(--text2);"><strong>Tempo total estimado:</strong> ~3h–4h30 por projeto para o retrofit completo (incluindo Auditoria BMAD).</p>
+  </div>
+
+  <div class="info" style="margin-top: 20px;">
+    <strong>Para projetos novos:</strong> Use o fluxo padrão do Kerno BMAD (KERNO-ROADMAP.html) que já começa com planejamento BMAD, design WDS, e tudo configurado desde o primeiro prompt. O retrofit só é necessário para projetos que já existem.
+  </div>
+
+  <!-- AUDITORIA BMAD -->
+  <div class="phase-section" style="margin: 32px 0;">
+    <div class="phase-banner" style="background: linear-gradient(135deg, rgba(188,140,255,0.12), #0d1117); border: 1px solid rgba(188,140,255,0.3); border-radius: 12px 12px 0 0;">
+      <span class="num" style="background: rgba(188,140,255,0.15); color: #bc8cff; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; padding: 6px 14px; border-radius: 8px;">FASE 4.5</span>
+      <h2>Auditoria BMAD — Revisão Inteligente dos Documentos</h2>
+      <span class="time">⏱️ 1h30–3h · Mensal</span>
+    </div>
+    <div class="phase-content" style="background: #0d1117; border: 1px solid #21262d; border-top: none; border-radius: 0 0 12px 12px; padding: 24px;">
+      <p style="font-size: 14px; color: #8b949e; margin-bottom: 14px;">Após gerar a documentação retroativa na Fase 4, os agentes BMAD entram em <strong>modo de auditoria</strong>: revisam tudo que o Lovable gerou e produzem um relatório de insights, correções e melhorias — antes de escalar.</p>
+
+      <div style="background: rgba(152,132,242,0.08); border: 1px solid rgba(152,132,242,0.2); border-radius: 8px; padding: 14px 18px; margin: 10px 0; font-size: 13px; color: #9884f2;">
+        💡 <strong>Dica v5.5 — Context Scanner:</strong> Se o AI PM Copilot estiver instalado, rode <code>/ai-pm-copilot:pm-setup</code> antes da auditoria. O context-scanner lê o codebase automaticamente e gera um mapa de features, stack e integrações. Isso alimenta Winston, Bob, Mary e John com dados reais em vez de descrição manual. <a href="KERNO-PM-INTEGRACAO.md" style="color: #bc8cff;">Ver KERNO-PM-INTEGRACAO.md</a>
+      </div>
+
+      <div style="background: rgba(248,81,73,0.08); border: 1px solid rgba(248,81,73,0.2); border-radius: 8px; padding: 14px 18px; margin: 10px 0; font-size: 13px; color: #f85149;">
+        ⚠️ <strong>Por que esta fase é fundamental:</strong> O Lovable gera documentação e código funcionais, mas não faz revisão crítica. Sem auditoria, você vai escalar um projeto com código redundante, jornadas de UX quebradas, documentação inconsistente e dívida técnica acumulada.
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0;">
+        <div style="background: #161b22; border-radius: 8px; padding: 14px; border-left: 3px solid #bc8cff;">
+          <div style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #bc8cff; font-weight: 700; margin-bottom: 4px;">WINSTON</div>
+          <div style="font-size: 13px; color: #e6edf3; font-weight: 600; margin-bottom: 4px;">Arquitetura</div>
+          <div style="font-size: 12px; color: #8b949e;">Arquivos duplicados, componentes mortos, estrutura que não escala</div>
+        </div>
+        <div style="background: #161b22; border-radius: 8px; padding: 14px; border-left: 3px solid #d29922;">
+          <div style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #d29922; font-weight: 700; margin-bottom: 4px;">BOB</div>
+          <div style="font-size: 13px; color: #e6edf3; font-weight: 600; margin-bottom: 4px;">Qualidade de Código</div>
+          <div style="font-size: 12px; color: #8b949e;">Código verboso, lógica repetida, padrões inconsistentes</div>
+        </div>
+        <div style="background: #161b22; border-radius: 8px; padding: 14px; border-left: 3px solid #f778ba;">
+          <div style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #f778ba; font-weight: 700; margin-bottom: 4px;">MARY</div>
+          <div style="font-size: 13px; color: #e6edf3; font-weight: 600; margin-bottom: 4px;">Produto + UX</div>
+          <div style="font-size: 12px; color: #8b949e;">Jornadas quebradas, gaps de UX, PRD inconsistente com o real</div>
+        </div>
+        <div style="background: #161b22; border-radius: 8px; padding: 14px; border-left: 3px solid #3dd8c5;">
+          <div style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #3dd8c5; font-weight: 700; margin-bottom: 4px;">JOHN</div>
+          <div style="font-size: 13px; color: #e6edf3; font-weight: 600; margin-bottom: 4px;">Drift Analysis</div>
+          <div style="font-size: 12px; color: #8b949e;">Divergências entre documentação e código real</div>
+        </div>
+      </div>
+
+      <div style="background: rgba(188,140,255,0.06); border: 1px solid rgba(188,140,255,0.2); border-radius: 8px; padding: 14px 18px; font-size: 13px; color: #bc8cff; margin-top: 10px;">
+        🔁 <strong>Governança mensal:</strong> a auditoria usa pastas datadas (<code>/docs/audit/YYYY-MM-DD/</code>), histórico em <code>AUDIT-HISTORY.md</code>, e comparação automática com a rodada anterior para rastrear evolução e itens recorrentes.
+      </div>
+
+      <div style="margin-top: 16px; text-align: center;">
+        <a href="KERNO-BMAD-AUDITORIA.html" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(188,140,255,0.15); border: 1px solid rgba(188,140,255,0.35); border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 600; color: #bc8cff; text-decoration: none;">
+          Ver módulo completo → KERNO-BMAD-AUDITORIA.html
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="context-box" style="margin-top: 20px; border-left: 3px solid var(--purple);">
+    <h2>🤖 E os agentes BMAD + PM Skills?</h2>
+    <p>No retrofit, as ferramentas atuam em <strong>três momentos distintos</strong>:</p>
+    <ol style="margin: 8px 0 0 20px; font-size: 13px; color: var(--text2);">
+      <li><strong>Retroativo (uma vez):</strong> PM Skills define métricas (<code>/north-star</code>), mapeia concorrência (<code>/competitive-analysis</code>), e articula trade-offs (<code>/strategy</code>). AI PM Copilot context-scanner gera mapa do codebase. Esses inputs alimentam a auditoria BMAD.</li>
+      <li><strong>Fase 4.5 — Auditoria:</strong> Winston, Bob, Mary e John revisam o que o Lovable gerou e produzem relatórios de melhoria (ver módulo KERNO-BMAD-AUDITORIA.html)</li>
+      <li><strong>Expansão futura:</strong> ao adicionar funcionalidades novas, use PM Skills (<code>/discover</code>, <code>/value-proposition</code>) para validar antes, depois John para PRD, Winston para arquitetura, e envie os documentos ao Lovable como input</li>
+    </ol>
+    <p style="margin-top: 8px;">O fluxo completo para projetos novos está no KERNO-ROADMAP.html. Ver também <a href="KERNO-PM-INTEGRACAO.md" style="color: #bc8cff;">KERNO-PM-INTEGRACAO.md</a> para o pipeline PM Skills + BMAD.</p>
+  </div>
+
+  <div class="footer">
+    Kerno BMAD v5.5.3 — Retrofit &amp; Migration Guide<br>
+    Referências: docs.lovable.dev · OWASP Top 10 · Supabase Security Docs · BMAD Method v6
+  </div>
+
+</div>
+</body>
+</html>

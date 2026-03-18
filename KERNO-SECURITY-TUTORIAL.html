@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kerno Security — Tutorial Completo de Implementação e Monitoramento</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#06080f; --s1:#0d1117; --s2:#161b22; --bd:#21262d; --t1:#e6edf3; --t2:#8b949e; --acc:#58a6ff; --grn:#3fb950; --org:#d29922; --red:#f85149; --pur:#bc8cff; --pnk:#f778ba; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t1);line-height:1.7}
+    code,.mono{font-family:'JetBrains Mono',monospace}
+    .ct{max-width:940px;margin:0 auto;padding:24px}
+    .hero{text-align:center;padding:50px 20px 30px;position:relative}
+    .hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(88,166,255,0.08) 0%,transparent 70%);pointer-events:none}
+    .hero .badge{display:inline-block;background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.3);border-radius:20px;padding:4px 16px;font-size:12px;color:var(--red);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+    .hero h1{font-size:36px;font-weight:800;letter-spacing:-1px}
+    .hero h1 span{background:linear-gradient(135deg,var(--red),var(--org),var(--acc));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{color:var(--t2);font-size:16px;margin-top:10px;max-width:640px;margin-left:auto;margin-right:auto}
+
+    .toc{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:24px;margin:24px 0}
+    .toc h2{font-size:16px;margin-bottom:12px;color:var(--acc)}
+    .toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .toc a{display:block;color:var(--t2);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:6px;transition:all 0.2s}
+    .toc a:hover{background:var(--s2);color:var(--t1)}
+    .toc a .num{color:var(--acc);font-family:'JetBrains Mono',monospace;font-size:11px;margin-right:6px}
+
+    .chapter{margin:40px 0;scroll-margin-top:20px}
+    .ch-header{display:flex;align-items:center;gap:14px;padding:20px 24px;background:linear-gradient(135deg,rgba(88,166,255,0.08),var(--s1));border:1px solid var(--bd);border-radius:12px 12px 0 0}
+    .ch-num{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;padding:6px 12px;border-radius:8px;background:rgba(88,166,255,0.15);color:var(--acc)}
+    .ch-title{font-size:20px;font-weight:700}
+    .ch-body{background:var(--s1);border:1px solid var(--bd);border-top:none;border-radius:0 0 12px 12px;padding:24px}
+    .ch-body>p{font-size:14px;color:var(--t2);margin-bottom:14px}
+
+    .concept{background:var(--s2);border-radius:10px;padding:20px;margin:14px 0;border-left:4px solid var(--pur)}
+    .concept h3{font-size:15px;color:var(--pur);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+    .concept p,.concept li{font-size:13px;color:var(--t2)}
+    .concept ul{margin:8px 0 0 20px}
+    .concept li{margin:3px 0}
+
+    .step{background:var(--s2);border-radius:8px;padding:16px;margin:10px 0;border-left:3px solid var(--acc)}
+    .step-title{font-weight:600;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+    .step p,.step li{font-size:13px;color:var(--t2)}
+    .step ul,.step ol{margin:6px 0 0 20px}
+    .step li{margin:3px 0}
+    .step code{background:var(--bg);padding:1px 6px;border-radius:3px;font-size:12px;color:var(--acc)}
+
+    .code-block{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:16px;margin:10px 0;overflow-x:auto}
+    .code-block .label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--t2);margin-bottom:8px}
+    .code-block pre{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);white-space:pre-wrap;word-wrap:break-word}
+
+    .prompt-box{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:18px;margin:14px 0;position:relative}
+    .prompt-box::before{content:'💬 PROMPT';position:absolute;top:-10px;left:14px;background:var(--bg);padding:0 8px;font-size:10px;font-weight:700;color:var(--acc);letter-spacing:1px;border:1px solid var(--bd);border-radius:4px}
+    .prompt-box pre{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t2);white-space:pre-wrap;word-wrap:break-word;margin-top:4px}
+
+    .warn{background:rgba(210,153,34,0.1);border:1px solid rgba(210,153,34,0.3);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--org)}
+    .info{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--acc)}
+    .danger{background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.3);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--red)}
+    .success{background:rgba(63,185,80,0.1);border:1px solid rgba(63,185,80,0.3);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--grn)}
+
+    table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+    th{background:var(--s2);padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--t2);border-bottom:1px solid var(--bd)}
+    td{padding:8px 12px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top}
+
+    .tool-card{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:18px;margin:12px 0}
+    .tool-card h3{font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+    .tool-card .desc{font-size:13px;color:var(--t2);margin-bottom:8px}
+    .tool-card .meta{display:flex;gap:12px;flex-wrap:wrap}
+    .tool-card .tag{font-size:11px;padding:2px 8px;border-radius:4px;background:var(--bg);color:var(--t2)}
+    .tool-card .tag.free{color:var(--grn);border:1px solid rgba(63,185,80,0.3)}
+    .tool-card .tag.paid{color:var(--org);border:1px solid rgba(210,153,34,0.3)}
+
+    .flow-diagram{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:20px;margin:14px 0;text-align:center}
+    .flow-row{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+    .flow-box{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:8px 14px;font-size:12px}
+    .flow-arrow{color:var(--acc);font-size:16px}
+
+    .checklist-section{background:linear-gradient(135deg,rgba(88,166,255,0.08),var(--s1));border:1px solid var(--acc);border-radius:12px;padding:28px;margin:30px 0}
+    .checklist-section h2{color:var(--acc);margin-bottom:14px}
+
+    .footer{text-align:center;padding:40px;color:var(--t2);font-size:12px;border-top:1px solid var(--bd);margin-top:40px}
+
+    @media(max-width:640px){.hero h1{font-size:26px}.toc-grid{grid-template-columns:1fr}.flow-row{flex-direction:column}}
+  </style>
+</head>
+<body>
+<div class="ct">
+
+  <div class="hero">
+    <div class="badge">Tutorial Completo</div>
+    <h1>Segurança <span>Implementação & Monitoramento</span></h1>
+    <p>Do conceito à prática: como proteger, monitorar e manter aplicações Lovable + Supabase + Vercel em produção.</p>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <h2>📑 Índice</h2>
+    <div class="toc-grid">
+      <a href="#ch1"><span class="num">01</span> Conceitos Fundamentais — O que você precisa saber</a>
+      <a href="#ch2"><span class="num">02</span> SAST — Análise Estática (código parado)</a>
+      <a href="#ch3"><span class="num">03</span> DAST — Análise Dinâmica (app rodando)</a>
+      <a href="#ch4"><span class="num">04</span> Monitoramento de Erros em Produção</a>
+      <a href="#ch5"><span class="num">05</span> Logs de Auditoria — Quem fez o quê</a>
+      <a href="#ch6"><span class="num">06</span> Detecção de Invasão e Anomalias</a>
+      <a href="#ch7"><span class="num">07</span> Monitoramento de Uptime</a>
+      <a href="#ch8"><span class="num">08</span> Proteção contra Ataques (WAF/DDoS)</a>
+      <a href="#ch9"><span class="num">09</span> Manutenção e Interoperabilidade</a>
+      <a href="#ch10"><span class="num">10</span> Roteiro de Monitoramento Contínuo</a>
+      <a href="#ch11"><span class="num">11</span> Ferramentas que Você Não Pensou</a>
+      <a href="#ch12"><span class="num">12</span> Checklist Final — Tudo num Lugar</a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 1: CONCEPTS -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch1">
+    <div class="ch-header">
+      <span class="ch-num">01</span>
+      <span class="ch-title">Conceitos Fundamentais</span>
+    </div>
+    <div class="ch-body">
+      <p>Antes de configurar qualquer ferramenta, vamos entender os conceitos. Isso é essencial para saber <strong>por que</strong> cada ferramenta existe e <strong>quando</strong> usar cada uma.</p>
+
+      <div class="concept">
+        <h3>🔍 SAST — Static Application Security Testing</h3>
+        <p><strong>Analogia:</strong> Um revisor que lê o projeto arquitetônico de uma casa e aponta falhas ANTES de construir. Ele não precisa ver a casa pronta — analisa os desenhos.</p>
+        <p style="margin-top:8px"><strong>O que faz:</strong> Analisa o código-fonte sem executar a aplicação. Procura padrões perigosos como XSS, injection, secrets, etc.</p>
+        <p><strong>Quando roda:</strong> A cada push no GitHub (automático).</p>
+        <p><strong>Ferramenta:</strong> Semgrep + Scanner customizado Kerno.</p>
+      </div>
+
+      <div class="concept">
+        <h3>🌐 DAST — Dynamic Application Security Testing</h3>
+        <p><strong>Analogia:</strong> Um ladrão contratado que tenta invadir a casa DEPOIS de construída. Ele testa as portas, janelas, e tenta entrar de verdade.</p>
+        <p style="margin-top:8px"><strong>O que faz:</strong> Testa a aplicação rodando — tenta acessar URLs sem login, manipular dados, injetar código, etc.</p>
+        <p><strong>Quando roda:</strong> Manualmente antes do deploy e periodicamente.</p>
+        <p><strong>Ferramenta:</strong> Checklist manual + testes com DevTools do navegador.</p>
+      </div>
+
+      <div class="concept">
+        <h3>📊 Monitoramento de Erros</h3>
+        <p><strong>Analogia:</strong> Uma câmera de segurança dentro da casa que grava quando algo quebra. Se uma janela racha, você recebe um alerta no celular imediatamente.</p>
+        <p style="margin-top:8px"><strong>O que faz:</strong> Captura erros JavaScript em tempo real, mostrando exatamente o que aconteceu, onde, e com qual usuário.</p>
+        <p><strong>Quando roda:</strong> 24/7 enquanto a aplicação está no ar.</p>
+        <p><strong>Ferramenta:</strong> Sentry (plano gratuito).</p>
+      </div>
+
+      <div class="concept">
+        <h3>📝 Logs de Auditoria</h3>
+        <p><strong>Analogia:</strong> Um livro de registro na portaria do prédio. Anota quem entrou, quando, o que fez, e quando saiu. Se algo desaparecer, você sabe quem esteve lá.</p>
+        <p style="margin-top:8px"><strong>O que faz:</strong> Registra quem acessou o quê, quem alterou dados, quem tentou acessar algo não permitido.</p>
+        <p><strong>Quando roda:</strong> 24/7 — cada ação no banco é registrada.</p>
+        <p><strong>Ferramenta:</strong> Tabela de audit_log no Supabase + trigger automático.</p>
+      </div>
+
+      <div class="concept">
+        <h3>🛡️ WAF — Web Application Firewall</h3>
+        <p><strong>Analogia:</strong> Um segurança na porta do prédio que verifica a identidade de cada visitante. Se alguém parece suspeito (tentando invadir), é barrado antes de entrar.</p>
+        <p style="margin-top:8px"><strong>O que faz:</strong> Filtra requisições maliciosas (SQL injection, XSS, bots, DDoS) ANTES de chegarem à sua aplicação.</p>
+        <p><strong>Quando roda:</strong> 24/7 — fica entre o visitante e seu servidor.</p>
+        <p><strong>Ferramenta:</strong> Cloudflare (plano gratuito).</p>
+      </div>
+
+      <div class="concept">
+        <h3>⏱️ Monitoramento de Uptime</h3>
+        <p><strong>Analogia:</strong> Alguém que liga para sua casa a cada 5 minutos para ver se o telefone ainda funciona. Se não atender, você recebe um alerta.</p>
+        <p style="margin-top:8px"><strong>O que faz:</strong> Verifica periodicamente se sua aplicação está no ar e respondendo.</p>
+        <p><strong>Quando roda:</strong> A cada 1-5 minutos, 24/7.</p>
+        <p><strong>Ferramenta:</strong> UptimeRobot ou Better Stack (gratuitos).</p>
+      </div>
+
+      <!-- VISUAL: How they fit together -->
+      <div class="flow-diagram">
+        <p style="font-size:12px;color:var(--t2);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">Como tudo se encaixa</p>
+        <div class="flow-row">
+          <div class="flow-box" style="border-color:var(--pur)">👤 Usuário</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box" style="border-color:var(--org)">☁️ Cloudflare<br><small>WAF + CDN</small></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box" style="border-color:var(--grn)">▲ Vercel<br><small>Frontend</small></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box" style="border-color:var(--acc)">🗄️ Supabase<br><small>Backend + DB</small></div>
+        </div>
+        <div class="flow-row" style="margin-top:16px">
+          <div class="flow-box" style="border-color:var(--red)">🔍 Semgrep<br><small>SAST no código</small></div>
+          <div class="flow-box" style="border-color:var(--pnk)">📊 Sentry<br><small>Erros em prod</small></div>
+          <div class="flow-box" style="border-color:var(--org)">📝 Audit Logs<br><small>Quem fez o quê</small></div>
+          <div class="flow-box" style="border-color:var(--grn)">⏱️ Uptime<br><small>Está no ar?</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 2: SAST -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch2">
+    <div class="ch-header">
+      <span class="ch-num">02</span>
+      <span class="ch-title">SAST — Implementação Detalhada</span>
+    </div>
+    <div class="ch-body">
+      <p>Você já tem o arquivo <code>security-audit-v2.yml</code> do Kerno. Aqui vai o passo a passo detalhado para implementar.</p>
+
+      <div class="step">
+        <div class="step-title">📁 2.1 Criar o pipeline no GitHub</div>
+        <ol>
+          <li>Abra seu repositório no GitHub</li>
+          <li>Clique em <strong>Add file → Create new file</strong></li>
+          <li>No campo de nome, digite: <code>.github/workflows/security-audit.yml</code></li>
+          <li>Cole o conteúdo completo do arquivo <code>security-audit-v2.yml</code></li>
+          <li>Clique em <strong>Commit changes</strong></li>
+        </ol>
+        <div class="info">💡 O pipeline roda 3 ferramentas em paralelo: Semgrep (análise estática), npm audit (dependências) e o Scanner customizado do Kerno (Supabase, secrets, auth).</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📦 2.2 Configurar Dependabot</div>
+        <ol>
+          <li>No mesmo repositório, <strong>Add file → Create new file</strong></li>
+          <li>Nome: <code>.github/dependabot.yml</code></li>
+          <li>Cole:</li>
+        </ol>
+        <div class="code-block">
+          <pre>version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "security"
+      - "dependencies"</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔐 2.3 Ativar segurança nativa do GitHub</div>
+        <p>No repositório: <strong>Settings → Code security and analysis</strong></p>
+        <table>
+          <tr><th>Recurso</th><th>O que faz</th><th>Ação</th></tr>
+          <tr><td><strong>Secret scanning</strong></td><td>Detecta chaves de API, senhas e tokens commitados</td><td>✅ Ativar</td></tr>
+          <tr><td><strong>Push protection</strong></td><td>BLOQUEIA o push se contiver um secret</td><td>✅ Ativar</td></tr>
+          <tr><td><strong>Dependabot alerts</strong></td><td>Avisa quando uma dependência tem CVE</td><td>✅ Ativar</td></tr>
+          <tr><td><strong>Dependabot security updates</strong></td><td>Abre PRs automáticos para corrigir dependências</td><td>✅ Ativar</td></tr>
+        </table>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📊 2.4 Como ler os resultados</div>
+        <ol>
+          <li>Vá em <strong>Actions</strong> no repositório</li>
+          <li>Clique na execução mais recente</li>
+          <li>Veja o resumo (✅ ou ❌ para cada job)</li>
+          <li>Baixe os relatórios em <strong>Artifacts</strong>:
+            <ul>
+              <li><strong>semgrep-report</strong> — JSON e TXT com findings detalhados</li>
+              <li><strong>npm-audit-report</strong> — vulnerabilidades em dependências</li>
+              <li><strong>lovable-scanner-report</strong> — HTML visual do scanner Kerno</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔄 2.5 Rodar manualmente</div>
+        <p>Além de rodar a cada push, você pode rodar quando quiser:</p>
+        <ol>
+          <li>GitHub → Actions → "🔒 Lovable Security Audit" (menu lateral)</li>
+          <li>Clique em <strong>Run workflow → Run workflow</strong></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 3: DAST -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch3">
+    <div class="ch-header">
+      <span class="ch-num">03</span>
+      <span class="ch-title">DAST — Testes com a Aplicação Rodando</span>
+    </div>
+    <div class="ch-body">
+      <p>DAST testa a aplicação de verdade, como um atacante faria. Para seu cenário (sem equipe de pentest), vamos usar testes manuais estruturados que você pode fazer pelo navegador.</p>
+
+      <div class="step">
+        <div class="step-title">🌐 3.1 Teste de Acesso Não Autorizado</div>
+        <p><strong>Objetivo:</strong> Verificar se alguém sem login consegue acessar dados.</p>
+        <ol>
+          <li>Abra o navegador em <strong>modo anônimo</strong> (Ctrl+Shift+N)</li>
+          <li>Tente acessar URLs protegidas diretamente (ex: <code>/dashboard</code>, <code>/admin</code>, <code>/profile</code>)</li>
+          <li><strong>Esperado:</strong> Redirecionar para login em TODAS</li>
+          <li>Se qualquer página mostrar conteúdo sem login → <strong>FALHA CRÍTICA</strong></li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔄 3.2 Teste de IDOR (Acesso a dados de outro usuário)</div>
+        <p><strong>Objetivo:</strong> Verificar se um usuário consegue ver dados de outro.</p>
+        <ol>
+          <li>Faça login com Usuário A</li>
+          <li>Crie um registro (documento, perfil, etc.) — anote o ID na URL</li>
+          <li>Faça logout e login com Usuário B</li>
+          <li>Tente acessar o registro do Usuário A (mudando o ID na URL)</li>
+          <li><strong>Esperado:</strong> Erro 403 ou redirecionamento. NUNCA mostrar os dados.</li>
+        </ol>
+        <div class="danger">🚨 Se o Usuário B conseguir ver dados do Usuário A, suas RLS policies estão incorretas. Corrija imediatamente no Supabase.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">💉 3.3 Teste de XSS (Injeção de Script)</div>
+        <p><strong>Objetivo:</strong> Verificar se a aplicação executa código malicioso.</p>
+        <ol>
+          <li>Em CADA campo de texto do app (nome, descrição, comentário), digite:
+            <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>
+          <li>Salve e veja se aparece um popup de alerta</li>
+          <li>Teste também: <code>&lt;img src=x onerror=alert('XSS')&gt;</code></li>
+          <li><strong>Esperado:</strong> O texto deve aparecer como texto puro, NUNCA executar o script</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔎 3.4 Verificar Console e Network</div>
+        <p><strong>Objetivo:</strong> Verificar se dados sensíveis estão vazando.</p>
+        <ol>
+          <li>Abra DevTools (F12) → aba <strong>Console</strong></li>
+          <li>Navegue pela aplicação normalmente</li>
+          <li>Procure por: senhas, tokens, CPFs, dados de cartão no console</li>
+          <li>Vá para a aba <strong>Network</strong></li>
+          <li>Verifique as requisições — elas estão enviando dados desnecessários?</li>
+          <li>Verifique se TODAS as URLs são HTTPS (sem HTTP)</li>
+          <li><strong>Esperado:</strong> Console limpo, sem dados sensíveis. Só HTTPS.</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔐 3.5 Teste de Brute Force</div>
+        <p><strong>Objetivo:</strong> Verificar se o login aceita tentativas infinitas.</p>
+        <ol>
+          <li>Tente fazer login 10x com senha errada</li>
+          <li><strong>Esperado:</strong> Após 5-10 tentativas, o Supabase deve bloquear temporariamente</li>
+          <li>Verifique em: Supabase → Auth → Rate Limits</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📱 3.6 Teste de Responsividade</div>
+        <p>Abra DevTools → toggle device toolbar (Ctrl+Shift+M). Teste em: iPhone SE, iPhone 14, iPad, desktop.</p>
+      </div>
+
+      <div class="warn">⚠️ Faça esses testes ANTES de cada deploy para produção e sempre que adicionar uma nova feature que envolva dados de usuário.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 4: ERROR MONITORING -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch4">
+    <div class="ch-header">
+      <span class="ch-num">04</span>
+      <span class="ch-title">Monitoramento de Erros — Sentry</span>
+    </div>
+    <div class="ch-body">
+      <div class="tool-card">
+        <h3>📊 Sentry</h3>
+        <div class="desc">Plataforma de monitoramento que captura erros em tempo real, mostrando o stack trace, navegador, usuário e ações que levaram ao erro.</div>
+        <div class="meta">
+          <span class="tag free">Plano gratuito disponível</span>
+          <span class="tag">5K erros/mês no free</span>
+          <span class="tag">React/Vite suportado</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔧 4.1 Criar conta no Sentry</div>
+        <ol>
+          <li>Acesse <strong>sentry.io</strong> → Sign Up (use o GitHub para facilitar)</li>
+          <li>Crie uma organização (pode ser o nome da sua agência)</li>
+          <li>Crie um projeto: escolha <strong>React</strong> como plataforma</li>
+          <li>Copie o <strong>DSN</strong> (é uma URL tipo <code>https://<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="730b0b0b0b3300161d07010a5d1a1c">[email&#160;protected]</a>/yyyy</code>)</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📦 4.2 Instalar no projeto via Lovable</div>
+        <div class="prompt-box">
+          <pre>Instale o Sentry para monitoramento de erros em produção.
+
+1. Adicione a dependência @sentry/react
+2. Crie um arquivo src/lib/sentry.ts que inicializa o Sentry:
+   - Use import.meta.env.VITE_SENTRY_DSN para o DSN
+   - Habilite BrowserTracing e Replay
+   - Sample rate: 1.0 para errors, 0.1 para transactions
+   - Só ative em produção (import.meta.env.PROD)
+3. Importe e inicialize no main.tsx ANTES do React render
+4. Envolva o App com Sentry.ErrorBoundary para capturar erros de componentes
+5. NÃO envie dados sensíveis ao Sentry (filtre PII com beforeSend)
+
+Não altere nenhuma funcionalidade existente.</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔑 4.3 Configurar variável de ambiente</div>
+        <p>Na Vercel:</p>
+        <ol>
+          <li>Settings → Environment Variables</li>
+          <li>Adicione: <code>VITE_SENTRY_DSN</code> = [o DSN que copiou]</li>
+          <li>Ambiente: Production only</li>
+          <li>Redeploy para ativar</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔔 4.4 Configurar alertas</div>
+        <p>No painel do Sentry:</p>
+        <ol>
+          <li>Alerts → Create Alert Rule</li>
+          <li>Tipo: "When a new issue is created"</li>
+          <li>Ação: Send email to me</li>
+          <li>Crie outro alerta para: "When event frequency exceeds 10 in 1 hour" (pode indicar ataque)</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">✅ 4.5 Verificar que funciona</div>
+        <p>Após o deploy, force um erro no console do navegador (DevTools):</p>
+        <div class="code-block">
+          <pre>// Cole no console do navegador na sua aplicação em produção:
+throw new Error("Teste Sentry - pode apagar")</pre>
+        </div>
+        <p>Em 1-2 minutos, o erro deve aparecer no painel do Sentry.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 5: AUDIT LOGS -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch5">
+    <div class="ch-header">
+      <span class="ch-num">05</span>
+      <span class="ch-title">Logs de Auditoria — Quem Fez o Quê</span>
+    </div>
+    <div class="ch-body">
+      <p>Logs de auditoria registram CADA ação no seu banco de dados: quem criou, editou, ou deletou dados, e quando. Se alguém acessar indevidamente, você terá a prova.</p>
+
+      <div class="step">
+        <div class="step-title">🗄️ 5.1 Criar tabela de audit_log no Supabase</div>
+        <p>No painel do Supabase → SQL Editor, execute:</p>
+        <div class="code-block">
+          <div class="label">SQL — Criar tabela de auditoria</div>
+          <pre>-- Tabela que registra cada ação no banco
+CREATE TABLE IF NOT EXISTS audit_log (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  timestamp TIMESTAMPTZ DEFAULT now() NOT NULL,
+  user_id UUID REFERENCES auth.users(id),
+  action TEXT NOT NULL,        -- 'INSERT', 'UPDATE', 'DELETE'
+  table_name TEXT NOT NULL,    -- qual tabela foi afetada
+  record_id TEXT,              -- ID do registro afetado
+  old_data JSONB,              -- dados antes da mudança
+  new_data JSONB,              -- dados depois da mudança
+  ip_address TEXT              -- IP do usuário (quando disponível)
+);
+
+-- RLS: só admins podem VER os logs, ninguém pode editar/deletar
+ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Admins can view audit logs"
+  ON audit_log FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_roles
+      WHERE user_roles.user_id = auth.uid()
+      AND user_roles.role = 'admin'
+    )
+  );
+
+-- Ninguém pode deletar ou editar logs (nem admin)
+-- A ausência de policies para DELETE/UPDATE impede essas operações
+
+-- Index para buscas rápidas
+CREATE INDEX idx_audit_log_timestamp ON audit_log(timestamp DESC);
+CREATE INDEX idx_audit_log_user ON audit_log(user_id);
+CREATE INDEX idx_audit_log_table ON audit_log(table_name);</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">⚡ 5.2 Criar trigger automático</div>
+        <p>Este trigger registra automaticamente toda alteração nas tabelas que você escolher:</p>
+        <div class="code-block">
+          <div class="label">SQL — Função de auditoria genérica</div>
+          <pre>-- Função que registra mudanças automaticamente
+CREATE OR REPLACE FUNCTION log_audit()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO audit_log (
+    user_id,
+    action,
+    table_name,
+    record_id,
+    old_data,
+    new_data
+  ) VALUES (
+    auth.uid(),
+    TG_OP,
+    TG_TABLE_NAME,
+    COALESCE(NEW.id::text, OLD.id::text),
+    CASE WHEN TG_OP IN ('UPDATE','DELETE') THEN to_jsonb(OLD) ELSE NULL END,
+    CASE WHEN TG_OP IN ('INSERT','UPDATE') THEN to_jsonb(NEW) ELSE NULL END
+  );
+
+  IF TG_OP = 'DELETE' THEN
+    RETURN OLD;
+  ELSE
+    RETURN NEW;
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔗 5.3 Conectar às tabelas sensíveis</div>
+        <p>Para CADA tabela que contenha dados sensíveis, conecte o trigger:</p>
+        <div class="code-block">
+          <div class="label">SQL — Ativar auditoria nas tabelas</div>
+          <pre>-- Substitua 'sua_tabela' pelo nome real de cada tabela
+-- Repita para CADA tabela com dados sensíveis
+
+CREATE TRIGGER audit_sua_tabela
+  AFTER INSERT OR UPDATE OR DELETE ON sua_tabela
+  FOR EACH ROW EXECUTE FUNCTION log_audit();
+
+-- Exemplos comuns:
+-- CREATE TRIGGER audit_profiles
+--   AFTER INSERT OR UPDATE OR DELETE ON profiles
+--   FOR EACH ROW EXECUTE FUNCTION log_audit();
+
+-- CREATE TRIGGER audit_documents
+--   AFTER INSERT OR UPDATE OR DELETE ON documents
+--   FOR EACH ROW EXECUTE FUNCTION log_audit();
+
+-- CREATE TRIGGER audit_transactions
+--   AFTER INSERT OR UPDATE OR DELETE ON transactions
+--   FOR EACH ROW EXECUTE FUNCTION log_audit();</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">👀 5.4 Como consultar os logs</div>
+        <p>No SQL Editor do Supabase:</p>
+        <div class="code-block">
+          <div class="label">SQL — Consultas úteis</div>
+          <pre>-- Últimas 50 ações
+SELECT * FROM audit_log ORDER BY timestamp DESC LIMIT 50;
+
+-- Ações de um usuário específico
+SELECT * FROM audit_log
+WHERE user_id = 'UUID_DO_USUARIO'
+ORDER BY timestamp DESC;
+
+-- Todas as deleções (suspeito)
+SELECT * FROM audit_log
+WHERE action = 'DELETE'
+ORDER BY timestamp DESC;
+
+-- Ações nas últimas 24 horas
+SELECT * FROM audit_log
+WHERE timestamp > now() - interval '24 hours'
+ORDER BY timestamp DESC;
+
+-- Ações em uma tabela específica
+SELECT * FROM audit_log
+WHERE table_name = 'transactions'
+ORDER BY timestamp DESC;</pre>
+        </div>
+      </div>
+
+      <!-- 5.5 CRON JOB TUTORIAL -->
+      <div class="step">
+        <div class="step-title">⏰ 5.5 Limpeza automática de logs (Cron Job) — Tutorial completo</div>
+        <p>Os audit logs vão crescer indefinidamente. Sem limpeza, o banco fica lento e caro. Vamos configurar uma limpeza automática semanal.</p>
+      </div>
+
+      <div class="concept">
+        <h3>🤔 O que é um Cron Job?</h3>
+        <p><strong>Analogia:</strong> É como programar o despertador para tocar toda segunda-feira às 3h da manhã e fazer uma faxina automática na casa. Você configura uma vez, e ele repete sozinho para sempre.</p>
+        <p style="margin-top:8px"><strong>"Cron"</strong> vem do Unix — é um agendador de tarefas. A expressão <code>0 3 * * 1</code> significa "às 3:00, toda segunda-feira". Cada posição representa: minuto, hora, dia do mês, mês, dia da semana.</p>
+        <ul>
+          <li><code>0 3 * * 1</code> → Toda segunda às 3h</li>
+          <li><code>0 0 * * *</code> → Todo dia à meia-noite</li>
+          <li><code>0 12 1 * *</code> → Todo dia 1 ao meio-dia</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔧 5.5.1 Opção A — pg_cron no Supabase (recomendado)</div>
+        <p><code>pg_cron</code> é uma extensão do PostgreSQL que roda tarefas agendadas direto no banco. No Supabase, você ativa pelo painel.</p>
+        <p style="margin-top:8px"><strong>Passo a passo:</strong></p>
+        <ol>
+          <li>Abra <strong>Supabase → Database → Extensions</strong></li>
+          <li>Procure <strong>pg_cron</strong> e ative</li>
+          <li>Vá para <strong>SQL Editor</strong> e execute os comandos abaixo, UM de cada vez:</li>
+        </ol>
+
+        <div class="code-block">
+          <div class="label">SQL — Passo 1: Criar a função de limpeza</div>
+          <pre>-- Função que limpa logs antigos
+-- INSERT/UPDATE: mantém 90 dias
+-- DELETE: mantém 365 dias (mais sensível)
+CREATE OR REPLACE FUNCTION cleanup_audit_logs()
+RETURNS void AS $$
+DECLARE
+  removed_short INTEGER;
+  removed_long INTEGER;
+BEGIN
+  -- Contar antes de deletar (para registro)
+  SELECT count(*) INTO removed_short
+  FROM audit_log
+  WHERE action IN ('INSERT', 'UPDATE')
+  AND timestamp < now() - interval '90 days';
+
+  SELECT count(*) INTO removed_long
+  FROM audit_log
+  WHERE action = 'DELETE'
+  AND timestamp < now() - interval '365 days';
+
+  -- Deletar logs antigos
+  DELETE FROM audit_log
+  WHERE action IN ('INSERT', 'UPDATE')
+  AND timestamp < now() - interval '90 days';
+
+  DELETE FROM audit_log
+  WHERE action = 'DELETE'
+  AND timestamp < now() - interval '365 days';
+
+  -- Registrar a limpeza no próprio audit_log
+  INSERT INTO audit_log (user_id, action, table_name, record_id, new_data)
+  VALUES (
+    NULL,
+    'SYSTEM',
+    'audit_log',
+    'cleanup',
+    jsonb_build_object(
+      'insert_update_removed', removed_short,
+      'delete_removed', removed_long,
+      'executed_at', now()
+    )
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="label">SQL — Passo 2: Agendar o cron job</div>
+          <pre>-- Agendar limpeza toda segunda-feira às 3h UTC
+SELECT cron.schedule(
+  'cleanup-audit-logs',    -- nome do job
+  '0 3 * * 1',             -- toda segunda às 3h UTC
+  'SELECT cleanup_audit_logs()'
+);</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="label">SQL — Verificar que o cron foi criado</div>
+          <pre>-- Listar todos os cron jobs agendados
+SELECT * FROM cron.job;</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="label">SQL — Testar manualmente (opcional)</div>
+          <pre>-- Para testar se funciona, rode manualmente:
+SELECT cleanup_audit_logs();
+
+-- Depois verifique o registro da limpeza:
+SELECT * FROM audit_log
+WHERE action = 'SYSTEM'
+ORDER BY timestamp DESC
+LIMIT 5;</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="label">SQL — Comandos úteis para gerenciar cron jobs</div>
+          <pre>-- Ver todos os jobs
+SELECT * FROM cron.job;
+
+-- Ver histórico de execuções
+SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10;
+
+-- Pausar um job (sem deletar)
+SELECT cron.unschedule('cleanup-audit-logs');
+
+-- Re-agendar (mudar frequência)
+-- Primeiro desagende, depois agende de novo:
+SELECT cron.unschedule('cleanup-audit-logs');
+SELECT cron.schedule('cleanup-audit-logs', '0 3 * * 1', 'SELECT cleanup_audit_logs()');</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🌐 5.5.3 Opção B — Cron externo (se pg_cron não estiver disponível)</div>
+        <p>Se seu plano do Supabase não tem pg_cron, use um serviço externo gratuito:</p>
+        <ol>
+          <li>No Supabase, crie uma <strong>Edge Function</strong> (menu Functions) com o mesmo código de limpeza</li>
+          <li>Acesse <strong>cron-job.org</strong> → crie conta gratuita</li>
+          <li>Crie um novo cron job:
+            <ul>
+              <li>URL: a URL da sua Edge Function</li>
+              <li>Frequência: Semanal, segunda-feira, 03:00</li>
+              <li>Método: POST</li>
+              <li>Header: <code>Authorization: Bearer [sua_anon_key]</code></li>
+            </ul>
+          </li>
+        </ol>
+        <div class="warn">⚠️ A Opção A (pg_cron) é mais segura porque roda dentro do banco. A Opção B expõe a Edge Function externamente — proteja com verificação de API key.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">✅ 5.5.3 Verificar que está funcionando</div>
+        <p>Após uma semana, verifique:</p>
+        <div class="code-block">
+          <div class="label">SQL — Verificar execuções do cron</div>
+          <pre>-- Ver se o cron rodou e quantos logs removeu
+SELECT * FROM audit_log
+WHERE action = 'SYSTEM'
+AND table_name = 'audit_log'
+ORDER BY timestamp DESC;
+
+-- Se pg_cron, ver histórico de execuções
+SELECT * FROM cron.job_run_details
+WHERE jobid = (SELECT jobid FROM cron.job WHERE jobname = 'cleanup-audit-logs')
+ORDER BY start_time DESC
+LIMIT 5;</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 6: INTRUSION DETECTION -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch6">
+    <div class="ch-header">
+      <span class="ch-num">06</span>
+      <span class="ch-title">Detecção de Invasão e Anomalias</span>
+    </div>
+    <div class="ch-body">
+      <p>Como saber se alguém invadiu ou infectou sua aplicação? Vamos configurar sinais de alerta.</p>
+
+      <div class="step">
+        <div class="step-title">🚨 6.1 Sinais de que algo está errado</div>
+        <table>
+          <tr><th>Sinal</th><th>O que pode significar</th><th>Como detectar</th></tr>
+          <tr><td>Pico de erros no Sentry</td><td>Alguém tentando explorar vulnerabilidades</td><td>Alerta do Sentry (10+ erros/hora)</td></tr>
+          <tr><td>Logins de IPs desconhecidos</td><td>Conta comprometida</td><td>Audit logs + Supabase Auth logs</td></tr>
+          <tr><td>Muitas deleções no audit_log</td><td>Alguém apagando rastros ou dados</td><td>Query SQL periódica</td></tr>
+          <tr><td>Uso anormal do Supabase</td><td>Scraping ou extração de dados</td><td>Supabase Dashboard → Usage</td></tr>
+          <tr><td>Site fora do ar</td><td>DDoS ou problema de deploy</td><td>UptimeRobot alerta</td></tr>
+          <tr><td>Dependência com CVE nova</td><td>Supply chain attack</td><td>Dependabot alerta</td></tr>
+          <tr><td>Secret detectado no push</td><td>Chave exposta</td><td>GitHub Push Protection bloqueia</td></tr>
+        </table>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📊 6.2 Dashboard de segurança no Supabase</div>
+        <p>Crie uma view no Supabase que mostra anomalias:</p>
+        <div class="code-block">
+          <div class="label">SQL — View de anomalias</div>
+          <pre>-- Criar view para análise rápida
+CREATE OR REPLACE VIEW security_dashboard AS
+
+-- Ações nas últimas 24h por tipo
+SELECT
+  'ações_24h' as metric,
+  action as detail,
+  count(*) as value
+FROM audit_log
+WHERE timestamp > now() - interval '24 hours'
+GROUP BY action
+
+UNION ALL
+
+-- Usuários mais ativos nas últimas 24h
+SELECT
+  'usuarios_ativos_24h' as metric,
+  COALESCE(user_id::text, 'anônimo') as detail,
+  count(*) as value
+FROM audit_log
+WHERE timestamp > now() - interval '24 hours'
+GROUP BY user_id
+ORDER BY value DESC
+LIMIT 10;
+
+-- Consultar:
+-- SELECT * FROM security_dashboard;</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔔 6.3 Alertas automáticos por email (Edge Function)</div>
+        <p>Para receber alertas de ações suspeitas, crie uma Edge Function no Supabase:</p>
+        <div class="prompt-box">
+          <pre>Crie uma Supabase Edge Function chamada "security-alert"
+que é chamada por um database webhook quando:
+- Mais de 5 deleções acontecem em 1 hora na audit_log
+- Um usuário faz mais de 100 ações em 1 hora
+
+A função deve enviar um email de alerta para meu email
+usando o serviço de email configurado (Resend ou similar).
+
+Inclua no email: usuário, quantidade de ações, tabelas
+afetadas, e timestamp.</pre>
+        </div>
+        <div class="warn">⚠️ Essa é uma configuração avançada. Se não quiser implementar agora, a revisão manual semanal dos audit_logs já cobre o essencial.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔍 6.4 Checklist semanal de detecção</div>
+        <p>Toda semana, gaste 5 minutos verificando:</p>
+        <ol>
+          <li><strong>GitHub Actions</strong> — algum ❌ novo?</li>
+          <li><strong>Sentry</strong> — erros novos? Picos?</li>
+          <li><strong>Supabase → Auth → Users</strong> — algum usuário estranho?</li>
+          <li><strong>Supabase → SQL Editor</strong> → <code>SELECT * FROM audit_log WHERE action = 'DELETE' AND timestamp > now() - interval '7 days'</code></li>
+          <li><strong>GitHub → Security → Dependabot</strong> — alertas novos?</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 7: UPTIME -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch7">
+    <div class="ch-header">
+      <span class="ch-num">07</span>
+      <span class="ch-title">Monitoramento de Uptime</span>
+    </div>
+    <div class="ch-body">
+      <div class="tool-card">
+        <h3>⏱️ UptimeRobot</h3>
+        <div class="desc">Verifica se seu site está no ar a cada 5 minutos. Se cair, envia alerta por email (ou Slack/Telegram).</div>
+        <div class="meta">
+          <span class="tag free">Gratuito: 50 monitores</span>
+          <span class="tag">Verifica a cada 5 min</span>
+          <span class="tag">Alerta por email</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔧 7.1 Configurar UptimeRobot</div>
+        <ol>
+          <li>Acesse <strong>uptimerobot.com</strong> → Sign Up (gratuito)</li>
+          <li>Clique em <strong>Add New Monitor</strong></li>
+          <li>Tipo: <strong>HTTP(s)</strong></li>
+          <li>URL: a URL de produção da sua aplicação</li>
+          <li>Intervalo: <strong>5 minutos</strong></li>
+          <li>Alert Contact: seu email</li>
+          <li>Salve</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📊 7.2 O que monitorar</div>
+        <p>Crie 3 monitores por projeto:</p>
+        <table>
+          <tr><th>Monitor</th><th>URL</th><th>Tipo</th></tr>
+          <tr><td>Frontend</td><td><code>https://seuapp.vercel.app</code></td><td>HTTP(s) — espera status 200</td></tr>
+          <tr><td>API Supabase</td><td><code>https://seuproject.supabase.co/rest/v1/</code></td><td>HTTP(s) — espera status 200</td></tr>
+          <tr><td>Login page</td><td><code>https://seuapp.vercel.app/login</code></td><td>Keyword — espera "login" na página</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 8: WAF -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch8">
+    <div class="ch-header">
+      <span class="ch-num">08</span>
+      <span class="ch-title">Proteção contra Ataques — Cloudflare</span>
+    </div>
+    <div class="ch-body">
+      <div class="tool-card">
+        <h3>☁️ Cloudflare</h3>
+        <div class="desc">CDN + WAF + DDoS protection. Fica entre o usuário e seu servidor, filtrando tráfego malicioso.</div>
+        <div class="meta">
+          <span class="tag free">Plano gratuito: CDN + DDoS + SSL + WAF básico</span>
+          <span class="tag">~15 min para configurar</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔧 8.1 Configurar Cloudflare</div>
+        <p><strong>Pré-requisito:</strong> Ter um domínio customizado (não funciona com <code>.vercel.app</code>).</p>
+        <ol>
+          <li>Crie conta em <strong>cloudflare.com</strong> (Free plan)</li>
+          <li>Clique em <strong>Add a site</strong> → digite seu domínio</li>
+          <li>Escolha o plano <strong>Free</strong></li>
+          <li>O Cloudflare vai escanear seus DNS records</li>
+          <li>Adicione o CNAME para Vercel: <code>CNAME → cname.vercel-dns.com</code></li>
+          <li>No seu registrador de domínio, mude os nameservers para os do Cloudflare</li>
+          <li>Aguarde propagação (minutos a horas)</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔐 8.2 Configurações de segurança</div>
+        <table>
+          <tr><th>Configuração</th><th>Onde</th><th>Valor</th></tr>
+          <tr><td>SSL/TLS</td><td>SSL/TLS → Overview</td><td><strong>Full (strict)</strong></td></tr>
+          <tr><td>Always HTTPS</td><td>SSL/TLS → Edge Certificates</td><td><strong>ON</strong></td></tr>
+          <tr><td>HSTS</td><td>SSL/TLS → Edge Certificates</td><td><strong>Enable</strong> (max-age 6 meses)</td></tr>
+          <tr><td>Auto Minify</td><td>Speed → Optimization</td><td>JS + CSS + HTML</td></tr>
+          <tr><td>Bot Fight Mode</td><td>Security → Bots</td><td><strong>ON</strong></td></tr>
+          <tr><td>Security Level</td><td>Security → Settings</td><td><strong>Medium</strong></td></tr>
+          <tr><td>Browser Integrity Check</td><td>Security → Settings</td><td><strong>ON</strong></td></tr>
+          <tr><td>WAF Managed Rules</td><td>Security → WAF</td><td><strong>ON</strong> (OWASP Core Ruleset)</td></tr>
+        </table>
+      </div>
+
+      <div class="info">💡 O plano Free do Cloudflare já inclui: CDN global (seu app fica mais rápido), proteção DDoS ilimitada, SSL automático, WAF básico, e Bot Fight Mode. Tudo isso sem pagar nada.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 9: MAINTENANCE -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch9">
+    <div class="ch-header">
+      <span class="ch-num">09</span>
+      <span class="ch-title">Manutenção e Interoperabilidade</span>
+    </div>
+    <div class="ch-body">
+      <p>Ferramentas de segurança só funcionam se você mantê-las atualizadas. Aqui está o que precisa de manutenção.</p>
+
+      <div class="step">
+        <div class="step-title">🔄 9.1 Dependências — Atualização contínua</div>
+        <p>O Dependabot abre PRs automaticamente no GitHub. Seu trabalho:</p>
+        <ol>
+          <li>Toda segunda-feira, verifique se há PRs do Dependabot</li>
+          <li>Para atualizações de <strong>patch</strong> (1.2.3 → 1.2.4): aprove e merge</li>
+          <li>Para atualizações de <strong>minor</strong> (1.2.x → 1.3.x): teste antes no preview</li>
+          <li>Para atualizações de <strong>major</strong> (1.x → 2.x): pesquise breaking changes antes</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🔑 9.2 Rotação de chaves</div>
+        <p>A cada <strong>3 meses</strong>, rotacione as chaves do Supabase:</p>
+        <ol>
+          <li>Supabase → Settings → API → Regenerate anon key</li>
+          <li>Atualize na Vercel: Settings → Environment Variables</li>
+          <li>Atualize no Lovable (se necessário)</li>
+          <li>Redeploy</li>
+          <li>Teste que tudo funciona</li>
+        </ol>
+        <div class="warn">⚠️ A anon key antiga para de funcionar imediatamente. Faça isso em horário de baixo uso.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📦 9.3 Interoperabilidade entre ferramentas</div>
+        <p>Como todas as ferramentas conversam entre si:</p>
+        <table>
+          <tr><th>Ferramenta</th><th>Se comunica com</th><th>Como</th></tr>
+          <tr><td>GitHub Actions (Semgrep)</td><td>GitHub Security tab</td><td>Findings aparecem em Security → Code scanning</td></tr>
+          <tr><td>Dependabot</td><td>GitHub PRs</td><td>Abre PRs automáticos que rodam o pipeline SAST</td></tr>
+          <tr><td>Sentry</td><td>Vercel</td><td>Captura erros da aplicação deployada</td></tr>
+          <tr><td>Cloudflare</td><td>Vercel</td><td>Proxy reverso — tráfego passa pelo CF antes da Vercel</td></tr>
+          <tr><td>Supabase Audit Logs</td><td>Você (manual)</td><td>Consulta SQL periódica</td></tr>
+          <tr><td>UptimeRobot</td><td>Seu email</td><td>Alerta quando o site cai</td></tr>
+        </table>
+      </div>
+
+      <div class="step">
+        <div class="step-title">🗃️ 9.4 Backups</div>
+        <table>
+          <tr><th>O que</th><th>Como</th><th>Frequência</th></tr>
+          <tr><td>Código</td><td>GitHub (já versionado automaticamente)</td><td>A cada push</td></tr>
+          <tr><td>Banco de dados</td><td>Supabase Pro: Point-in-Time Recovery. Free: export manual</td><td>Diário (Pro) / Semanal (Free)</td></tr>
+          <tr><td>Variáveis de ambiente</td><td>Documente em local seguro (1Password, Bitwarden)</td><td>A cada mudança</td></tr>
+          <tr><td>Configurações</td><td>Documentado nos /docs do Kerno</td><td>Atualizado automaticamente</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 10: ONGOING ROUTINE -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch10">
+    <div class="ch-header">
+      <span class="ch-num">10</span>
+      <span class="ch-title">Roteiro de Monitoramento Contínuo</span>
+    </div>
+    <div class="ch-body">
+
+      <div class="step">
+        <div class="step-title">📅 Rotina Diária (2 minutos)</div>
+        <ul>
+          <li>Abrir email → verificar alertas do Sentry e UptimeRobot</li>
+          <li>Se houver alerta → investigar imediatamente</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📅 Rotina Semanal (10 minutos)</div>
+        <ul>
+          <li>GitHub → Actions → verificar ✅ ou ❌ nos scans</li>
+          <li>GitHub → Security → verificar alertas do Dependabot</li>
+          <li>GitHub → Pull Requests → merge PRs do Dependabot (patch/minor)</li>
+          <li>Sentry → verificar erros novos e tendências</li>
+          <li>Supabase → SQL Editor → query de deleções recentes:<br>
+          <code>SELECT * FROM audit_log WHERE action='DELETE' AND timestamp > now()-interval '7 days'</code></li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📅 Rotina Mensal (30 minutos)</div>
+        <ul>
+          <li>Rodar pipeline SAST manualmente (GitHub → Actions → Run workflow)</li>
+          <li>Baixar e revisar relatório completo</li>
+          <li>Supabase → Table Editor → verificar RLS em TODAS as tabelas</li>
+          <li>Supabase → Auth → verificar usuários (algum suspeito?)</li>
+          <li>Cloudflare → Analytics → verificar tráfego bloqueado</li>
+          <li>Cloudflare → Security → WAF → verificar eventos</li>
+          <li>Atualizar /docs/SECURITY_REPORT.md</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <div class="step-title">📅 Rotina Trimestral (1 hora)</div>
+        <ul>
+          <li>Rotacionar chaves do Supabase</li>
+          <li>Revisar TODAS as RLS policies em detalhe</li>
+          <li>Executar testes DAST completos (Capítulo 03)</li>
+          <li>Revisar dependências — alguma deprecated?</li>
+          <li>Verificar se há atualizações nas regras do Semgrep</li>
+          <li>Atualizar SECURITY_RULES.md se necessário</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 11: TOOLS YOU DIDN'T THINK OF -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch11">
+    <div class="ch-header">
+      <span class="ch-num">11</span>
+      <span class="ch-title">Ferramentas que Você Não Pensou</span>
+    </div>
+    <div class="ch-body">
+      <p>Além de segurança pura, há aspectos que muita gente esquece e que impactam diretamente a saúde do projeto.</p>
+
+      <div class="tool-card">
+        <h3>🔐 Bitwarden / 1Password</h3>
+        <div class="desc"><strong>Gerenciador de senhas para equipe.</strong> Se você tem clientes e projetos múltiplos, precisa guardar chaves de API, credenciais do Supabase, tokens de serviços — tudo em um lugar seguro, não em arquivos de texto ou WhatsApp.</div>
+        <div class="meta">
+          <span class="tag free">Bitwarden: gratuito para uso pessoal</span>
+          <span class="tag">Compartilhamento seguro de credenciais</span>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h3>📋 Plausible / Umami Analytics</h3>
+        <div class="desc"><strong>Analytics sem cookies e GDPR-compliant.</strong> Substitui o Google Analytics. Não rastreia dados pessoais, é leve, e você consegue ver o tráfego real. Útil para detectar picos anormais (possível ataque).</div>
+        <div class="meta">
+          <span class="tag free">Umami: self-hosted gratuito</span>
+          <span class="tag">Plausible: ~$9/mês</span>
+          <span class="tag">GDPR compliant</span>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h3>📧 Resend + React Email</h3>
+        <div class="desc"><strong>Emails transacionais seguros.</strong> Confirmação de email, reset de senha, notificações — com domínio customizado e DKIM/SPF configurados para evitar que caiam no spam ou sejam falsificados.</div>
+        <div class="meta">
+          <span class="tag free">Resend: 3K emails/mês grátis</span>
+          <span class="tag">DKIM + SPF = anti-phishing</span>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h3>🗂️ Supabase Vault (criptografia)</h3>
+        <div class="desc"><strong>Criptografia de dados sensíveis no banco.</strong> Se você armazena CPF, dados de saúde ou financeiros, o Vault do Supabase permite criptografar colunas específicas. Mesmo que alguém acesse o banco, os dados ficam ilegíveis.</div>
+        <div class="meta">
+          <span class="tag">Supabase nativo</span>
+          <span class="tag">Ideal para dados de saúde/financeiros</span>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h3>🧪 Checkly / Playwright</h3>
+        <div class="desc"><strong>Testes end-to-end automatizados.</strong> Simula um usuário real navegando no app: faz login, clica em botões, preenche formulários. Se algo quebrar, você sabe antes do usuário.</div>
+        <div class="meta">
+          <span class="tag free">Checkly: 50 checks grátis</span>
+          <span class="tag">Playwright: open-source</span>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h3>📜 Termos de Uso e Política de Privacidade</h3>
+        <div class="desc"><strong>Aspecto legal que muita gente esquece.</strong> Se sua aplicação coleta dados pessoais (e se usa Supabase Auth, ela coleta), você PRECISA de: Termos de Uso, Política de Privacidade, e em alguns casos Cookie Banner. Não é paranoia — é LGPD (no Brasil) e GDPR (na Europa).</div>
+        <div class="meta">
+          <span class="tag">Obrigatório por lei (LGPD)</span>
+          <span class="tag">Pode gerar com IA e revisar com advogado</span>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h3>🔄 Supabase Branching</h3>
+        <div class="desc"><strong>Ambientes separados para dev/staging/produção.</strong> Evita que testes em desenvolvimento afetem dados reais. O Lovable trabalha com uma instância — para produção, considere ter ambiente separado.</div>
+        <div class="meta">
+          <span class="tag paid">Supabase Pro</span>
+          <span class="tag">Alternativa: criar um segundo projeto gratuito para dev</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CHAPTER 12: FINAL CHECKLIST -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="chapter" id="ch12">
+    <div class="ch-header">
+      <span class="ch-num">12</span>
+      <span class="ch-title">Checklist Final — Tudo num Lugar</span>
+    </div>
+    <div class="ch-body">
+
+      <div class="checklist-section">
+        <h2>🔒 Segurança do Código (SAST)</h2>
+        <table>
+          <tr><th>Item</th><th>Ferramenta</th><th>Custo</th><th>⬜</th></tr>
+          <tr><td>Pipeline SAST no GitHub Actions</td><td>Semgrep + npm audit + Scanner Kerno</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Dependabot configurado</td><td>GitHub Dependabot</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Secret scanning ativo</td><td>GitHub nativo</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Push protection ativo</td><td>GitHub nativo</td><td>Grátis</td><td>⬜</td></tr>
+        </table>
+      </div>
+
+      <div class="checklist-section" style="border-color:var(--org)">
+        <h2 style="color:var(--org)">🌐 Segurança Dinâmica (DAST)</h2>
+        <table>
+          <tr><th>Item</th><th>Ferramenta</th><th>Custo</th><th>⬜</th></tr>
+          <tr><td>Teste de acesso não autorizado</td><td>Manual (navegador anônimo)</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Teste de IDOR</td><td>Manual (2 contas)</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Teste de XSS</td><td>Manual (campos de texto)</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Verificação Console/Network</td><td>DevTools do navegador</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Teste de brute force</td><td>Manual + Supabase Rate Limits</td><td>Grátis</td><td>⬜</td></tr>
+        </table>
+      </div>
+
+      <div class="checklist-section" style="border-color:var(--grn)">
+        <h2 style="color:var(--grn)">📊 Monitoramento em Produção</h2>
+        <table>
+          <tr><th>Item</th><th>Ferramenta</th><th>Custo</th><th>⬜</th></tr>
+          <tr><td>Monitoramento de erros</td><td>Sentry</td><td>Grátis (5K erros/mês)</td><td>⬜</td></tr>
+          <tr><td>Logs de auditoria</td><td>Supabase audit_log (tabela + triggers)</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Monitoramento de uptime</td><td>UptimeRobot</td><td>Grátis (50 monitores)</td><td>⬜</td></tr>
+          <tr><td>WAF + DDoS protection</td><td>Cloudflare</td><td>Grátis (plano Free)</td><td>⬜</td></tr>
+          <tr><td>Analytics privado</td><td>Umami (self-hosted) ou Plausible</td><td>Grátis / $9/mês</td><td>⬜</td></tr>
+        </table>
+      </div>
+
+      <div class="checklist-section" style="border-color:var(--pur)">
+        <h2 style="color:var(--pur)">🔐 Infraestrutura</h2>
+        <table>
+          <tr><th>Item</th><th>Onde</th><th>Custo</th><th>⬜</th></tr>
+          <tr><td>Headers de segurança (vercel.json)</td><td>Repositório GitHub</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>HTTPS forçado</td><td>Vercel + Cloudflare</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>RLS em TODAS as tabelas</td><td>Supabase</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Auth → Email confirmation</td><td>Supabase</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Auth → Rate limiting</td><td>Supabase</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Gerenciador de senhas</td><td>Bitwarden</td><td>Grátis</td><td>⬜</td></tr>
+          <tr><td>Política de Privacidade + Termos</td><td>Página no app</td><td>Grátis (gerar com IA)</td><td>⬜</td></tr>
+        </table>
+      </div>
+
+      <div class="checklist-section" style="border-color:var(--pnk)">
+        <h2 style="color:var(--pnk)">📅 Manutenção</h2>
+        <table>
+          <tr><th>Frequência</th><th>O que</th><th>Tempo</th><th>⬜</th></tr>
+          <tr><td>Diário</td><td>Checar alertas (email)</td><td>2 min</td><td>⬜</td></tr>
+          <tr><td>Semanal</td><td>GitHub Actions + Dependabot + Sentry + audit_log</td><td>10 min</td><td>⬜</td></tr>
+          <tr><td>Mensal</td><td>Scan completo + verificar RLS + Cloudflare analytics</td><td>30 min</td><td>⬜</td></tr>
+          <tr><td>Trimestral</td><td>Rotacionar chaves + DAST completo + revisar policies</td><td>1 hora</td><td>⬜</td></tr>
+        </table>
+      </div>
+
+      <div class="success" style="margin-top:20px">
+        <strong>💰 Custo total: R$ 0</strong> — Todas as ferramentas essenciais têm plano gratuito suficiente para projetos em fase inicial e médio porte. A única que pode eventualmente custar é o Plausible Analytics ($9/mês), mas o Umami self-hosted é gratuito.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Kerno BMAD v5.5.3 — Security Implementation & Monitoring Tutorial<br>
+    Referências: OWASP Top 10 · Supabase Docs · Sentry Docs · Cloudflare Docs · Aw
