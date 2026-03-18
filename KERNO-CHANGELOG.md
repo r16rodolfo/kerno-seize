@@ -4,6 +4,15 @@
 
 ---
 
+## [6.1.3] — 2026-03-18
+
+### Corrigido
+- `KERNO-RETROFIT.html` — Fase 1, passos 1.3 e 1.5: removido conteúdo específico do projeto hexapago-2.0 que havia sido incluído por engano, tornando o guia genérico para qualquer projeto:
+  - **1.3**: removidos nomes de pacotes npm específicos (`flatted, glob, minimatch, ajv...`) da linha de npm audit; adicionada linha "Outros" para cobrir casos não listados; linguagem reescrita para não assumir contexto de projeto específico
+  - **1.5**: tabela de "resultado esperado" hardcoded (com "Semgrep ✅ Zero findings" e ".env no histórico Git" específicos do hexapago) substituída por tabela genérica com 4 tipos de alerta e o que esperar de cada um; critério de sucesso redefinido: "não é o pipeline virar 100% verde, é que 🅰️ estejam resolvidos e 🅱️ mitigados"
+
+---
+
 ## [6.1.2] — 2026-03-18
 
 ### Modificado

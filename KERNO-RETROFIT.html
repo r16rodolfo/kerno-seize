@@ -123,7 +123,7 @@
 <div class="container">
 
   <div class="hero">
-    <div class="badge">Projetos Existentes · Kerno Seize v6.1.2</div>
+    <div class="badge">Projetos Existentes · Kerno Seize v6.1.3</div>
     <h1>Kerno <span>Retrofit</span></h1>
     <p>Processo passo a passo para adotar o framework Kerno Seize em projetos Lovable que já existem — sem quebrar o que funciona.</p>
   </div>
@@ -518,13 +518,15 @@ Confirme com: "✅ falsos-positivos.md atualizado com [N] novo(s) item(ns)"</pre
       <div class="step">
         <div class="step-title">🔧 1.3 Executar ações manuais (Categoria 🅱️)</div>
         <p>Antes de usar o Lovable, resolva os itens que ele <strong>não consegue corrigir</strong>. São ações rápidas fora do Lovable:</p>
+        <p style="font-size: 13px; color: var(--text2);">O diagnóstico do 1.2 vai indicar exatamente o que fazer em cada caso. As situações mais comuns são:</p>
         <table>
-          <tr><th>Problema</th><th>O que fazer</th></tr>
-          <tr><td><strong>Chave exposta no histórico Git</strong><br><small>(service_role, .env no histórico)</small></td><td>Supabase Dashboard → Settings → API → regenerar chave <code>anon</code> e <code>service_role</code>. O histórico Git fica, mas a chave vira inválida.</td></tr>
-          <tr><td><strong>npm audit — dependências vulneráveis</strong><br><small>(flatted, glob, minimatch, ajv...)</small></td><td>Se são <em>dev dependencies</em> (ferramentas de build/teste), rode <code>npm audit fix</code> no terminal local. Não afetam produção.</td></tr>
-          <tr><td><strong>RLS não verificado</strong></td><td>Supabase Dashboard → Table Editor → selecione cada tabela → aba Policies → confirme que RLS está ativo.</td></tr>
+          <tr><th>Tipo de problema (🅱️)</th><th>O que fazer</th></tr>
+          <tr><td><strong>Chave exposta no histórico Git</strong><br><small>(tokens, senhas, service_role, .env)</small></td><td>Acesse o painel do serviço (ex: Supabase → Settings → API) e regenere as chaves expostas. O histórico Git fica, mas a chave vira inválida — o risco é eliminado.</td></tr>
+          <tr><td><strong>Dependências vulneráveis (npm audit)</strong><br><small>Pacotes de build/teste com vulnerabilidades</small></td><td>Se o diagnóstico classificou como dev dependency, rode <code>npm audit fix</code> no terminal. Se não tiver terminal, pergunte ao Claude/GPT como resolver o pacote específico.</td></tr>
+          <tr><td><strong>RLS ausente ou não verificado</strong></td><td>Supabase Dashboard → Table Editor → selecione cada tabela → aba Policies → confirme que RLS está ativo e há pelo menos uma policy.</td></tr>
+          <tr><td><strong>Outros (variáveis de ambiente, configurações)</strong></td><td>Siga a instrução exata que o diagnóstico gerou para esse item — cada caso terá o passo-a-passo específico.</td></tr>
         </table>
-        <div class="info">💡 <strong>Como saber se é dev dependency?</strong> Veja se o pacote está em <code>devDependencies</code> no <code>package.json</code>, ou se o npm audit diz que é usado por ferramentas como eslint, vitest, typescript. Se sim, não afeta usuários em produção.</div>
+        <div class="info">💡 <strong>Como saber se é dev dependency?</strong> Veja se o pacote está em <code>devDependencies</code> no <code>package.json</code>, ou se o diagnóstico indicou que é usado por ferramentas como eslint, vitest, typescript. Se sim, não afeta usuários em produção.</div>
       </div>
 
       <div class="step">
@@ -547,16 +549,17 @@ Confirme com: "✅ falsos-positivos.md atualizado com [N] novo(s) item(ns)"</pre
         <div class="step-title">✅ 1.5 Validar e fechar o ciclo</div>
         <div class="warn" style="margin-bottom: 12px;">📌 <strong>Fixe a versão:</strong> "Pós-auditoria segurança — [DATA]"</div>
 
-        <p>Rode o pipeline novamente (GitHub → Actions → "Lovable Security Audit" → Run workflow). O resultado esperado após as correções:</p>
+        <p>Rode o pipeline novamente (GitHub → Actions → "Lovable Security Audit" → Run workflow). O resultado vai variar por projeto, mas há um padrão importante para entender:</p>
         <table>
-          <tr><th>Ferramenta</th><th>O que vai continuar aparecendo</th><th>Por quê é normal</th></tr>
-          <tr><td>Scanner Lovable</td><td>".env no histórico Git" ainda ❌</td><td>Histórico Git não é apagado — mas a chave foi rotacionada e está inválida</td></tr>
-          <tr><td>npm audit</td><td>Algumas vulnerabilidades de dev</td><td>Pacotes exclusivos de build não afetam produção</td></tr>
-          <tr><td>Semgrep</td><td>✅ Zero findings</td><td>Código limpo</td></tr>
+          <tr><th>Tipo de alerta</th><th>O que esperar após as correções</th><th>Por quê</th></tr>
+          <tr><td><strong>Código corrigido (🅰️)</strong></td><td>Deve sumir do relatório</td><td>O Lovable corrigiu o código — Semgrep e o Scanner não devem mais encontrar</td></tr>
+          <tr><td><strong>Histórico Git (🅱️ rotação de chaves)</strong></td><td>Continuará aparecendo ❌</td><td>O histórico Git não é apagado — mas a chave está inválida, o risco foi eliminado</td></tr>
+          <tr><td><strong>Dev dependencies (🅱️ npm audit fix)</strong></td><td>Pode continuar aparecendo</td><td>Nem sempre o <code>npm audit fix</code> consegue resolver tudo — pacotes sem patch disponível ficam</td></tr>
+          <tr><td><strong>Falsos positivos (🅾️)</strong></td><td>Continuarão aparecendo</td><td>O scanner não sabe que são intencionais — estão documentados no <code>falsos-positivos.md</code></td></tr>
         </table>
 
-        <p style="margin-top: 12px;">O pipeline vai continuar marcando ❌ por causa do histórico Git — isso é <strong>esperado e aceitável</strong> após rotacionar as chaves. O que importa é que os problemas reais do código (Categoria 🅰️) estejam resolvidos.</p>
-        <div class="info">💡 Se quiser um ✅ verde completo no pipeline, é possível limpar o histórico Git com BFG Repo Cleaner — mas é uma operação avançada e só vale se o projeto ainda não foi amplamente clonado.</div>
+        <p style="margin-top: 12px;"><strong>O critério de sucesso não é o pipeline virar 100% verde</strong> — é que todos os itens 🅰️ estejam resolvidos e os itens 🅱️ estejam mitigados (chaves rotacionadas). O ❌ persistente do histórico Git é esperado e aceitável.</p>
+        <div class="info">💡 Se quiser eliminar o ❌ do histórico Git permanentemente, é possível reescrever o histórico com ferramentas como BFG Repo Cleaner — mas é uma operação avançada e irreversível. Só vale se o projeto ainda não foi amplamente clonado ou compartilhado.</div>
       </div>
     </div>
   </div>
@@ -973,7 +976,7 @@ Use EXATAMENTE os formatos definidos no KERNO-DOCS.md.</pre>
   </div>
 
   <div class="footer">
-    Kerno Seize v6.1.2 — Retrofit &amp; Migration Guide<br>
+    Kerno Seize v6.1.3 — Retrofit &amp; Migration Guide<br>
     Referências: docs.lovable.dev · OWASP Top 10 · Supabase Security Docs · BMAD Method v6
   </div>
 
