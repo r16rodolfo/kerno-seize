@@ -4,6 +4,13 @@
 
 ---
 
+## [6.1.1] — 2026-03-18
+
+### Corrigido
+- `KERNO-RETROFIT.html` — Fase 1, passo 1.2: nome do arquivo de diagnóstico alterado de `diagnostico-seguranca.md` para `diagnostico-seguranca-DDMMAA-vX.md` (ex: `diagnostico-seguranca-180326-v1.md`). Evita sobrescrever relatórios anteriores quando o usuário roda a auditoria múltiplas vezes. Alterações feitas em: título do passo, prompt de instrução ao Claude/GPT, instruções pós-resposta, prompt do Lovable para salvar o arquivo, referência no passo 1.4 e checklist.
+
+---
+
 ## [6.1.0] — 2026-03-18
 
 ### Modificado
