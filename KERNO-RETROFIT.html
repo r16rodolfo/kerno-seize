@@ -123,7 +123,7 @@
 <div class="container">
 
   <div class="hero">
-    <div class="badge">Projetos Existentes · Kerno Seize v6.0.5</div>
+    <div class="badge">Projetos Existentes · Kerno Seize v6.1.0</div>
     <h1>Kerno <span>Retrofit</span></h1>
     <p>Processo passo a passo para adotar o framework Kerno Seize em projetos Lovable que já existem — sem quebrar o que funciona.</p>
   </div>
@@ -403,96 +403,115 @@ Confirme com: "✅ raio-x.md criado em /docs/retrofit/"</pre>
       </div>
 
       <div class="step">
-        <div class="step-title">🗄️ 1.2 Diagnóstico com Claude/GPT → gerar diagnostico-seguranca.md</div>
-        <p>Abra o <strong>Claude</strong> (claude.ai) ou <strong>ChatGPT</strong>. <strong>Anexe os 3 arquivos</strong> baixados no passo anterior e envie o prompt abaixo. O modelo vai analisar os relatórios e gerar o arquivo <code>diagnostico-seguranca.md</code> pronto para baixar.</p>
-
-        <p style="font-size: 13px; color: var(--text2); margin: 8px 0 4px;"><strong>Como anexar:</strong> No campo de mensagem → clique no ícone 📎 → selecione os 3 arquivos de uma vez: <code>semgrep-results.txt</code>, <code>npm-audit-results.txt</code>, <code>relatorio-seguranca.html</code> → depois cole o prompt abaixo e envie.</p>
+        <div class="step-title">🗄️ 1.2 Triagem com Claude/GPT → diagnostico-seguranca.md</div>
+        <p>Abra o <strong>Claude</strong> (claude.ai) ou <strong>ChatGPT</strong>. Anexe os 3 arquivos pelo ícone 📎 (<code>semgrep-results.txt</code>, <code>npm-audit-results.txt</code>, <code>relatorio-seguranca.html</code>) e envie o prompt abaixo.</p>
+        <p style="margin-top: 8px; font-size: 13px; color: var(--text2);">O modelo vai <strong>triar</strong> cada problema em 3 categorias — isso é o que quebra o ciclo de ficar rodando em círculo:</p>
+        <table style="margin: 8px 0;">
+          <tr><th>Categoria</th><th>O que é</th><th>O que fazer</th></tr>
+          <tr><td><strong>🅰️ Lovable resolve</strong></td><td>Problema no código que o Lovable pode corrigir diretamente</td><td>Prompt pronto para colar no Lovable</td></tr>
+          <tr><td><strong>🅱️ Ação manual</strong></td><td>Histórico Git, dependências de build, chaves expostas — o Lovable <em>não consegue</em> resolver</td><td>Instrução específica fora do Lovable</td></tr>
+          <tr><td><strong>🅾️ Ignorar</strong></td><td>Falso positivo — biblioteca de terceiros, página pública intencional, etc.</td><td>Justificativa documentada</td></tr>
+        </table>
 
         <p style="font-size: 13px; color: var(--text2); margin: 12px 0 4px;"><strong>Prompt:</strong></p>
         <div class="prompt-box">
-          <pre>Analise os 3 arquivos de auditoria de segurança anexados.
+          <pre>Analise os 3 arquivos de auditoria de segurança anexados e gere um diagnóstico estruturado em 3 categorias.
 
-Para cada problema encontrado, classifique como:
-🔴 URGENTE — risco direto de segurança (secrets, RLS ausente, injeção)
-🟠 IMPORTANTE — vulnerabilidade em dependência com CVE alta
-🟡 RECOMENDADO — configuração subótima ou risco baixo
+Para cada problema encontrado, classifique em:
 
-Gere um prompt de correção para cada problema, nesta ordem (urgentes primeiro):
+🅰️ LOVABLE RESOLVE — problema no código-fonte que o Lovable pode corrigir
+   (ex: dangerouslySetInnerHTML sem sanitização, query com interpolação insegura,
+   .gitignore incompleto, formulário sem validação Zod)
+
+🅱️ AÇÃO MANUAL — o Lovable NÃO consegue resolver
+   (ex: chave exposta no histórico Git → rotacionar no painel do Supabase;
+   vulnerabilidade em dependência de dev → npm audit fix no terminal;
+   .env no histórico git → rotacionar todas as chaves)
+
+🅾️ IGNORAR — falso positivo confirmado
+   (ex: dangerouslySetInnerHTML em biblioteca de terceiros como recharts/chart.tsx;
+   páginas sem auth que são intencionalmente públicas como payment links e docs;
+   npm audit em pacote exclusivo de dev/test sem impacto em produção)
 
 ---
-CORREÇÃO [N] de [TOTAL] — [🔴/🟠/🟡] [Nome do problema]
-Risco: [o que acontece se não corrigir, em 1 frase simples]
 
-[Instrução específica do que o Lovable deve fazer para corrigir]
+Para cada item da categoria 🅰️, gere um prompt pronto para colar no Lovable:
+
+CORREÇÃO [N] — 🅰️ [🔴/🟠/🟡] [Nome do problema]
+Risco: [consequência em 1 frase]
+
+[Instrução específica para o Lovable corrigir]
 
 Regras:
 - Corrija APENAS este problema
 - NÃO altere nenhuma funcionalidade existente
 - Atualize /docs/changelog.md com a correção
-- Confirme com: "✅ Corrigido: [nome]. Teste: [o que o usuário deve verificar]"
+- Confirme com: "✅ Corrigido: [nome]. Teste: [o que verificar]"
+
 ---
 
-Formate toda a saída como um arquivo Markdown com:
-- Cabeçalho: "# Diagnóstico de Segurança — [DATA]"
-- Resumo: quantos problemas por gravidade
-- Todos os prompts de correção na ordem acima
+Para cada item 🅱️, escreva a instrução manual exata (onde clicar, qual comando rodar).
+Para cada item 🅾️, escreva a justificativa em 1 linha.
 
-Salve o resultado como diagnostico-seguranca.md.</pre>
+Formate tudo como Markdown com:
+# Diagnóstico de Segurança — [DATA]
+## Resumo (contagem por categoria)
+## 🅰️ Lovable resolve (prompts prontos)
+## 🅱️ Ações manuais (fora do Lovable)
+## 🅾️ Ignorar (falsos positivos)
+
+Salve como diagnostico-seguranca.md.</pre>
         </div>
 
-        <p style="margin-top: 12px; font-size: 13px; color: var(--text2);"><strong>Após receber a resposta:</strong> Baixe ou salve o arquivo <code>diagnostico-seguranca.md</code> gerado. Depois, no <strong>Lovable</strong>, anexe esse arquivo e envie o prompt abaixo para adicioná-lo ao projeto:</p>
+        <p style="margin-top: 12px; font-size: 13px; color: var(--text2);"><strong>Após receber a resposta:</strong> Baixe o <code>diagnostico-seguranca.md</code> gerado. No Lovable, anexe o arquivo e envie:</p>
         <div class="prompt-box">
           <pre>Salve o arquivo anexado em /docs/retrofit/diagnostico-seguranca.md sem alterar nenhum outro arquivo.
 Confirme com: "✅ diagnostico-seguranca.md salvo em /docs/retrofit/"</pre>
         </div>
-
-        <div class="info">
-          💡 <strong>O que você vai ter ao final:</strong> O arquivo <code>diagnostico-seguranca.md</code> salvo no projeto com todos os prompts de correção prontos, ordenados por gravidade, para usar no próximo passo.
-        </div>
       </div>
 
       <div class="step">
-        <div class="step-title">🔧 1.3 Aplicar correções (uma por vez)</div>
-        <div class="danger" style="margin-bottom: 12px;">🚨 <strong>📌 Fixe a versão ANTES de cada correção.</strong> Se a correção quebrar algo, volte para a versão fixada.</div>
+        <div class="step-title">🔧 1.3 Executar ações manuais (Categoria 🅱️)</div>
+        <p>Antes de usar o Lovable, resolva os itens que ele <strong>não consegue corrigir</strong>. São ações rápidas fora do Lovable:</p>
+        <table>
+          <tr><th>Problema</th><th>O que fazer</th></tr>
+          <tr><td><strong>Chave exposta no histórico Git</strong><br><small>(service_role, .env no histórico)</small></td><td>Supabase Dashboard → Settings → API → regenerar chave <code>anon</code> e <code>service_role</code>. O histórico Git fica, mas a chave vira inválida.</td></tr>
+          <tr><td><strong>npm audit — dependências vulneráveis</strong><br><small>(flatted, glob, minimatch, ajv...)</small></td><td>Se são <em>dev dependencies</em> (ferramentas de build/teste), rode <code>npm audit fix</code> no terminal local. Não afetam produção.</td></tr>
+          <tr><td><strong>RLS não verificado</strong></td><td>Supabase Dashboard → Table Editor → selecione cada tabela → aba Policies → confirme que RLS está ativo.</td></tr>
+        </table>
+        <div class="info">💡 <strong>Como saber se é dev dependency?</strong> Veja se o pacote está em <code>devDependencies</code> no <code>package.json</code>, ou se o npm audit diz que é usado por ferramentas como eslint, vitest, typescript. Se sim, não afeta usuários em produção.</div>
+      </div>
 
-        <p>Abra o arquivo <code>/docs/retrofit/diagnostico-seguranca.md</code> no Lovable e copie o primeiro prompt de correção. Cole no chat. Quando o Lovable confirmar, teste o que ele indicou. Se funcionar, fixe a versão e passe para o próximo prompt.</p>
+      <div class="step">
+        <div class="step-title">🛠️ 1.4 Aplicar correções no Lovable (Categoria 🅰️)</div>
+        <div class="danger" style="margin-bottom: 12px;">🚨 <strong>📌 Fixe a versão ANTES de cada correção.</strong> Se quebrar, volte para a versão fixada.</div>
 
-        <p style="margin-top: 8px;"><strong>Fluxo para cada correção:</strong></p>
+        <p>Abra o <code>diagnostico-seguranca.md</code> no projeto e copie os prompts da seção <strong>🅰️ Lovable resolve</strong>, um por vez:</p>
         <ol>
           <li>📌 Fixar versão no Lovable</li>
-          <li>Copiar o prompt de correção N do diagnostico-seguranca.md</li>
+          <li>Copiar o próximo prompt de correção da seção 🅰️</li>
           <li>Colar no chat do Lovable (Plan Mode desativado)</li>
-          <li>Verificar o que o Lovable disse para testar</li>
+          <li>Testar o que o Lovable indicou</li>
           <li>Se funciona → 📌 fixar versão → próximo prompt</li>
           <li>Se quebrou → voltar para versão fixada → tentar com prompt mais específico</li>
         </ol>
-
-        <p style="margin-top: 12px; font-size: 13px; color: var(--text2);">Repita até todos os prompts de correção terem sido aplicados. Itens 🟡 RECOMENDADOS podem ficar para depois se o tempo for curto — os 🔴 e 🟠 são obrigatórios.</p>
+        <p style="margin-top: 8px; font-size: 13px; color: var(--text2);">🟡 Itens RECOMENDADOS podem ficar para depois. 🔴 e 🟠 são obrigatórios antes de avançar.</p>
       </div>
 
       <div class="step">
-        <div class="step-title">✅ 1.4 Validar correções</div>
-        <div class="warn" style="margin-bottom: 12px;">📌 <strong>Fixe a versão antes de validar:</strong> "Pós-auditoria segurança — [DATA]"</div>
+        <div class="step-title">✅ 1.5 Validar e fechar o ciclo</div>
+        <div class="warn" style="margin-bottom: 12px;">📌 <strong>Fixe a versão:</strong> "Pós-auditoria segurança — [DATA]"</div>
 
-        <p>Cole este prompt no Lovable (Plan Mode ativado) para ele confirmar que tudo foi corrigido:</p>
-        <div class="prompt-box">
-          <pre>NÃO altere nenhum código. Apenas verifique.
+        <p>Rode o pipeline novamente (GitHub → Actions → "Lovable Security Audit" → Run workflow). O resultado esperado após as correções:</p>
+        <table>
+          <tr><th>Ferramenta</th><th>O que vai continuar aparecendo</th><th>Por quê é normal</th></tr>
+          <tr><td>Scanner Lovable</td><td>".env no histórico Git" ainda ❌</td><td>Histórico Git não é apagado — mas a chave foi rotacionada e está inválida</td></tr>
+          <tr><td>npm audit</td><td>Algumas vulnerabilidades de dev</td><td>Pacotes exclusivos de build não afetam produção</td></tr>
+          <tr><td>Semgrep</td><td>✅ Zero findings</td><td>Código limpo</td></tr>
+        </table>
 
-Leia o /docs/retrofit/diagnostico-seguranca.md e compare com o estado
-atual do código. Para cada problema que foi listado, me diga:
-
-✅ CORRIGIDO — [nome do problema]
-❌ AINDA PRESENTE — [nome do problema] — [o que falta fazer]
-
-No final, diga:
-- Quantos problemas foram corrigidos
-- Quantos ainda restam (se algum)
-- Se o projeto está seguro para avançar para a Fase 2</pre>
-        </div>
-
-        <p style="margin-top: 8px;">Depois, verifique manualmente: abra a aplicação, faça login, navegue pelas telas principais, teste as features que mais usa. Se tudo funciona, avance para a Fase 2.</p>
-
-        <div class="info">💡 O pipeline SAST no GitHub (passo 1.1) roda automaticamente a cada push que o Lovable faz. Vá em GitHub → Actions para ver se os checks estão ✅ verdes agora.</div>
+        <p style="margin-top: 12px;">O pipeline vai continuar marcando ❌ por causa do histórico Git — isso é <strong>esperado e aceitável</strong> após rotacionar as chaves. O que importa é que os problemas reais do código (Categoria 🅰️) estejam resolvidos.</p>
+        <div class="info">💡 Se quiser um ✅ verde completo no pipeline, é possível limpar o histórico Git com BFG Repo Cleaner — mas é uma operação avançada e só vale se o projeto ainda não foi amplamente clonado.</div>
       </div>
     </div>
   </div>
@@ -823,9 +842,10 @@ Use EXATAMENTE os formatos definidos no KERNO-DOCS.md.</pre>
       <tr><td>0.2</td><td>Raio-X do projeto → <code>/docs/retrofit/raio-x.md</code> criado</td><td>5 min</td><td>⬜</td></tr>
       <tr><td>0.3</td><td>Colar Custom Knowledge do Kerno</td><td>3 min</td><td>⬜</td></tr>
       <tr><td>1.1</td><td>Criar pipeline SAST no GitHub + rodar + baixar os 3 relatórios</td><td>5 min</td><td>⬜</td></tr>
-      <tr><td>1.2</td><td>Diagnóstico via Claude Code → <code>/docs/retrofit/diagnostico-seguranca.md</code> com prompts de correção criado</td><td>10 min</td><td>⬜</td></tr>
-      <tr><td>1.3</td><td>Corrigir vulnerabilidades via Lovable</td><td>15-30 min</td><td>⬜</td></tr>
-      <tr><td>1.4</td><td>Validar correções + fixar versão</td><td>5 min</td><td>⬜</td></tr>
+      <tr><td>1.2</td><td>Triagem com Claude/GPT → <code>diagnostico-seguranca.md</code> com 3 categorias (🅰️ Lovable / 🅱️ Manual / 🅾️ Ignorar)</td><td>10 min</td><td>⬜</td></tr>
+      <tr><td>1.3</td><td>Ações manuais (🅱️): rotacionar chaves no Supabase + npm audit fix</td><td>10 min</td><td>⬜</td></tr>
+      <tr><td>1.4</td><td>Aplicar correções 🅰️ no Lovable (uma por vez com pin)</td><td>15-30 min</td><td>⬜</td></tr>
+      <tr><td>1.5</td><td>Rodar pipeline novamente + validar resultado esperado</td><td>5 min</td><td>⬜</td></tr>
       <tr><td>2.0</td><td>Identificar situação de deploy (Lovable Cloud ou Vercel já conectada)</td><td>2 min</td><td>⬜</td></tr>
       <tr><td>2.A</td><td><em>Se Situação A:</em> GitHub conectado + vercel.json criado + projeto importado na Vercel</td><td>15 min</td><td>⬜</td></tr>
       <tr><td>2.B</td><td><em>Se Situação B:</em> variáveis de ambiente verificadas + vercel.json atualizado</td><td>5 min</td><td>⬜</td></tr>
@@ -908,7 +928,7 @@ Use EXATAMENTE os formatos definidos no KERNO-DOCS.md.</pre>
   </div>
 
   <div class="footer">
-    Kerno Seize v6.0.5 — Retrofit &amp; Migration Guide<br>
+    Kerno Seize v6.1.0 — Retrofit &amp; Migration Guide<br>
     Referências: docs.lovable.dev · OWASP Top 10 · Supabase Security Docs · BMAD Method v6
   </div>
 

@@ -4,24 +4,57 @@
 
 ---
 
+## [6.1.0] — 2026-03-18
+
+### Modificado
+- `KERNO-RETROFIT.html` — Fase 1 completamente reescrita com sistema de **triagem 🅰️/🅱️/🅾️** (quebra o loop circular onde problemas de histórico Git nunca podiam ser resolvidos pelo Lovable):
+  - **1.1**: rodar pipeline + tabela explicando Semgrep/npm audit/Scanner Lovable + baixar Artifacts
+  - **1.2** (novo): triagem com Claude/GPT — prompt gera `diagnostico-seguranca.md` com 3 categorias: 🅰️ Lovable resolve (código), 🅱️ Ação manual (rotacionar chaves, `npm audit fix`, verificar RLS), 🅾️ Ignorar (falsos positivos: libs de terceiros, páginas públicas intencionais)
+  - **1.3** (novo): executar ações 🅱️ manualmente — rotacionar chaves Supabase, rodar `npm audit fix`, verificar RLS no painel
+  - **1.4** (novo): aplicar prompts Lovable um a um para itens 🅰️, com fixação de versão
+  - **1.5** (novo): re-rodar pipeline + explicação de que histórico Git ❌ é esperado/aceitável após rotação de chaves
+  - Checklist atualizado de 4 linhas (1.1–1.4) para 5 linhas (1.1–1.5)
+
+### Adicionado (análise)
+- Identificação de **falsos positivos recorrentes** nos relatórios do projeto hexapago-2.0:
+  - `chart.tsx` `dangerouslySetInnerHTML` — interno da biblioteca Recharts, não controlado pelo usuário
+  - Páginas sem autenticação intencionalmente públicas (links de pagamento, docs)
+  - 9 vulnerabilidades npm todas em dependências de desenvolvimento (não afetam produção)
+  - `.env no histórico Git` e `service_role no histórico Git` — não resolvíveis pelo Lovable; solução: rotação de chaves + categoria 🅱️
+- Documentado: pipeline mostrará ❌ persistente para histórico Git mesmo após todas as ações corretas — isso é comportamento esperado e documentado, não um problema pendente
+
+---
+
 ## [6.0.5] — 2026-03-18
 
 ### Modificado
 - `KERNO-RETROFIT.html` — Fase 1, passo 1.2 reescrito com fluxo correto em 2 etapas:
   1. Claude/GPT analisa os 3 arquivos anexados e **gera o `diagnostico-seguranca.md`** (o usuário baixa o arquivo gerado — sem copy-paste de conteúdo extenso no prompt)
   2. No Lovable, o usuário **anexa o `.md` gerado** para salvá-lo no projeto (`/docs/retrofit/`) — evita o limite de tamanho do prompt
+- `CLAUDE.md` — adicionada seção `## Regras de versionamento` (patch, minor, major) com critérios objetivos para incremento de versão
 
 ---
+
+## [6.0.4] — 2026-03-18
 
 ### Modificado
 - `KERNO-RETROFIT.html` — Fase 1, passo 1.2: separação entre análise (Claude/GPT externo, sem acesso ao projeto) e criação do arquivo (Lovable). O prompt de análise não pede mais para "salvar em /docs/..." — apenas gera os prompts de correção. Um segundo prompt separado instrui o Lovable a criar o `diagnostico-seguranca.md` com o conteúdo copiado da resposta do Claude/GPT.
 
 ---
 
+## [6.0.3] — 2026-03-18
+
+### Modificado
+- `KERNO-RETROFIT.html` — Fase 1, passo 1.2: instrução de diagnóstico migrada para usar **anexo de arquivos** (📎) em vez de copy-paste do conteúdo nos relatórios JSON/TXT/HTML. O usuário baixa os 3 Artifacts e os anexa diretamente no Claude/GPT — evita limites de tamanho do prompt.
+
+---
+
+## [6.0.2] — 2026-03-18
+
 ### Modificado
 - `KERNO-RETROFIT.html` — Fase 1 reestruturada:
   - **1.1**: adicionada tabela explicando o que cada ferramenta (Semgrep, npm audit, Scanner Lovable) analisa e o que significa ✅/❌. Adicionada instrução para baixar os 3 arquivos de Artifacts ao final do pipeline.
-  - **1.2**: fluxo migrado do Lovable para o **Claude Code**. O usuário cola os 3 relatórios + prompt template → Claude interpreta os resultados e gera sequência de prompts de correção priorizados (🔴/🟠/🟡) → salva em `diagnostico-seguranca.md`. Lovable não é adequado para interpretar relatórios de segurança.
+  - **1.2**: fluxo migrado do Lovable para o **Claude/GPT externo**. O usuário anexa os 3 relatórios → Claude/GPT interpreta os resultados e gera sequência de prompts de correção priorizados (🔴/🟠/🟡) → salva em `diagnostico-seguranca.md`. Lovable não é adequado para interpretar relatórios de segurança.
   - Checklist da Fase 1 atualizado para refletir novo fluxo.
 
 ---
