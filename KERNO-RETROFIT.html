@@ -123,7 +123,7 @@
 <div class="container">
 
   <div class="hero">
-    <div class="badge">Projetos Existentes · Kerno Seize v6.1.1</div>
+    <div class="badge">Projetos Existentes · Kerno Seize v6.1.2</div>
     <h1>Kerno <span>Retrofit</span></h1>
     <p>Processo passo a passo para adotar o framework Kerno Seize em projetos Lovable que já existem — sem quebrar o que funciona.</p>
   </div>
@@ -404,7 +404,7 @@ Confirme com: "✅ raio-x.md criado em /docs/retrofit/"</pre>
 
       <div class="step">
         <div class="step-title">🗄️ 1.2 Triagem com Claude/GPT → diagnostico-seguranca-DDMMAA-vX.md</div>
-        <p>Abra o <strong>Claude</strong> (claude.ai) ou <strong>ChatGPT</strong>. Anexe os 3 arquivos pelo ícone 📎 (<code>semgrep-results.txt</code>, <code>npm-audit-results.txt</code>, <code>relatorio-seguranca.html</code>) e envie o prompt abaixo.</p>
+        <p>Abra o <strong>Claude</strong> (claude.ai) ou <strong>ChatGPT</strong>. Anexe os arquivos pelo ícone 📎 e envie o prompt abaixo.</p>
         <p style="margin-top: 8px; font-size: 13px; color: var(--text2);">O modelo vai <strong>triar</strong> cada problema em 3 categorias — isso é o que quebra o ciclo de ficar rodando em círculo:</p>
         <table style="margin: 8px 0;">
           <tr><th>Categoria</th><th>O que é</th><th>O que fazer</th></tr>
@@ -413,11 +413,28 @@ Confirme com: "✅ raio-x.md criado em /docs/retrofit/"</pre>
           <tr><td><strong>🅾️ Ignorar</strong></td><td>Falso positivo — biblioteca de terceiros, página pública intencional, etc.</td><td>Justificativa documentada</td></tr>
         </table>
 
+        <div style="background: #1a1a2e; border: 1px solid #9884f2; border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 13px;">
+          <strong style="color: #9884f2;">📎 Quais arquivos anexar?</strong>
+          <table style="margin: 8px 0 0; font-size: 12px;">
+            <tr><th>Arquivo</th><th>Onde está</th><th>Quando anexar</th></tr>
+            <tr><td><code>semgrep-results.txt</code></td><td>Artifacts do pipeline</td><td>Sempre</td></tr>
+            <tr><td><code>npm-audit-results.txt</code></td><td>Artifacts do pipeline</td><td>Sempre</td></tr>
+            <tr><td><code>relatorio-seguranca.html</code></td><td>Artifacts do pipeline</td><td>Sempre</td></tr>
+            <tr><td><code>falsos-positivos.md</code></td><td><code>/docs/retrofit/</code> no projeto</td><td>Da 2ª rodada em diante (se existir)</td></tr>
+          </table>
+          <p style="margin: 8px 0 0; color: var(--text2);">💡 Na <strong>1ª rodada</strong> não existe <code>falsos-positivos.md</code> ainda — o Claude/GPT vai criá-lo automaticamente. Da <strong>2ª rodada em diante</strong>, baixe o arquivo do projeto e anexe: os alertas já conhecidos serão ignorados automaticamente, sem precisar re-analisar.</p>
+        </div>
+
         <p style="font-size: 13px; color: var(--text2); margin: 12px 0 4px;"><strong>Prompt:</strong></p>
         <div class="prompt-box">
-          <pre>Analise os 3 arquivos de auditoria de segurança anexados e gere um diagnóstico estruturado em 3 categorias.
+          <pre>Analise os arquivos de auditoria de segurança anexados e gere um diagnóstico estruturado.
 
-Para cada problema encontrado, classifique em:
+SE houver um arquivo falsos-positivos.md anexado:
+- Leia-o antes de analisar os relatórios
+- Qualquer alerta que já esteja listado nele → classifique automaticamente como 🅾️ com a nota "✓ Confirmado no baseline — já documentado"
+- NÃO gaste espaço re-explicando itens já conhecidos
+
+Para cada problema NOVO encontrado, classifique em:
 
 🅰️ LOVABLE RESOLVE — problema no código-fonte que o Lovable pode corrigir
    (ex: dangerouslySetInnerHTML sem sanitização, query com interpolação insegura,
@@ -451,7 +468,9 @@ Regras:
 ---
 
 Para cada item 🅱️, escreva a instrução manual exata (onde clicar, qual comando rodar).
-Para cada item 🅾️, escreva a justificativa em 1 linha.
+Para cada item 🅾️ NOVO (não estava no baseline), escreva a justificativa em linguagem simples — explique como se o usuário não soubesse nada de segurança.
+
+---
 
 Formate tudo como Markdown com:
 # Diagnóstico de Segurança — [DATA]
@@ -459,6 +478,13 @@ Formate tudo como Markdown com:
 ## 🅰️ Lovable resolve (prompts prontos)
 ## 🅱️ Ações manuais (fora do Lovable)
 ## 🅾️ Ignorar (falsos positivos)
+### Já no baseline (auto-classificados)
+### 🆕 Novos falsos positivos identificados nesta rodada
+
+## 📋 Atualizar falsos-positivos.md
+[Tabela Markdown com SOMENTE os itens 🆕 desta rodada, no formato:]
+| Alerta | Arquivo/Local | Explicação simples para leigo |
+|--------|--------------|-------------------------------|
 
 Salve como diagnostico-seguranca-DDMMAA-vX.md
 (substitua DDMMAA pela data de hoje e vX pelo número da rodada — ex: diagnostico-seguranca-180326-v1.md)</pre>
@@ -469,6 +495,23 @@ Salve como diagnostico-seguranca-DDMMAA-vX.md
           <pre>Salve o arquivo anexado em /docs/retrofit/ sem alterar nenhum outro arquivo.
 Mantenha o nome original do arquivo (ex: diagnostico-seguranca-180326-v1.md).
 Confirme com: "✅ [nome-do-arquivo] salvo em /docs/retrofit/"</pre>
+        </div>
+
+        <p style="margin-top: 12px; font-size: 13px; color: var(--text2);">Se o diagnóstico incluiu itens na seção <strong>📋 Atualizar falsos-positivos.md</strong>, atualize o baseline no Lovable:</p>
+        <div class="prompt-box">
+          <pre>Abra o arquivo /docs/retrofit/diagnostico-seguranca-DDMMAA-vX.md (o que acabei de salvar).
+Leia a seção "📋 Atualizar falsos-positivos.md".
+
+Se o arquivo /docs/retrofit/falsos-positivos.md não existir, crie-o com este cabeçalho:
+# Baseline de Falsos Positivos
+> Alertas de segurança confirmados como não-problema para este projeto.
+> Atualizado em: [DATA]
+
+| Alerta | Arquivo/Local | Explicação simples para leigo |
+|--------|--------------|-------------------------------|
+
+Se já existir, adicione as novas linhas da tabela ao final — sem remover as existentes.
+Confirme com: "✅ falsos-positivos.md atualizado com [N] novo(s) item(ns)"</pre>
         </div>
       </div>
 
@@ -930,7 +973,7 @@ Use EXATAMENTE os formatos definidos no KERNO-DOCS.md.</pre>
   </div>
 
   <div class="footer">
-    Kerno Seize v6.1.1 — Retrofit &amp; Migration Guide<br>
+    Kerno Seize v6.1.2 — Retrofit &amp; Migration Guide<br>
     Referências: docs.lovable.dev · OWASP Top 10 · Supabase Security Docs · BMAD Method v6
   </div>
 

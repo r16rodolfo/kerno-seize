@@ -4,6 +4,24 @@
 
 ---
 
+## [6.1.2] — 2026-03-18
+
+### Modificado
+- `KERNO-RETROFIT.html` — Fase 1, passo 1.2: adicionado sistema de **baseline de falsos positivos** (`falsos-positivos.md`) para resolver o problema de usuários leigos não saberem distinguir alertas reais de falsos positivos:
+  - **Tabela de anexos**: instrução clara de quais 3 arquivos anexar sempre + `falsos-positivos.md` da 2ª rodada em diante
+  - **Prompt atualizado**: se `falsos-positivos.md` estiver anexado, itens já conhecidos são auto-classificados como 🅾️ com "✓ Confirmado no baseline" sem re-analisar
+  - **Nova seção no output**: `## 📋 Atualizar falsos-positivos.md` — tabela com apenas os itens 🆕 desta rodada, com explicação em linguagem simples para leigo
+  - **Segundo prompt Lovable**: cria ou atualiza `/docs/retrofit/falsos-positivos.md` com os novos itens (preserva histórico — não sobrescreve)
+  - **1ª rodada**: `falsos-positivos.md` não existe ainda, Claude/GPT analisa tudo do zero e cria o baseline inicial
+  - **2ª rodada em diante**: itens já conhecidos são ignorados automaticamente — usuário só vê o que é novo
+
+### Análise / Motivação
+- O problema: Claude/GPT não conhece o negócio do projeto — ele sabe o que é código inseguro, mas não sabe que aquela página sem auth é intencionalmente pública ou que aquela lib de terceiros não é controlada pelo usuário.
+- O usuário leigo não consegue julgar o que é falso positivo por conta própria — precisa que o sistema construa esse conhecimento de forma acumulativa e automática.
+- O `falsos-positivos.md` resolve isso: é preenchido pelo Claude/GPT na 1ª rodada com linguagem simples, cresce com cada nova rodada, e nas próximas execuções elimina ruído automaticamente.
+
+---
+
 ## [6.1.1] — 2026-03-18
 
 ### Corrigido
