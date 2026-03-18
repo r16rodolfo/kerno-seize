@@ -4,7 +4,14 @@
 
 ---
 
-## [6.0.4] — 2026-03-18
+## [6.0.5] — 2026-03-18
+
+### Modificado
+- `KERNO-RETROFIT.html` — Fase 1, passo 1.2 reescrito com fluxo correto em 2 etapas:
+  1. Claude/GPT analisa os 3 arquivos anexados e **gera o `diagnostico-seguranca.md`** (o usuário baixa o arquivo gerado — sem copy-paste de conteúdo extenso no prompt)
+  2. No Lovable, o usuário **anexa o `.md` gerado** para salvá-lo no projeto (`/docs/retrofit/`) — evita o limite de tamanho do prompt
+
+---
 
 ### Modificado
 - `KERNO-RETROFIT.html` — Fase 1, passo 1.2: separação entre análise (Claude/GPT externo, sem acesso ao projeto) e criação do arquivo (Lovable). O prompt de análise não pede mais para "salvar em /docs/..." — apenas gera os prompts de correção. Um segundo prompt separado instrui o Lovable a criar o `diagnostico-seguranca.md` com o conteúdo copiado da resposta do Claude/GPT.
