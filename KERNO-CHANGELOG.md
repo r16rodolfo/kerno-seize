@@ -4,7 +4,12 @@
 
 ---
 
-## [6.0.2] — 2026-03-18
+## [6.0.3] — 2026-03-18
+
+### Modificado
+- `KERNO-RETROFIT.html` — Fase 1, passo 1.2: fluxo corrigido para **anexar os arquivos** ao Claude em vez de copiar e colar o conteúdo. O GitHub gera artefatos em JSON, TXT e HTML — o Claude aceita esses arquivos diretamente via anexo (📎). Instrução de como anexar adicionada. Prompt simplificado (sem placeholders de texto).
+
+---
 
 ### Modificado
 - `KERNO-RETROFIT.html` — Fase 1 reestruturada:

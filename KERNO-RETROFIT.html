@@ -123,7 +123,7 @@
 <div class="container">
 
   <div class="hero">
-    <div class="badge">Projetos Existentes · Kerno Seize v6.0.2</div>
+    <div class="badge">Projetos Existentes · Kerno Seize v6.0.3</div>
     <h1>Kerno <span>Retrofit</span></h1>
     <p>Processo passo a passo para adotar o framework Kerno Seize em projetos Lovable que já existem — sem quebrar o que funciona.</p>
   </div>
@@ -403,21 +403,14 @@ Confirme com: "✅ raio-x.md criado em /docs/retrofit/"</pre>
       </div>
 
       <div class="step">
-        <div class="step-title">🗄️ 1.2 Diagnóstico com Claude Code → prompts de correção</div>
-        <p>Abra o <strong>Claude Code</strong> (não o Lovable). Cole o prompt abaixo junto com o conteúdo dos 3 relatórios baixados no passo anterior. O Claude vai interpretar os resultados e gerar uma sequência de prompts de correção prontos para você usar no Lovable.</p>
+        <div class="step-title">🗄️ 1.2 Diagnóstico com Claude → prompts de correção</div>
+        <p>Abra o <strong>Claude</strong> (claude.ai ou Claude Code). <strong>Anexe os 3 arquivos</strong> baixados no passo anterior usando o botão de anexo (📎) e envie junto com o prompt abaixo. O Claude vai ler os arquivos, interpretar os resultados e gerar uma sequência de prompts de correção prontos para usar no Lovable.</p>
 
-        <p style="font-size: 13px; color: var(--text2); margin: 8px 0 4px;"><strong>Prompt para o Claude Code:</strong></p>
+        <p style="font-size: 13px; color: var(--text2); margin: 8px 0 4px;"><strong>Como anexar:</strong> No campo de mensagem do Claude → clique no ícone 📎 → selecione os 3 arquivos de uma vez (<code>semgrep-results.txt</code>, <code>npm-audit-results.txt</code>, <code>relatorio-seguranca.html</code>) → depois cole o prompt abaixo e envie.</p>
+
+        <p style="font-size: 13px; color: var(--text2); margin: 12px 0 4px;"><strong>Prompt:</strong></p>
         <div class="prompt-box">
-          <pre>Analise os resultados da auditoria de segurança abaixo e gere uma sequência de prompts de correção para eu usar no Lovable.
-
-=== SEMGREP REPORT ===
-[cole aqui o conteúdo do semgrep-report]
-
-=== NPM AUDIT REPORT ===
-[cole aqui o conteúdo do npm-audit-report]
-
-=== LOVABLE SCANNER REPORT ===
-[cole aqui o conteúdo do lovable-scanner-report]
+          <pre>Analise os 3 arquivos de auditoria de segurança anexados e gere uma sequência de prompts de correção para eu usar no Lovable.
 
 Para cada problema encontrado, classifique como:
 🔴 URGENTE — risco direto de segurança (secrets, RLS ausente, injeção)
@@ -439,13 +432,14 @@ Regras:
 - Confirme com: "✅ Corrigido: [nome]. Teste: [o que o usuário deve verificar]"
 ---
 
-No final, salve tudo em /docs/retrofit/diagnostico-seguranca.md com:
-- Resumo do diagnóstico (quantos problemas por gravidade)
-- Todos os prompts na ordem de execução</pre>
+Liste os prompts na ordem:
+1. Primeiro todos os 🔴 URGENTES
+2. Depois os 🟠 IMPORTANTES
+3. Por último os 🟡 RECOMENDADOS</pre>
         </div>
 
         <div class="info">
-          💡 <strong>O que você vai receber:</strong> Um arquivo <code>diagnostico-seguranca.md</code> com uma lista de prompts prontos, ordenados por gravidade, para colar um por um no Lovable no próximo passo.
+          💡 <strong>O que você vai receber:</strong> Uma lista de prompts prontos, ordenados por gravidade, para colar um por um no Lovable no próximo passo. Salve a resposta do Claude em <code>/docs/retrofit/diagnostico-seguranca.md</code> no seu projeto.
         </div>
       </div>
 
@@ -906,7 +900,7 @@ Use EXATAMENTE os formatos definidos no KERNO-DOCS.md.</pre>
   </div>
 
   <div class="footer">
-    Kerno Seize v6.0.2 — Retrofit &amp; Migration Guide<br>
+    Kerno Seize v6.0.3 — Retrofit &amp; Migration Guide<br>
     Referências: docs.lovable.dev · OWASP Top 10 · Supabase Security Docs · BMAD Method v6
   </div>
 

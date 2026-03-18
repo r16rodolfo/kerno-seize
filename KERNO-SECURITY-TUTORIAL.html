@@ -704,7 +704,7 @@ SELECT cron.schedule('cleanup-audit-logs', '0 3 * * 1', 'SELECT cleanup_audit_lo
       </div>
 
       <div class="step">
-        <div class="step-title">🌐 6.0.2 Opção B — Cron externo (se pg_cron não estiver disponível)</div>
+        <div class="step-title">🌐 6.0.3 Opção B — Cron externo (se pg_cron não estiver disponível)</div>
         <p>Se seu plano do Supabase não tem pg_cron, use um serviço externo gratuito:</p>
         <ol>
           <li>No Supabase, crie uma <strong>Edge Function</strong> (menu Functions) com o mesmo código de limpeza</li>
@@ -722,7 +722,7 @@ SELECT cron.schedule('cleanup-audit-logs', '0 3 * * 1', 'SELECT cleanup_audit_lo
       </div>
 
       <div class="step">
-        <div class="step-title">✅ 6.0.2 Verificar que está funcionando</div>
+        <div class="step-title">✅ 6.0.3 Verificar que está funcionando</div>
         <p>Após uma semana, verifique:</p>
         <div class="code-block">
           <div class="label">SQL — Verificar execuções do cron</div>
@@ -1203,5 +1203,5 @@ afetadas, e timestamp.</pre>
   </div>
 
   <div class="footer">
-    Kerno Seize v6.0.2 — Security Implementation & Monitoring Tutorial<br>
+    Kerno Seize v6.0.3 — Security Implementation & Monitoring Tutorial<br>
     Referências: OWASP Top 10 · Supabase Docs · Sentry Docs · Cloudflare Docs · Aw
