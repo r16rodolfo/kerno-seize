@@ -4,6 +4,13 @@
 
 ---
 
+## [6.0.1] — 2026-03-18
+
+### Corrigido
+- `KERNO-RETROFIT.html` — Fase 1, passo 1.1: nome do workflow corrigido de "Security Audit" para "Lovable Security Audit" (nome real exibido na aba Actions do GitHub).
+
+---
+
 ## [6.0.0] — 2026-03-18
 
 ### Corrigido
