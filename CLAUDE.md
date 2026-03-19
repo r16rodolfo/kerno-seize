@@ -5,7 +5,7 @@
 
 ## Projeto
 
-Este projeto segue o **Kerno Seize v6.2.0** — um framework de desenvolvimento completo que integra PM Skills (decisão de produto), BMAD Method (planejamento técnico), WDS (design), e Kerno (governança, segurança e documentação). Implementação via Claude Code direto ou Lovable.
+Este projeto segue o **Kerno Seize v6.2.1** — um framework de desenvolvimento completo que integra PM Skills (decisão de produto), BMAD Method (planejamento técnico), WDS (design), e Kerno (governança, segurança e documentação). Implementação via Claude Code direto ou Lovable.
 
 ```yaml
 kerno-version: 6.2.1
