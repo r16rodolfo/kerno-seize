@@ -8,7 +8,7 @@
 Este projeto segue o **Kerno Seize v6.2.0** — um framework de desenvolvimento completo que integra PM Skills (decisão de produto), BMAD Method (planejamento técnico), WDS (design), e Kerno (governança, segurança e documentação). Implementação via Claude Code direto ou Lovable.
 
 ```yaml
-kerno-version: 6.2.0
+kerno-version: 6.2.1
 bmad-version: 6.x
 
 # PM Skills + AI PM Copilot
@@ -147,7 +147,7 @@ Fase 2 — Planejamento BMAD + WDS
   ✅ GATE 2: prd.md + architecture.md + database.md (com RLS) + qa-plan.md prontos
 
 Fase 3 — Ambiente Seguro
-  GitHub repo + security-audit-v2.yml + dependabot.yml
+  GitHub repo + security-audit-v3.yml + dependabot.yml
 
 Fase 4 — Implementação
   Trilha A: Claude Code direto (recomendado — implementa + revisa)

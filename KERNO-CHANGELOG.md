@@ -4,6 +4,17 @@
 
 ---
 
+## [6.2.1] — 2026-03-18
+
+### Modificado
+- `security-audit-v2.yml` renomeado para `security-audit-v3.yml` — versão major do pipeline promovida de v2 → v3 para refletir a adição de nova interface (`.security-ignore`) introduzida no [6.2.0]. Scanner interno: v2.1 → **v3.0**.
+- Todas as referências ao arquivo atualizadas em: `CLAUDE.md`, `index.html`, `KERNO-FLUXO.html`, `KERNO-LOVABLE-FIRST.html`, `KERNO-ROADMAP.html`, `KERNO-RETROFIT.html`, `KERNO-SECURITY-TUTORIAL.html`.
+
+### Análise / Motivação
+- O `.security-ignore` é uma interface nova entre o scanner e o projeto (não apenas melhoria interna) — justifica major bump no nome do arquivo para sinalizar isso ao usuário que adota o framework.
+
+---
+
 ## [6.2.0] — 2026-03-18
 
 ### Modificado
@@ -537,7 +548,7 @@ Ciclo de 4 sprints executados em sessão contínua. Três eixos principais: **go
 
 ### Adicionado (entrega inicial)
 - `SECURITY.md` — 10 categorias de regras de segurança baseadas em OWASP Top 10
-- `security-audit-v2.yml` — GitHub Action com Semgrep + npm audit + Scanner Kerno
+- `security-audit-v3.yml` — GitHub Action com Semgrep + npm audit + Scanner Kerno
 - `dependabot.yml` — monitoramento semanal de dependências
 - `KERNO-DOCS.md` — framework de 15 documentos obrigatórios com formatos e gatilhos
 - `LOVABLE-SYSTEM-PROMPT.md` — versão inicial do system prompt (substituída na v2.0)
