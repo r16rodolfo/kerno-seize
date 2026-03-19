@@ -372,10 +372,10 @@ exercícios (nome, séries, repetições, carga, observações)"]
             <ol>
               <li>Vá em <strong>Add file → Create new file</strong></li>
               <li>Nome: <code>.github/workflows/security-audit.yml</code></li>
-              <li>Cole o conteúdo do arquivo <code>security-audit-v2.yml</code> do Kerno</li>
+              <li>Cole o conteúdo do arquivo <code>security-audit-v3.yml</code> do Kerno</li>
               <li>Repita para <code>.github/dependabot.yml</code></li>
             </ol>
-            <a class="doc-ref" href="security-audit-v2.yml">security-audit-v2.yml</a>
+            <a class="doc-ref" href="security-audit-v3.yml">security-audit-v3.yml</a>
             <a class="doc-ref" href="dependabot.yml">dependabot.yml</a>
             <div class="danger">⚠️ Não pule este passo. O pipeline roda em todo push automaticamente. Sem ele, você não tem como saber se o Lovable está criando vulnerabilidades — e ele cria, às vezes.</div>
           </div>
@@ -404,7 +404,7 @@ exercícios (nome, séries, repetições, carga, observações)"]
             <div class="gate-title">✅ Gate — Saída da Etapa 02</div>
             <ul>
               <li>Repositório GitHub privado criado</li>
-              <li><code>security-audit-v2.yml</code> e <code>dependabot.yml</code> no GitHub (aba Actions visível)</li>
+              <li><code>security-audit-v3.yml</code> e <code>dependabot.yml</code> no GitHub (aba Actions visível)</li>
               <li>KERNO-KNOWLEDGE.md colado no Custom Knowledge do Lovable</li>
               <li>Lovable conectado ao GitHub</li>
               <li><code>prd.md</code>, <code>KERNO-DOCS.md</code> e <code>SECURITY.md</code> no Knowledge do Lovable</li>
@@ -785,7 +785,7 @@ Não capture dados pessoais dos usuários nas mensagens de erro.</pre>
       <tr><td><code>LOVABLE-SYSTEM-PROMPT-V3.md</code></td><td>Custom Knowledge</td><td>Seção A → cola no Settings; Seções B-F → usa no chat</td></tr>
       <tr><td><code>KERNO-DOCS.md</code></td><td>Upload no Lovable</td><td>Etapa 02 — define os 23 documentos que o Lovable mantém</td></tr>
       <tr><td><code>SECURITY.md</code></td><td>Upload no Lovable</td><td>Etapa 02 — regras OWASP que o Lovable segue</td></tr>
-      <tr><td><code>security-audit-v2.yml</code></td><td>GitHub Actions</td><td>Etapa 02 — pipeline SAST automático</td></tr>
+      <tr><td><code>security-audit-v3.yml</code></td><td>GitHub Actions</td><td>Etapa 02 — pipeline SAST automático</td></tr>
       <tr><td><code>dependabot.yml</code></td><td>GitHub</td><td>Etapa 02 — monitoramento de dependências</td></tr>
       <tr><td><code>KERNO-ROADMAP.html</code></td><td>Guia de referência</td><td>Se quiser migrar para o fluxo completo com BMAD</td></tr>
       <tr><td><code>KERNO-SEIZE-INICIO.md</code></td><td>Tutorial BMAD</td><td>Se quiser usar os agentes de planejamento</td></tr>

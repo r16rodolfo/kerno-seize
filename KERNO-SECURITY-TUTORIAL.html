@@ -201,7 +201,7 @@
       <span class="ch-title">SAST — Implementação Detalhada</span>
     </div>
     <div class="ch-body">
-      <p>Você já tem o arquivo <code>security-audit-v2.yml</code> do Kerno. Aqui vai o passo a passo detalhado para implementar.</p>
+      <p>Você já tem o arquivo <code>security-audit-v3.yml</code> do Kerno. Aqui vai o passo a passo detalhado para implementar.</p>
 
       <div class="step">
         <div class="step-title">📁 2.1 Criar o pipeline no GitHub</div>
@@ -209,7 +209,7 @@
           <li>Abra seu repositório no GitHub</li>
           <li>Clique em <strong>Add file → Create new file</strong></li>
           <li>No campo de nome, digite: <code>.github/workflows/security-audit.yml</code></li>
-          <li>Cole o conteúdo completo do arquivo <code>security-audit-v2.yml</code></li>
+          <li>Cole o conteúdo completo do arquivo <code>security-audit-v3.yml</code></li>
           <li>Clique em <strong>Commit changes</strong></li>
         </ol>
         <div class="info">💡 O pipeline roda 3 ferramentas em paralelo: Semgrep (análise estática), npm audit (dependências) e o Scanner customizado do Kerno (Supabase, secrets, auth).</div>

@@ -285,10 +285,10 @@
             <div class="step-title"><span class="icon">🔒</span> 1.2 Configurar pipeline SAST + Dependabot</div>
             <p>Copie os arquivos de segurança para o repositório:</p>
             <ul>
-              <li><code>security-audit-v2.yml</code> → <code>.github/workflows/</code></li>
+              <li><code>security-audit-v3.yml</code> → <code>.github/workflows/</code></li>
               <li><code>dependabot.yml</code> → <code>.github/</code></li>
             </ul>
-            <div class="file-ref">security-audit-v2.yml</div>
+            <div class="file-ref">security-audit-v3.yml</div>
             <div class="file-ref">dependabot.yml</div>
             <div class="warn">⚠️ CORREÇÃO v5.0: Pipeline ANTES do Lovable, não depois. Todo código é analisado desde o primeiro commit.</div>
           </div>
@@ -319,7 +319,7 @@
             <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--green); margin-bottom: 8px;">✅ GATE — Saída da Etapa 1</div>
             <p style="font-size: 13px; color: var(--text2); margin: 0;">Antes de começar o desenvolvimento, confirme:</p>
             <ul style="margin: 8px 0 0 18px; font-size: 13px; color: var(--text2);">
-              <li>Repositório GitHub privado criado e <code>security-audit-v2.yml</code> rodando (aba Actions verde)</li>
+              <li>Repositório GitHub privado criado e <code>security-audit-v3.yml</code> rodando (aba Actions verde)</li>
               <li>KERNO-KNOWLEDGE.md colado no Custom Knowledge do Lovable</li>
               <li>Lovable conectado ao GitHub</li>
               <li>Lovable validou os docs BMAD (Seção B) e apresentou plano de Milestone 1</li>
@@ -413,7 +413,7 @@
             <ul>
               <li>GitHub → seu repo → Add file → Create new file</li>
               <li>Nome: <code>.github/workflows/security-audit.yml</code></li>
-              <li>Cole o conteúdo do <code>security-audit-v2.yml</code> do Kerno</li>
+              <li>Cole o conteúdo do <code>security-audit-v3.yml</code> do Kerno</li>
             </ul>
             <p style="margin-top: 8px;"><strong>O que roda automaticamente (SAST):</strong></p>
             <table class="checklist">
@@ -669,7 +669,7 @@ updates:
       <tr><td><code>LOVABLE-SYSTEM-PROMPT-V3.md</code></td><td>Custom Knowledge do Lovable</td><td>Todo projeto — Seção A no Knowledge, Seções B-G no chat</td></tr>
       <tr><td><code>CLAUDE.md</code></td><td>Raiz do repositório</td><td>Todo projeto — contexto automático para Claude Code</td></tr>
       <tr><td><code>SECURITY.md</code></td><td>Base para security-rules.md</td><td>Todo projeto — regras de segurança</td></tr>
-      <tr><td><code>security-audit-v2.yml</code></td><td>GitHub Actions</td><td>Todo projeto — pipeline SAST automático</td></tr>
+      <tr><td><code>security-audit-v3.yml</code></td><td>GitHub Actions</td><td>Todo projeto — pipeline SAST automático</td></tr>
       <tr><td><code>dependabot.yml</code></td><td>GitHub</td><td>Todo projeto — monitoramento de dependências</td></tr>
       <tr><td><code>vercel.json</code></td><td>Raiz do projeto</td><td>Todo projeto com Vercel — headers de segurança</td></tr>
       <tr><td><code>KERNO-CURSOR-REVIEW.md</code></td><td>Referência — Etapa 5</td><td>Todo projeto — checklist e prompts para revisão no Cursor</td></tr>
